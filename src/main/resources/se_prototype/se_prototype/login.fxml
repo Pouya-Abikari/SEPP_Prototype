@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+
+<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="se_prototype.se_prototype.LoginController" style="-fx-background-color: #D6E2D3;">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+    </padding>
+
+    <!-- Logo -->
+    <BorderPane>
+        <center>
+            <ImageView fx:id="logo"/>
+        </center>
+    </BorderPane>
+
+    <!-- Login Form -->
+    <VBox spacing="10.0" alignment="CENTER">
+        <Label text="Sign In" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+        <TextField fx:id="usernameField" promptText="Email"
+                   style="-fx-pref-width: 300; -fx-pref-height: 40;"/>
+        <PasswordField fx:id="passwordField" promptText="Password" managed="true"
+                       style="-fx-pref-width: 300; -fx-pref-height: 40;"/>
+        <TextField fx:id="visiblePasswordField" promptText="Password" visible="false" managed="false"
+                   style="-fx-pref-width: 300; -fx-pref-height: 40;"/>
+
+        <CheckBox fx:id="showPasswordCheckBox" text="Show Password" onAction="#togglePasswordVisibility"/>
+
+        <Button text="Sign in" onAction="#handleLogin"
+                style="-fx-background-color: #5AA469; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"
+                prefWidth="375" prefHeight="35"/>
+
+        <!-- Forgot Password and Sign Up Section -->
+        <HBox spacing="10" alignment="CENTER">
+            <Button text="Forgot password" onAction="#forgotPassword"
+                    style="-fx-background-color: transparent; -fx-text-fill: gray;"/>
+            <Region fx:id="spacer" />
+            <Button text="Sign up" onAction="#switchToSignup"
+                    style="-fx-background-color: transparent; -fx-text-fill: gray;"/>
+        </HBox>
+
+    </VBox>
+</VBox>
