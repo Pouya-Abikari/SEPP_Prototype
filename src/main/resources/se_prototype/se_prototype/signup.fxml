@@ -39,7 +39,6 @@
                 prefWidth="375" prefHeight="35"/>
 
         <HBox spacing="10" alignment="CENTER">
-            <Region fx:id="spacer" />
             <Button fx:id="backButton" text="Back to Login" onAction="#switchToLogin"
                     style="-fx-background-color: transparent; -fx-text-fill: gray;"/>
         </HBox>
