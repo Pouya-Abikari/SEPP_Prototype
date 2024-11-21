@@ -2,11 +2,17 @@ package se_prototype.se_prototype;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.geometry.*;
 import java.util.List;
 
 public class MenuController {
+
+    @FXML
+    private final DataBaseConnection connectNow = new DataBaseConnection();
+    public ImageView basket;
 
     @FXML
     private VBox productContainer;
@@ -28,7 +34,9 @@ public class MenuController {
     @FXML
     public void initialize() {
         loadProducts();
+        setupBasketImage();
         checkoutButton.setOnAction(event -> handleCheckout());
+        connectNow.get_connection();
     }
 
     private void loadProducts() {
@@ -76,6 +84,20 @@ public class MenuController {
         alert.setHeaderText("Basket Summary");
         alert.setContentText("You have " + basketCount + " items in your basket.");
         alert.showAndWait();
+    }
+
+    @FXML
+    private void setupBasketImage() {
+        try {
+            // Correct the resource path
+            Image image = new Image(getClass().getResourceAsStream("/basket.png")); // Adjust path if img.png is in a subfolder
+            basket.setImage(image);
+            basket.setFitWidth(30); // Adjust as needed
+            basket.setPreserveRatio(true);
+        } catch (Exception e) {
+            System.err.println("Error loading image: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     // Simple Product Class
