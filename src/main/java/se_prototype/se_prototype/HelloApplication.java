@@ -13,7 +13,7 @@ import java.util.Objects;
 public class HelloApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("home_screen.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("message.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 400, 711);
         stage.setTitle("SSH APP");
         stage.setScene(scene);

@@ -58,6 +58,7 @@ public class HomeScreenController {
             messageImgView.setFitWidth(33);
             messageImgView.setFitHeight(33);
             messageButton.setGraphic(messageImgView);
+            messageButton.setOnMouseClicked(event -> switchToPage("message.fxml", "Message"));
 
             // Load and set the notification button image
             Image notificationImg = new Image(getClass().getResourceAsStream("/notificationButton.png"));
