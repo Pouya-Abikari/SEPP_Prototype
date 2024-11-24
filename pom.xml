@@ -26,13 +26,6 @@
             <artifactId>javafx-fxml</artifactId>
             <version>23.0.1</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.xerial</groupId>
-            <artifactId>sqlite-jdbc</artifactId>
-            <version>3.47.0.0</version>
-        </dependency>
-
         <!-- JUnit Dependencies -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
