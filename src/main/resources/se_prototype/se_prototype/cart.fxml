@@ -30,7 +30,6 @@
         </ScrollPane>
     </center>
 
-
     <!-- Delivery Details and Action Buttons -->
     <bottom>
         <VBox spacing="15" alignment="CENTER" style="-fx-padding: 10;">
