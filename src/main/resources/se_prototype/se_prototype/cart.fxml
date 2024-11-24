@@ -32,7 +32,7 @@
 
     <!-- Delivery Details and Action Buttons -->
     <bottom>
-        <VBox spacing="15" alignment="CENTER" style="-fx-padding: 10;">
+        <VBox spacing="15" alignment="CENTER">
             <!-- Delivery Details -->
             <VBox spacing="15" alignment="TOP_LEFT"
                   style="-fx-background-color: white; -fx-border-radius: 16; -fx-padding: 20; -fx-border-color: #D9D9D9; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0);">
@@ -62,29 +62,31 @@
                         style="-fx-background-color: #5EC401; -fx-font-size: 14px; -fx-text-fill: white; -fx-border-radius: 8; -fx-padding: 10;" />
             </VBox>
 
-
             <!-- Bottom Navigation Bar -->
-            <HBox spacing="30" alignment="CENTER" style="-fx-background-color: #FFFFFF; -fx-padding: 10; -fx-border-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0);">
+            <HBox spacing="45" alignment="CENTER" style="-fx-background-color: #FFFFFF; -fx-padding: 10; -fx-border-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0);">
                 <!-- Home Icon -->
                 <VBox alignment="CENTER" spacing="5">
-                    <ImageView fx:id="homeIcon" fitWidth="24" fitHeight="24" preserveRatio="true" />
+                    <SVGPath content="M11.1979 14.655V19.655C11.1979 20.205 10.7479 20.655 10.1979 20.655H6.19785C5.64785 20.655 5.19785 20.205 5.19785 19.655V12.655H3.49785C3.03785 12.655 2.82785 12.085 3.16785 11.785L11.5279 4.255C11.9079 3.915 12.4879 3.915 12.8679 4.255L21.2279 11.785C21.5779 12.085 21.3579 12.655 20.8979 12.655H19.1979V19.655C19.1979 20.205 18.7479 20.655 18.1979 20.655H14.1979C13.6479 20.655 13.1979 20.205 13.1979 19.655V14.655H11.1979ZM17.1979 11.0677C17.1979 10.9259 17.1377 10.7909 17.0323 10.696L12.5323 6.64603C12.3422 6.4749 12.0535 6.4749 11.8634 6.64603L7.36337 10.696C7.25801 10.7909 7.19785 10.9259 7.19785 11.0677V18.155C7.19785 18.4311 7.42171 18.655 7.69785 18.655H8.69785C8.97399 18.655 9.19785 18.4311 9.19785 18.155V12.655H15.1979V18.155C15.1979 18.4311 15.4217 18.655 15.6979 18.655H16.6979C16.974 18.655 17.1979 18.4311 17.1979 18.155V11.0677Z"
+                             fill="#37474F" scaleX="1" scaleY="1" />
                 </VBox>
 
-                <!-- Categories Icon -->
-                <VBox alignment="CENTER" spacing="5">
-                    <ImageView fx:id="categoriesIcon" fitWidth="24" fitHeight="24" preserveRatio="true" />
+                <!-- Menu Icon -->
+                <VBox alignment="CENTER" spacing="5" onMouseClicked="#navigateToMenuPage" fx:id="menuIcon">
+                    <SVGPath content="M10 13H4C3.45 13 3 12.55 3 12V4C3 3.45 3.45 3 4 3H10C10.55 3 11 3.45 11 4V12C11 12.55 10.55 13 10 13ZM19 13H15V19H19V13ZM4 21H10C10.55 21 11 20.55 11 20V16C11 15.45 10.55 15 10 15H4C3.45 15 3 15.45 3 16V20C3 20.55 3.45 21 4 21ZM9 19V17H5V19H9ZM14 21H20C20.55 21 21 20.55 21 20V12C21 11.45 20.55 11 20 11H14C13.45 11 13 11.45 13 12V20C13 20.55 13.45 21 14 21ZM9 11V5H5V11H9ZM13 4V8C13 8.55 13.45 9 14 9H20C20.55 9 21 8.55 21 8V4C21 3.45 20.55 3 20 3H14C13.45 3 13 3.45 13 4ZM19 7V5H15V7H19Z"
+                             fill="#37474F" scaleX="1" scaleY="1" />
                 </VBox>
 
                 <!-- Center Cart Icon with Highlight -->
                 <StackPane alignment="CENTER">
-                    <Circle radius="25" fill="#5EC401" />
+                    <Circle radius="23" fill="#5EC401" />
                     <SVGPath content="M19.9796 20.5656C20.124 20.4055 20.1933 20.1919 20.1709 19.9779L20.1709 19.9779L18.678 5.76163L18.678 5.76159C18.6373 5.37497 18.3114 5.08132 17.9225 5.08132H15.2917V4.61659C15.2917 2.52582 13.5908 0.825 11.5001 0.825C9.40916 0.825 7.70833 2.52582 7.70833 4.61659V5.08132H5.07746C4.68858 5.08132 4.36267 5.37497 4.32199 5.76159L4.32198 5.76163L2.82913 19.9779L2.82912 19.9779C2.80673 20.192 2.87625 20.4055 3.02004 20.5654L3.02019 20.5656C3.16426 20.7254 3.36944 20.8167 3.58461 20.8167H19.4152C19.6305 20.8167 19.8357 20.7255 19.9796 20.5656ZM19.9796 20.5656L19.8497 20.4484M19.9796 20.5656C19.9797 20.5656 19.9797 20.5655 19.9797 20.5655L19.8497 20.4484M19.8497 20.4484C19.7389 20.5714 19.581 20.6417 19.4152 20.6417H3.58461C3.41902 20.6417 3.26107 20.5714 3.15018 20.4484L19.9968 19.9961C20.0141 20.1608 19.9607 20.3252 19.8497 20.4484ZM9.2275 4.61659C9.2275 3.3638 10.2471 2.34416 11.5001 2.34416C12.7529 2.34416 13.7725 3.3638 13.7725 4.61659V5.08132H9.2275V4.61659ZM17.2385 6.60048L18.5719 19.2976H4.42812L5.76148 6.60048H7.70833V7.71378C7.70833 8.13322 8.04848 8.47336 8.46792 8.47336C8.88735 8.47336 9.2275 8.13322 9.2275 7.71378V6.60048H13.7725V7.71378C13.7725 8.13322 14.1126 8.47336 14.5321 8.47336C14.9515 8.47336 15.2917 8.13322 15.2917 7.71378V6.60048H17.2385Z"
-                             fill="white" stroke="white" style="-fx-scale-x: 1; -fx-scale-y: 1;" />
+                             fill="white" stroke="white" scaleX="1" scaleY="1" />
                 </StackPane>
 
                 <!-- More Icon -->
                 <VBox alignment="CENTER" spacing="5">
-                    <ImageView fx:id="moreIcon" fitWidth="24" fitHeight="24" preserveRatio="true" />
+                    <SVGPath content="M4 8C3.45 8 3 7.55 3 7C3 6.45 3.45 6 4 6H20C20.55 6 21 6.45 21 7C21 7.55 20.55 8 20 8H4ZM4 13H20C20.55 13 21 12.55 21 12C21 11.45 20.55 11 20 11H4C3.45 11 3 11.45 3 12C3 12.55 3.45 13 4 13ZM4 18H20C20.55 18 21 17.55 21 17C21 16.45 20.55 16 20 16H4C3.45 16 3 16.45 3 17C3 17.55 3.45 18 4 18Z"
+                             fill="#37474F" scaleX="1" scaleY="1" />
                 </VBox>
             </HBox>
         </VBox>

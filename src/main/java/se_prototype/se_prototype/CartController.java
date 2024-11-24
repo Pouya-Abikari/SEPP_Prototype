@@ -1,6 +1,8 @@
 package se_prototype.se_prototype;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -8,13 +10,18 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import se_prototype.se_prototype.Model.Product;
+import java.io.IOException;
 import java.util.List;
 
 public class CartController {
 
     @FXML
     private VBox productContainer;
+
+    @FXML
+    private VBox menuIcon;
 
     private final List<Product> products = List.of(
             new Product("Tomatoes", "Fresh tomatoes from Fresh Farms", 1.20, "tomatoes.png"),
@@ -95,5 +102,18 @@ public class CartController {
         productBox.getChildren().addAll(productImage, productDetails, spacer, quantityControls);
 
         return productBox;
+    }
+
+    @FXML
+    private void navigateToMenuPage() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/se_prototype/se_prototype/menu.fxml"));
+            Scene signupScene = new Scene(loader.load(), 400, 711);
+            Stage stage = (Stage) menuIcon.getScene().getWindow();
+            stage.setScene(signupScene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
