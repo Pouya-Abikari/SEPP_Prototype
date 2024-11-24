@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="se_prototype.se_prototype.MessageController"
+            prefHeight="600.0" prefWidth="400.0"
+            style="-fx-background-color: #F5F5F5;">
+    <!-- Top Section -->
+    <top>
+        <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 10; -fx-background-color: white; -fx-border-color: #CCCCCC;">
+            <Button fx:id="backButton" style="-fx-background-color: transparent; -fx-padding: 0;">
+                <ImageView fitWidth="30" fitHeight="30" pickOnBounds="true" preserveRatio="true">
+                    <Image url="@backIcon.png"/>
+                </ImageView>
+            </Button>
+            <Label text="Message" style="-fx-font-size: 20; -fx-text-fill: #1E1E1E; -fx-font-weight: bold;"/>
+        </HBox>
+    </top>
+
+    <!-- Center Section -->
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;" fx:id="scrollPane">
+            <VBox fx:id="chatContainer" spacing="10" style="-fx-padding: 10;"/>
+        </ScrollPane>
+    </center>
+
+    <!-- Bottom Section -->
+    <bottom>
+        <HBox spacing="10" alignment="CENTER" style="-fx-padding: 10; -fx-background-color: white;">
+            <TextField fx:id="messageField" promptText="Write Message" style="-fx-background-radius: 20; -fx-border-radius: 20; -fx-border-color: #CCCCCC;"/>
+            <Button style="-fx-background-color: transparent; -fx-padding: 0;">
+                <ImageView fitWidth="25" fitHeight="25" pickOnBounds="true" preserveRatio="true">
+                    <Image url="@cameraIcon.png"/>
+                </ImageView>
+            </Button>
+            <Button style="-fx-background-color: transparent; -fx-padding: 0;">
+                <ImageView fitWidth="25" fitHeight="25" pickOnBounds="true" preserveRatio="true">
+                    <Image url="@attachmentIcon.png"/>
+                </ImageView>
+            </Button>
+            <Button fx:id="sendButton" style="-fx-background-color: #5EC401; -fx-background-radius: 50;">
+                <ImageView fitWidth="25" fitHeight="25" pickOnBounds="true" preserveRatio="true">
+                    <Image url="@sendIcon.png"/>
+                </ImageView>
+            </Button>
+        </HBox>
+    </bottom>
+</BorderPane>
