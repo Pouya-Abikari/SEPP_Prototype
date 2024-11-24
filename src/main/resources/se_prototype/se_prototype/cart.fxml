@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.shape.Circle?>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="se_prototype.se_prototype.CartController"
+            prefWidth="400"
+            prefHeight="711"
+            style="-fx-background-color: #F5F5F5;">
+
+    <!-- Header -->
+    <top>
+        <VBox alignment="CENTER" style="-fx-background-color: #37474F; -fx-padding: 20;">
+            <Label text="Cart"
+                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;" />
+        </VBox>
+    </top>
+
+    <!-- Scrollable Product List -->
+    <center>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" style="-fx-background-color: transparent;">
+            <VBox fx:id="productContainer" spacing="10" alignment="TOP_LEFT"
+                  style="-fx-padding: 10; -fx-spacing: 15;" />
+        </ScrollPane>
+    </center>
+
+
+    <!-- Delivery Details and Action Buttons -->
+    <bottom>
+        <VBox spacing="15" alignment="CENTER" style="-fx-padding: 10;">
+            <!-- Delivery Details -->
+            <VBox spacing="15" alignment="TOP_LEFT"
+                  style="-fx-background-color: white; -fx-border-radius: 16; -fx-padding: 20; -fx-border-color: #D9D9D9; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0);">
+                <Label text="Delivery Location" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <ImageView fitWidth="24" fitHeight="24" preserveRatio="true" style="-fx-background-color: #5EC401; -fx-border-radius: 50%;" />
+                    <Label text="Floor 4, Wakil Tower, Ta 131 Gulshan Badda Link Road"
+                           style="-fx-font-size: 14px; -fx-text-fill: #757575;" />
+                    <Region />
+                    <Hyperlink text="Change" style="-fx-font-size: 14px; -fx-text-fill: #5EC401;" />
+                </HBox>
+
+                <Separator />
+
+                <Label text="Subtotal: BDT362" style="-fx-font-size: 14px; -fx-text-fill: #37474F;" />
+                <Label text="Delivery Charge: BDT50" style="-fx-font-size: 14px; -fx-text-fill: #37474F;" />
+                <Label text="Total: BDT412" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+            </VBox>
+
+            <!-- Action Buttons -->
+            <VBox spacing="10" alignment="CENTER">
+                <Button text="Start Group Order"
+                        style="-fx-background-color: #FFC107; -fx-font-size: 14px; -fx-text-fill: white; -fx-border-radius: 8; -fx-padding: 10;" />
+                <Button text="Join Group Order"
+                        style="-fx-background-color: #FFC107; -fx-font-size: 14px; -fx-text-fill: white; -fx-border-radius: 8; -fx-padding: 10;" />
+                <Button text="Place Solo Order"
+                        style="-fx-background-color: #5EC401; -fx-font-size: 14px; -fx-text-fill: white; -fx-border-radius: 8; -fx-padding: 10;" />
+            </VBox>
+
+
+            <!-- Bottom Navigation Bar -->
+            <HBox spacing="30" alignment="CENTER" style="-fx-background-color: #FFFFFF; -fx-padding: 10; -fx-border-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0);">
+                <!-- Home Icon -->
+                <VBox alignment="CENTER" spacing="5">
+                    <ImageView fx:id="homeIcon" fitWidth="24" fitHeight="24" preserveRatio="true" />
+                </VBox>
+
+                <!-- Categories Icon -->
+                <VBox alignment="CENTER" spacing="5">
+                    <ImageView fx:id="categoriesIcon" fitWidth="24" fitHeight="24" preserveRatio="true" />
+                </VBox>
+
+                <!-- Center Cart Icon with Highlight -->
+                <StackPane alignment="CENTER">
+                    <Circle radius="25" fill="#5EC401" />
+                    <SVGPath content="M19.9796 20.5656C20.124 20.4055 20.1933 20.1919 20.1709 19.9779L20.1709 19.9779L18.678 5.76163L18.678 5.76159C18.6373 5.37497 18.3114 5.08132 17.9225 5.08132H15.2917V4.61659C15.2917 2.52582 13.5908 0.825 11.5001 0.825C9.40916 0.825 7.70833 2.52582 7.70833 4.61659V5.08132H5.07746C4.68858 5.08132 4.36267 5.37497 4.32199 5.76159L4.32198 5.76163L2.82913 19.9779L2.82912 19.9779C2.80673 20.192 2.87625 20.4055 3.02004 20.5654L3.02019 20.5656C3.16426 20.7254 3.36944 20.8167 3.58461 20.8167H19.4152C19.6305 20.8167 19.8357 20.7255 19.9796 20.5656ZM19.9796 20.5656L19.8497 20.4484M19.9796 20.5656C19.9797 20.5656 19.9797 20.5655 19.9797 20.5655L19.8497 20.4484M19.8497 20.4484C19.7389 20.5714 19.581 20.6417 19.4152 20.6417H3.58461C3.41902 20.6417 3.26107 20.5714 3.15018 20.4484L19.9968 19.9961C20.0141 20.1608 19.9607 20.3252 19.8497 20.4484ZM9.2275 4.61659C9.2275 3.3638 10.2471 2.34416 11.5001 2.34416C12.7529 2.34416 13.7725 3.3638 13.7725 4.61659V5.08132H9.2275V4.61659ZM17.2385 6.60048L18.5719 19.2976H4.42812L5.76148 6.60048H7.70833V7.71378C7.70833 8.13322 8.04848 8.47336 8.46792 8.47336C8.88735 8.47336 9.2275 8.13322 9.2275 7.71378V6.60048H13.7725V7.71378C13.7725 8.13322 14.1126 8.47336 14.5321 8.47336C14.9515 8.47336 15.2917 8.13322 15.2917 7.71378V6.60048H17.2385Z"
+                             fill="white" stroke="white" style="-fx-scale-x: 1; -fx-scale-y: 1;" />
+                </StackPane>
+
+                <!-- More Icon -->
+                <VBox alignment="CENTER" spacing="5">
+                    <ImageView fx:id="moreIcon" fitWidth="24" fitHeight="24" preserveRatio="true" />
+                </VBox>
+            </HBox>
+        </VBox>
+    </bottom>
+</BorderPane>

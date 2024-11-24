@@ -11,6 +11,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class LoginController {
+
     @FXML
     private ImageView logo;
 
@@ -26,43 +27,36 @@ public class LoginController {
     @FXML
     private CheckBox showPasswordCheckBox;
 
-    private final String correctEmail = "johndoe@mail.com";
-    private final String correctPassword = "password1";
-
     @FXML
     private void handleLogin() {
         String enteredEmail = usernameField.getText();
-        String enteredPassword = passwordField.getText();
-        String enteredVisiblePassword = visiblePasswordField.getText();
+        String enteredPassword = passwordField.isVisible() ? passwordField.getText() : visiblePasswordField.getText();
 
-        if (enteredEmail.equals(correctEmail) && enteredPassword.equals(correctPassword) || enteredEmail.equals(correctEmail) && enteredVisiblePassword.equals(correctPassword)) {
-            // Login successful, navigate to the home_screen
+        if (enteredEmail.isEmpty() || enteredPassword.isEmpty()) {
+            showErrorAlert("Please fill in all fields!");
+            return;
+        }
+
+        String correctEmail = "johndoe@mail.com";
+        String correctPassword = "password1";
+
+        if (enteredEmail.equals(correctEmail) && enteredPassword.equals(correctPassword)) {
             navigateToHomeScreen();
         } else {
-            // Show an error message
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Invalid email or password!", ButtonType.OK);
-            alert.setHeaderText("Error");
-            alert.showAndWait();
+            showErrorAlert("Invalid email or password!");
         }
     }
 
     private void navigateToHomeScreen() {
         try {
-            // Load the home_screen FXML using the correct path
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/se_prototype/se_prototype/home_screen.fxml"));
-
-            if (loader.getLocation() == null) {
-                throw new IOException("FXML file not found at: /se_prototype/se_prototype/home_screen.fxml");
-            }
-
-            Scene homeScene = new Scene(loader.load(),400, 711);
+            Scene homeScene = new Scene(loader.load(), 400, 711);
             Stage stage = (Stage) usernameField.getScene().getWindow();
             stage.setScene(homeScene);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to load the home screen.", ButtonType.OK);
-            alert.showAndWait();
+            showErrorAlert("Failed to load the home screen.");
         }
     }
 
@@ -74,20 +68,18 @@ public class LoginController {
     @FXML
     private void setupLogo() {
         try {
-            // Correct the resource path
-            Image image = new Image(getClass().getResourceAsStream("/img.png")); // Adjust path if img.png is in a subfolder
+            Image image = new Image(getClass().getResourceAsStream("/img.png"));
             logo.setImage(image);
-            logo.setFitWidth(300); // Adjust as needed
+            logo.setFitWidth(300);
             logo.setPreserveRatio(true);
         } catch (Exception e) {
-            System.err.println("Error loading image: " + e.getMessage());
+            System.err.println("Error loading logo image: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     @FXML
     private void togglePasswordVisibility() {
-        // Toggle password visibility
         boolean showPassword = showPasswordCheckBox.isSelected();
         if (showPassword) {
             visiblePasswordField.setText(passwordField.getText());
@@ -106,13 +98,35 @@ public class LoginController {
 
     @FXML
     private void switchToSignup() {
-        // Switch to the signup view
-        System.out.println("Switching to signup view");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/se_prototype/se_prototype/signup.fxml"));
+            Scene signupScene = new Scene(loader.load(), 400, 711);
+            Stage stage = (Stage) usernameField.getScene().getWindow();
+            stage.setScene(signupScene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showErrorAlert("Failed to load the sign-up screen.");
+        }
     }
 
     @FXML
     private void forgotPassword() {
-        // Handle forgot password functionality
-        System.out.println("Forgot password clicked");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/se_prototype/se_prototype/forgot_pw.fxml"));
+            Scene forgotPasswordScene = new Scene(loader.load(), 400, 711);
+            Stage stage = (Stage) usernameField.getScene().getWindow();
+            stage.setScene(forgotPasswordScene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showErrorAlert("Failed to load the forgot password screen.");
+        }
+    }
+
+    private void showErrorAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);
+        alert.setHeaderText("Error");
+        alert.showAndWait();
     }
 }
