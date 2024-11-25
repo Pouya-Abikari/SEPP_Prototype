@@ -15,6 +15,7 @@ public class HelloApplication extends Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("cart.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 400, 711);
+        scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
         stage.setTitle("SSH APP");
         stage.setScene(scene);
         stage.show();

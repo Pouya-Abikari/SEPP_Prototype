@@ -2,104 +2,201 @@ package se_prototype.se_prototype;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import se_prototype.se_prototype.Model.Product;
-import java.io.IOException;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CartController {
 
     @FXML
     private VBox productContainer;
-
+    @FXML
+    private Label totalPriceLabel;
+    @FXML
+    private Label totalItemsLabel;
     @FXML
     private VBox menuIcon;
 
-    private final List<Product> products = List.of(
-            new Product("Tomatoes", "Fresh tomatoes from Fresh Farms", 1.20, "tomatoes.png"),
-            new Product("Celery", "Crunchy celery from Fresh Farms", 0.95, "celery.png"),
-            new Product("Onion", "Organic onions from Green Growers", 0.85, "onion.png"),
-            new Product("Potatoes", "Fresh potatoes from Green Growers", 0.65, "potatoes.png"),
-            new Product("Lettuce", "Crisp lettuce from Green Growers", 1.10, "lettuce.png"),
-            new Product("Bananas", "Sweet bananas from Tropical Harvest", 0.70, "bananas.png"),
-            new Product("Apples", "Juicy apples from Tropical Harvest", 1.50, "apples.png"),
-            new Product("Oranges", "Fresh oranges from Citrus Direct", 1.30, "oranges.png"),
-            new Product("Grapes", "Sweet grapes from Citrus Direct", 2.00, "grapes.png"),
-            new Product("Milk", "Fresh milk from Dairyland Supply", 1.25, "milk.png"),
-            new Product("Cheese", "Delicious cheese from Dairyland Supply", 2.50, "cheese.png"),
-            new Product("Butter", "Creamy butter from Dairyland Supply", 1.75, "butter.png"),
-            new Product("Yogurt", "Healthy yogurt from Healthy Creamery", 0.80, "yogurt.png"),
-            new Product("Eggs", "Farm fresh eggs from Healthy Creamery", 3.00, "eggs.png"),
-            new Product("Chicken Breast", "Tender chicken breast from Farm Fresh Meats", 4.00, "chicken_breast.png"),
-            new Product("Ground Beef", "Premium ground beef from Farm Fresh Meats", 5.50, "ground_beef.png"),
-            new Product("Pork Chops", "Juicy pork chops from Butcher's Best", 4.75, "pork_chops.png"),
-            new Product("Salmon Fillet", "Fresh salmon fillet from Ocean's Harvest", 10.00, "salmon_fillet.png"),
-            new Product("Shrimp", "Delicious shrimp from Ocean's Harvest", 12.00, "shrimp.png"),
-            new Product("Bread", "Freshly baked bread from Baker's Delight", 2.00, "bread.png"),
-            new Product("Croissant", "Buttery croissants from Baker's Delight", 1.50, "croissant.png"),
-            new Product("Cereal", "Nutritious cereal from Pantry Provisions", 3.25, "cereal.png"),
-            new Product("Pasta", "High-quality pasta from Pantry Provisions", 1.80, "pasta.png"),
-            new Product("Olive Oil", "Premium olive oil from Gourmet Supplies", 6.50, "olive_oil.png"),
-            new Product("Coffee Beans", "Rich coffee beans from Gourmet Supplies", 8.00, "coffee_beans.png")
-    );
+    private final String CART_FILE = "src/main/resources/cart.txt";
 
     @FXML
     public void initialize() {
-        loadProducts();
+        loadCartFromFile();
+        updateCartSummary();
     }
 
-    private void loadProducts() {
+    private void loadCartFromFile() {
         productContainer.getChildren().clear();
-
-        for (Product product : products) {
-            HBox productBox = createProductNode(product);
-            productContainer.getChildren().add(productBox);
+        List<String[]> products = readCartFile();
+        for (String[] productData : products) {
+            String name = productData[0];
+            String description = productData[1];
+            double price = Double.parseDouble(productData[2]);
+            String imageUrl = productData[3];
+            double discount = Double.parseDouble(productData[4]);
+            int quantity = Integer.parseInt(productData[5]);
+            productContainer.getChildren().add(createProductNode(name, description, price, imageUrl, discount, quantity));
         }
     }
 
-    private HBox createProductNode(Product product) {
-        HBox productBox = new HBox(10);
-        productBox.setStyle("-fx-padding: 10; -fx-background-color: white; -fx-border-radius: 8; -fx-border-color: #D9D9D9;");
-        productBox.setSpacing(10);
+    private void updateQuantity(String name, int delta, Label quantityLabel) {
+        List<String[]> products = readCartFile();
+        for (String[] productData : products) {
+            if (productData[0].equals(name)) {
+                int quantity = Integer.parseInt(productData[5]) + delta;
+                if (quantity > 0) {
+                    productData[5] = String.valueOf(quantity);
+                    quantityLabel.setText(String.valueOf(quantity));
+                }
+            }
+        }
+        writeCartFile(products);
+        updateCartSummary();
+    }
 
-        // Product Image
-        ImageView productImage = new ImageView(new Image(product.getImageUrl()));
+    private void updateCartSummary() {
+        List<String[]> products = readCartFile();
+        int totalItems = 0;
+        double totalPrice = 0;
+        for (String[] productData : products) {
+            int quantity = Integer.parseInt(productData[5]);
+            double price = Double.parseDouble(productData[2]);
+            double discount = Double.parseDouble(productData[4]);
+
+            totalItems += quantity;
+            totalPrice += quantity * (price - (price * discount / 100));
+        }
+        totalItemsLabel.setText("Total Items: " + totalItems);
+        totalPriceLabel.setText("Total Price: $" + String.format("%.2f", totalPrice));
+    }
+
+    private List<String[]> readCartFile() {
+        List<String[]> products = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(CART_FILE))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                products.add(line.split(","));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return products;
+    }
+
+    private void writeCartFile(List<String[]> products) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(CART_FILE))) {
+            for (String[] productData : products) {
+                writer.write(String.join(",", productData));
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private HBox createProductNode(String name, String description, double price, String imageUrl, double discount, int quantity) {
+        HBox productBox = new HBox(10);
+        productBox.setStyle("-fx-padding: 10; -fx-background-color: white; -fx-border-radius: 8; -fx-background-radius: 8;");
+        productBox.setAlignment(Pos.CENTER_LEFT);
+
+        // Product Image with Badge
+        StackPane imageContainer = new StackPane();
+        imageContainer.setPrefSize(60, 60);
+
+        ImageView productImage = new ImageView(new Image(imageUrl));
         productImage.setFitWidth(60);
         productImage.setFitHeight(60);
         productImage.setPreserveRatio(true);
+        productImage.setStyle("-fx-border-radius: 8;");
+
+        if (discount > 0) {
+            Label badge = new Label((int) discount + "% OFF");
+            badge.setStyle("-fx-background-color: #FF6B6B; -fx-text-fill: white; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 4; -fx-border-radius: 50;");
+            StackPane.setAlignment(badge, Pos.TOP_LEFT);
+            StackPane.setMargin(badge, new Insets(5, 0, 0, 5));
+            imageContainer.getChildren().addAll(productImage, badge);
+        } else {
+            imageContainer.getChildren().add(productImage);
+        }
 
         // Product Details
-        VBox productDetails = new VBox(5);
-        Label productName = new Label(product.getName());
-        productName.setStyle("-fx-font-size: 14px; -fx-text-fill: #37474F;");
-        Label productPrice = new Label();
-        productPrice.setStyle("-fx-font-size: 12px; -fx-text-fill: #757575; -fx-strikethrough: true;");
-        Label productDiscountPrice = new Label(product.getDiscountPrice(20));
+        VBox productDetails = new VBox(3);
+        productDetails.setAlignment(Pos.CENTER_LEFT);
+
+        Label productName = new Label(name);
+        productName.setStyle("-fx-font-size: 14px; -fx-text-fill: #37474F; -fx-font-weight: bold;");
+
+        // Old Price Label
+        Label oldPrice = null;
+        if (discount > 0) {
+            oldPrice = new Label("$" + String.format("%.2f", price));
+            oldPrice.setStyle("-fx-font-size: 12px; -fx-text-fill: #757575; -fx-strikethrough: true;");
+        }
+
+        // Discounted Price
+        Label productDiscountPrice = new Label("$" + String.format("%.2f", price - (price * discount / 100)));
         productDiscountPrice.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FF6B6B;");
-        productDetails.getChildren().addAll(productName, productPrice, productDiscountPrice);
+
+        // Total Price Label
+        Label totalPriceLabel = new Label("(Total: $" + String.format("%.2f", (price - (price * discount / 100)) * quantity) + ")");
+        totalPriceLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #37474F;");
+
+        // Add components to product details
+        productDetails.getChildren().add(productName);
+        if (oldPrice != null) {
+            productDetails.getChildren().add(oldPrice);
+        }
+        productDetails.getChildren().addAll(productDiscountPrice, totalPriceLabel);
 
         // Quantity Controls
         HBox quantityControls = new HBox(5);
+        quantityControls.setAlignment(Pos.CENTER);
+
         Button decreaseButton = new Button("-");
-        decreaseButton.setStyle("-fx-background-color: #FF6B6B; -fx-text-fill: white; -fx-font-weight: bold; -fx-border-radius: 8;");
-        Label quantityLabel = new Label("1");
+        decreaseButton.setStyle("-fx-background-color: #FF6B6B; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-border-radius: 8;");
+        decreaseButton.setPrefSize(30, 30);
+
+        Label quantityLabel = new Label(String.valueOf(quantity));
         quantityLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #37474F;");
+
         Button increaseButton = new Button("+");
-        increaseButton.setStyle("-fx-background-color: #5EC401; -fx-text-fill: white; -fx-font-weight: bold; -fx-border-radius: 8;");
+        increaseButton.setStyle("-fx-background-color: #5EC401; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-border-radius: 8;");
+        increaseButton.setPrefSize(30, 30);
+
+        // Update the quantity and total price on button clicks
+        decreaseButton.setOnAction(e -> {
+            if (Integer.parseInt(quantityLabel.getText()) > 1) {
+                int newQuantity = Integer.parseInt(quantityLabel.getText()) - 1;
+                quantityLabel.setText(String.valueOf(newQuantity));
+                totalPriceLabel.setText("(Total: $" + String.format("%.2f", (price - (price * discount / 100)) * newQuantity) + ")");
+                updateQuantity(name, -1, quantityLabel);
+            }
+        });
+
+        increaseButton.setOnAction(e -> {
+            int newQuantity = Integer.parseInt(quantityLabel.getText()) + 1;
+            quantityLabel.setText(String.valueOf(newQuantity));
+            totalPriceLabel.setText("(Total: $" + String.format("%.2f", (price - (price * discount / 100)) * newQuantity) + ")");
+            updateQuantity(name, 1, quantityLabel);
+        });
+
         quantityControls.getChildren().addAll(decreaseButton, quantityLabel, increaseButton);
 
+        // Spacer for Alignment
         Region spacer = new Region();
-        spacer.setMinWidth(Region.USE_COMPUTED_SIZE);
+        HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        productBox.getChildren().addAll(productImage, productDetails, spacer, quantityControls);
+        // Add elements to the product box
+        productBox.getChildren().addAll(imageContainer, productDetails, spacer, quantityControls);
 
         return productBox;
     }
@@ -108,6 +205,32 @@ public class CartController {
     private void navigateToMenuPage() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/se_prototype/se_prototype/menu.fxml"));
+            Scene signupScene = new Scene(loader.load(), 400, 711);
+            Stage stage = (Stage) menuIcon.getScene().getWindow();
+            stage.setScene(signupScene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void navigateToHome() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/se_prototype/se_prototype/home_screen.fxml"));
+            Scene signupScene = new Scene(loader.load(), 400, 711);
+            Stage stage = (Stage) menuIcon.getScene().getWindow();
+            stage.setScene(signupScene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void navigateToSettings() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/se_prototype/se_prototype/settings.fxml"));
             Scene signupScene = new Scene(loader.load(), 400, 711);
             Stage stage = (Stage) menuIcon.getScene().getWindow();
             stage.setScene(signupScene);

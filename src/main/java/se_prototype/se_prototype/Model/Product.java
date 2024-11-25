@@ -5,12 +5,16 @@ public class Product {
     private String description;
     private double price;
     private String imageUrl;
+    private double discount;
+    private int quantity;
 
-    public Product(String name, String description, double price, String imageUrl) {
+    public Product(String name, String description, double price, String imageUrl, double discount, int quantity) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.imageUrl = imageUrl;
+        this.discount = discount;
+        this.quantity = quantity;
     }
 
     public String getName() {
@@ -38,5 +42,25 @@ public class Product {
             double discountedPrice = price - (price * discount / 100);
             return String.format("$%.2f", discountedPrice);
         }
+    }
+
+    public boolean hasDiscount() {
+        return discount > 0;
+    }
+
+    public double getDiscountedPrice() {
+        return price - (price * discount / 100);
+    }
+
+    public String getDiscountBadge() {
+        return (int) discount + "% OFF";
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 }
