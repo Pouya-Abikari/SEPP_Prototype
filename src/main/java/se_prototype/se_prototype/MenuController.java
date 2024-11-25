@@ -1,6 +1,8 @@
 package se_prototype.se_prototype;
 
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
@@ -35,6 +37,17 @@ public class MenuController {
     @FXML
     private GridPane menuGrid;
 
+
+    @FXML
+    private Button homeButton;
+    @FXML
+    private Button menuButton;
+    @FXML
+    private Button cartButton;
+    @FXML
+    private Button settingsButton;
+
+
     @FXML
     private HBox locationContainer;
 
@@ -43,20 +56,81 @@ public class MenuController {
         locationContainer.getChildren().add(0, svgIcon);
         locationContainer.setOnMouseClicked(this::onLocationBoxClick);
         List<Product> products = List.of(
-                new Product("Fruits & Vegetables", "Fresh fruits and veggies", 5.0, "mango.png", 0 , 1),
+                new Product("Fruits & Vegetables", "Fresh fruits and veggies", 5.0, "Fruits&Vegetables/mango.png", 0 , 1),
                 new Product("Breakfast", "Start your day right", 10.0, "breakfast.png", 0, 1),
                 new Product("Beverages", "Quench your thirst", 3.0, "beverages.png", 0,1),
                 new Product("Meat & Fish", "Freshly sourced", 15.0, "meat.png",0,1),
                 new Product("Snacks", "Delicious treats", 2.0, "snacks.png",0,1),
                 new Product("Dairy", "Milk and dairy products", 4.0, "milk.png",0,1),
-                new Product("Frozen Foods", "Quick and convenient meals", 7.0, "milk.png",0,1),
-                new Product("Bakery", "Freshly baked goods", 6.0, "milk.png",0,1),
-                new Product("Household Supplies", "Everyday essentials", 12.0, "milk.png",0,1),
-                new Product("Personal Care", "Care for yourself", 8.0, "milk.png",0,1)
+                new Product("Frozen Foods", "Quick and convenient meals", 7.0, "frozen_foods.png",0,1),
+                new Product("Bakery", "Freshly baked goods", 6.0, "bakery.png",0,1),
+                new Product("Household Supplies", "Everyday essentials", 12.0, "household_supplies.png",0,1),
+                new Product("Personal Care", "Care for yourself", 8.0, "personal_care.png",0,1)
         );
 
         populateMenu(products);
+
+        setupImages();
+
+        // Set up button actions
+        homeButton.setOnAction(event -> switchToPage("home_screen.fxml", "Home"));
+        menuButton.setOnAction(event -> switchToPage("menu.fxml", "Menu"));
+        settingsButton.setOnAction(event -> switchToPage("settings.fxml", "Settings"));
     }
+
+    private void setupImages() {
+        try {
+            // home page button
+            Image homeImg = new Image(getClass().getResourceAsStream("/bottomPartSymbols/homePageButton.png"));
+            ImageView homeImgView = new ImageView(homeImg);
+            homeImgView.setFitWidth(30);
+            homeImgView.setFitHeight(30);
+            homeButton.setGraphic(homeImgView);
+
+            // Menu Button
+            Image menuImg = new Image(getClass().getResourceAsStream("/bottomPartSymbols/menuPageButtonClicked.png"));
+            ImageView menuImgView = new ImageView(menuImg);
+            menuImgView.setFitWidth(35);
+            menuImgView.setFitHeight(35);
+            menuButton.setGraphic(menuImgView);
+
+            // Cart Button
+            Image cartImg = new Image(getClass().getResourceAsStream("/bottomPartSymbols/cartPageButton.png"));
+            ImageView cartImgView = new ImageView(cartImg);
+            cartImgView.setFitWidth(25);
+            cartImgView.setFitHeight(25);
+            cartButton.setGraphic(cartImgView);
+
+            // Settings Button
+            Image settingsImg = new Image(getClass().getResourceAsStream("/bottomPartSymbols/settingPageButton.png"));
+            ImageView settingsImgView = new ImageView(settingsImg);
+            settingsImgView.setFitWidth(35);
+            settingsImgView.setFitHeight(35);
+            settingsButton.setGraphic(settingsImgView);
+
+
+
+        } catch (Exception e) {
+            System.err.println("Error loading images: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void switchToPage(String fxmlFile, String title) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
+            Scene scene = new Scene(loader.load(), 400, 711);
+            scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+            Stage stage = (Stage) homeButton.getScene().getWindow(); // Get the current stage
+            stage.setScene(scene);
+            stage.setTitle(title);
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("Failed to load " + fxmlFile + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     private void populateMenu(List<Product> products) {
         int column = 0;
         int row = 0;
@@ -73,7 +147,6 @@ public class MenuController {
         }
         menuGrid.setAlignment(javafx.geometry.Pos.CENTER);
     }
-
 
     private VBox createProductCard(Product product) {
         VBox productCard = new VBox();
