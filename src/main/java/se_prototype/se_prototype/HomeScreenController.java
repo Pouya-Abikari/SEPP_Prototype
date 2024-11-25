@@ -21,10 +21,16 @@ public class HomeScreenController {
     private Button notificationButton;
 
     @FXML
+    private ImageView mainPageImage;
+
+    @FXML
     private ImageView tutorialImage;
 
     @FXML
     private ImageView  christmasImage;
+
+    @FXML
+    private ImageView moviePizzaImage;
 
     @FXML
     private Button homeButton;
@@ -67,17 +73,30 @@ public class HomeScreenController {
             notificationImgView.setFitHeight(30);
             notificationButton.setGraphic(notificationImgView);
 
+            // Load the main page illustration
+            Image mainImg = new Image(this.getClass().getResourceAsStream("/illustrationMainPageV2.png"));
+            mainPageImage.setImage(mainImg);
+            mainPageImage.setFitWidth(300.0);
+            mainPageImage.setPreserveRatio(true);
+
+
             // Load the tutorial image
-            Image tutorialImg = new Image(this.getClass().getResourceAsStream("/videoscreen.png"));
+            Image tutorialImg = new Image(this.getClass().getResourceAsStream("/tutorialNew.png"));
             tutorialImage.setImage(tutorialImg);
             tutorialImage.setFitWidth(300.0);
             tutorialImage.setPreserveRatio(true);
 
-            // Load the Halloween promo image
-            Image halloweenImg = new Image(this.getClass().getResourceAsStream("/merryxmas.png"));
-            christmasImage.setImage(halloweenImg);
+            // Load the xmas promo image
+            Image xmasImg = new Image(this.getClass().getResourceAsStream("/xmas.png"));
+            christmasImage.setImage(xmasImg);
             christmasImage.setFitWidth(300.0);
             christmasImage.setPreserveRatio(true);
+
+            // Load the movie pizza image
+            Image pizzaImg = new Image(this.getClass().getResourceAsStream("/pizzaNight.png"));
+            moviePizzaImage.setImage(pizzaImg);
+            moviePizzaImage.setFitWidth(300.0);
+            moviePizzaImage.setPreserveRatio(true);
 
             // home page button
             Image homeImg = new Image(getClass().getResourceAsStream("/bottomPartSymbols/homePageButtonClicked.png"));
@@ -118,7 +137,8 @@ public class HomeScreenController {
     private void switchToPage(String fxmlFile, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
-            Scene scene = new Scene(loader.load());
+            Scene scene = new Scene(loader.load(), 400, 711);
+            scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
             Stage stage = (Stage) homeButton.getScene().getWindow(); // Get the current stage
             stage.setScene(scene);
             stage.setTitle(title);

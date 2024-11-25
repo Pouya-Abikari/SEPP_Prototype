@@ -7,6 +7,8 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.*?>
 
+<!-- KATIA -->
+
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="se_prototype.se_prototype.MessageController"
@@ -28,14 +30,14 @@
     <!-- Center Section -->
     <center>
         <VBox spacing="10" style="-fx-padding: 10;">
-            <ScrollPane fx:id="scrollPane" fitToWidth="true" style="-fx-background-color: transparent;" vbarPolicy="ALWAYS">
-                <VBox fx:id="chatContainer" spacing="10" style="-fx-padding: 10;" alignment="BOTTOM_LEFT"/>
+            <ScrollPane fx:id="scrollPane" fitToWidth="true" prefHeight="600" style="-fx-background-color: transparent;" vbarPolicy="ALWAYS" styleClass="custom-scroll-pane">
+                <VBox fx:id="chatContainer" spacing="10" alignment="BOTTOM_LEFT" style="-fx-padding: 10;"/>
             </ScrollPane>
 
             <!-- Message Input Area -->
             <HBox spacing="10" alignment="CENTER" style="-fx-padding: 10;">
                 <TextField fx:id="messageField" promptText="Write Message" style="-fx-pref-width: 250;"/>
-                <Button fx:id="sendButton" text="Send" style="-fx-background-color: #1ABC9C; -fx-text-fill: white;"/>
+                <Button fx:id="sendButton" text="Send" style="-fx-background-color: #5EC401; -fx-text-fill: white;"/>
             </HBox>
         </VBox>
     </center>

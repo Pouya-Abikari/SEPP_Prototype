@@ -4,6 +4,8 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.*?>
 
+<!-- KATIA -->
+
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="se_prototype.se_prototype.HomeScreenController"
@@ -21,10 +23,16 @@
 
     <!-- Center Section with ScrollPane -->
     <center>
-        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; " styleClass="custom-scroll-pane">
             <VBox spacing="15" style="-fx-padding: 10;">
                 <!-- Welcome and JohnDoe Section -->
                 <VBox alignment="CENTER_LEFT" spacing="5" style="-fx-background-color: #FFFFFF; -fx-padding: 15; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 4);">
+                    <!-- mainPageImage -->
+                    <BorderPane>
+                        <center>
+                            <ImageView fx:id="mainPageImage" />
+                        </center>
+                    </BorderPane>
                     <Label text="Welcome" style="-fx-font-size: 20; -fx-text-fill: #5EC401; -fx-font-weight: bold;"/>
                     <Label text="JohnDoe" style="-fx-font-size: 40; -fx-text-fill: #1E1E1E; -fx-font-weight: bold;" />
                 </VBox>
@@ -53,6 +61,18 @@
                         </center>
                     </BorderPane>
                     <Label text="Notes: Enjoy an extra 5% off when checking out with our newly added Shared Grocery Ordering System. Use code: MERRY5" wrapText="true" style="-fx-text-fill: #1E1E1E; -fx-font-size: 14;"/>
+                </VBox>
+
+                <!-- Card 2: Movie night -->
+                <VBox spacing="10" style="-fx-background-color: #FFFFFF; -fx-padding: 15; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 4);">
+                    <Label text="Student Smart Homes - 2:30pm, Thur Nov 21st" style="-fx-text-fill: #1E1E1E; -fx-font-size: 12;"/>
+                    <Label text="Join our annual Pizza and Movie Night" style="-fx-text-fill: #1E1E1E; -fx-font-size: 18; -fx-font-weight: bold;"/>
+                    <BorderPane>
+                        <center>
+                            <ImageView fx:id="moviePizzaImage" />
+                        </center>
+                    </BorderPane>
+                    <Label text="Notes: Calling all our students! The annual movie night is finally back! Join us at the St. Jeffs cinema on the 26th of November at 5:00pm to enjoy a movie with free pizza. Dont miss out!" wrapText="true" style="-fx-text-fill: #1E1E1E; -fx-font-size: 14;"/>
                 </VBox>
             </VBox>
         </ScrollPane>
