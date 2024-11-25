@@ -1,0 +1,10 @@
+Laundry Detergent,Effective detergent from Clean & Fresh,12.0,milk.png,0,1
+Dish Soap,Powerful dish soap from Sparkling Clean,5.0,milk.png,0,1
+Toilet Paper,Soft toilet paper from Comfort Essentials,8.0,milk.png,0,1
+Paper Towels,Absorbent paper towels from Quick Clean,6.0,milk.png,0,1
+Garbage Bags,Durable garbage bags from Eco Friendly,4.0,milk.png,0,1
+Sponges,Reusable sponges from Clean Supplies,2.5,milk.png,0,1
+Cleaning Spray,Multipurpose spray from Tidy Homes,5.5,milk.png,0,1
+Hand Soap,Moisturizing soap from Soft Touch,3.0,milk.png,0,1
+Mop,Easy-clean mop from Swift Cleaners,10.0,milk.png,0,1
+Broom,Sturdy broom from Clean Sweep,7.0,milk.png,0,1

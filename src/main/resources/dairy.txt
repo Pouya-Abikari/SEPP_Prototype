@@ -1,0 +1,10 @@
+Milk,Fresh milk from Dairyland Supply,1.25,milk.png,0,1
+Cheese,Delicious cheese from Dairyland Supply,2.5,milk.png,0,1
+Butter,Creamy butter from Dairyland Supply,1.75,milk.png,0,1
+Yogurt,Healthy yogurt from Dairyland Supply,0.8,milk.png,0,1
+Cream,Fresh cream from Dairyland Supply,1.5,milk.png,0,1
+Ice Cream,Sweet ice cream from Cold Treats,3.5,milk.png,20,1
+Cottage Cheese,Rich cottage cheese from Healthy Dairy,2.0,milk.png,0,1
+Whipped Cream,Light whipped cream from Dairy Delights,1.8,milk.png,0,1
+Sour Cream,Tangy sour cream from Dairyland Supply,1.2,milk.png,0,1
+Mozzarella,Fresh mozzarella cheese from Dairyland Supply,2.8,milk.png,0,1

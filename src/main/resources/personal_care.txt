@@ -1,0 +1,10 @@
+Shampoo,Refreshing shampoo for healthy hair,6.0,milk.png,0,1
+Conditioner,Moisturizing conditioner for soft hair,5.5,milk.png,0,1
+Body Wash,Invigorating body wash,4.5,milk.png,0,1
+Toothpaste,Whitening and cavity protection toothpaste,2.5,milk.png,0,1
+Toothbrush,Soft-bristle toothbrush for dental care,1.5,milk.png,0,1
+Deodorant,Long-lasting deodorant protection,4.0,milk.png,0,1
+Hand Soap,Gentle hand soap for clean hands,3.0,milk.png,0,1
+Moisturizer,Nourishing moisturizer for soft skin,8.0,milk.png,0,1
+Sunscreen,SPF protection sunscreen,9.0,milk.png,0,1
+Lip Balm,Hydrating lip balm for dry lips,2.0,milk.png,0,1

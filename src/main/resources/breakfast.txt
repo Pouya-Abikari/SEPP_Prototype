@@ -1,0 +1,1 @@
+Orange Juice,Fresh orange juice from Citrus Farms,2.5,Breakfast/orange_juice.png,0,1
