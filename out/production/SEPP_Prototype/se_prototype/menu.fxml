@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="se_prototype.se_prototype.MenuController"
+            prefHeight="600.0" prefWidth="400.0">
+
+    <VBox spacing="10" layoutX="10" layoutY="10" prefWidth="380">
+
+        <!-- Card 1: Tutorial -->
+        <VBox style="-fx-background-color: #D1DDD5; -fx-padding: 15; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 4);">
+            <Label text="Student Smart Homes - 2:35pm, Sat Nov 2nd" style="-fx-text-fill: #1E1E1E; -fx-font-size: 12;"/>
+            <Label text="Shared Grocery Order Tutorial" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+            <ImageView fitWidth="300" fitHeight="150" preserveRatio="true" fx:id=""/>
+            <Label text="Notes: Watch a quick and easy tutorial video on how to use our newly added 'Shared Grocery Ordering System'." wrapText="true" style="-fx-font-size: 14;"/>
+        </VBox>
+
+        <!-- Card 2: Halloween Promo -->
+        <VBox style="-fx-background-color: #E0F7FA; -fx-padding: 15; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 4);">
+            <Label text="Student Smart Homes - 1:00pm, Thur Oct 31st" style="-fx-text-fill: #7D7D7D; -fx-font-size: 12;"/>
+            <Label text="Happy Halloween!" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+            <ImageView fitWidth="300" fitHeight="150" preserveRatio="true">
+                <Image url="@halloween_placeholder.png"/> <!-- Replace with actual image file -->
+            </ImageView>
+            <Label text="Notes: Enjoy an extra 5% off when checking out with our newly added Shared Grocery Ordering System. May you and your housemates have a fun and spooky day!" wrapText="true" style="-fx-font-size: 14;"/>
+        </VBox>
+
+    </VBox>
+
+    <!-- Bottom Navigation Bar -->
+    <HBox layoutX="10" layoutY="550" prefHeight="40" prefWidth="380" spacing="30" alignment="CENTER" style="-fx-background-color: #FFFFFF; -fx-border-color: #CCCCCC; -fx-padding: 10;">
+        <Button text="Home" style="-fx-text-fill: #007BFF;"/>
+        <Button text="Messages" style="-fx-text-fill: #007BFF;"/>
+        <Button text="Menu" style="-fx-text-fill: #007BFF;"/>
+        <Button text="Profile" style="-fx-text-fill: #007BFF;"/>
+    </HBox>
+
+</AnchorPane>
