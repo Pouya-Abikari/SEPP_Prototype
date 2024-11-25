@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.SVGPath?>
 <?import javafx.scene.shape.Circle?>
@@ -34,20 +33,27 @@
                       style="-fx-padding: 10; -fx-spacing: 15;" />
 
                 <!-- Add More Products Button -->
-                <Button text="Add More Product"
-                        style="-fx-background-color: #E8F5E9; -fx-text-fill: #5EC401; -fx-font-size: 14px; -fx-font-weight: bold; -fx-border-radius: 8; -fx-padding: 10;" />
+                <VBox alignment="CENTER" style="-fx-padding: 10;">
+                    <Button text="Add More Product" prefWidth="350" fx:id="addMoreItems"
+                            style="-fx-background-color: #E8F5E9; -fx-text-fill: #5EC401; -fx-font-size: 14px; -fx-font-weight: bold; -fx-border-radius: 8; -fx-padding: 10; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0); -fx-border-color: #5EC401" />
+                </VBox>
+
 
                 <!-- Delivery Details -->
                 <VBox alignment="TOP_LEFT"
                       style="-fx-background-color: white; -fx-border-radius: 16; -fx-padding: 20; -fx-border-color: #D9D9D9; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0);"
                       BorderPane.alignment="CENTER">
+                    <Label text="Delivery Location" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
                     <HBox alignment="CENTER_LEFT" spacing="10">
-                        <Label text="Delivery Location" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                        <StackPane>
+                            <Circle radius="15" fill="#5EC401" />
+                            <SVGPath content="M12.0505 2C8.18054 2 5.05054 5.13 5.05054 9C5.05054 13.17 9.47054 18.92 11.2905 21.11C11.6905 21.59 12.4205 21.59 12.8205 21.11C14.6305 18.92 19.0505 13.17 19.0505 9C19.0505 5.13 15.9205 2 12.0505 2ZM7.05054 9C7.05054 6.24 9.29054 4 12.0505 4C14.8105 4 17.0505 6.24 17.0505 9C17.0505 11.88 14.1705 16.19 12.0505 18.88C9.97054 16.21 7.05054 11.85 7.05054 9ZM9.55054 9C9.55054 10.38 10.6705 11.5 12.0505 11.5C13.4305 11.5 14.5505 10.38 14.5505 9C14.5505 7.62 13.4305 6.5 12.0505 6.5C10.6705 6.5 9.55054 7.62 9.55054 9Z"
+                                     fill="white" />
+                        </StackPane>
                         <Region />
                         <Hyperlink text="Change" style="-fx-font-size: 14px; -fx-text-fill: #5EC401;" />
                     </HBox>
                     <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 10 0 15 0;">
-                        <Circle radius="12" fill="#5EC401" />
                         <Label text="Floor 4, Wakil Tower, Ta 131 Gulshan Badda Link Road"
                                style="-fx-font-size: 14px; -fx-text-fill: #757575;" />
                     </HBox>
@@ -74,13 +80,33 @@
                 </VBox>
 
                 <!-- Action Buttons -->
-                <VBox spacing="10" alignment="CENTER">
-                    <Button text="Start Group Order"
-                            style="-fx-background-color: #FFC107; -fx-font-size: 14px; -fx-text-fill: white; -fx-border-radius: 8; -fx-padding: 10;" />
-                    <Button text="Join Group Order"
-                            style="-fx-background-color: #FFC107; -fx-font-size: 14px; -fx-text-fill: white; -fx-border-radius: 8; -fx-padding: 10;" />
-                    <Button text="Place Solo Order"
-                            style="-fx-background-color: #5EC401; -fx-font-size: 14px; -fx-text-fill: white; -fx-border-radius: 8; -fx-padding: 10;" />
+                <VBox spacing="15" alignment="CENTER" style="-fx-padding: 10;">
+                    <!-- Start Group Order Button -->
+                    <Button text="Start Group Order" prefWidth="375"
+                            style="-fx-background-color: #FFC107;
+                   -fx-font-size: 16px;
+                   -fx-text-fill: white;
+                   -fx-font-weight: bold;
+                   -fx-background-radius: 12;
+                   -fx-padding: 15;" />
+
+                    <!-- Join Group Order Button with Gradient -->
+                    <Button text="Join Group Order" prefWidth="350"
+                            style="-fx-font-size: 16px;
+                   -fx-font-weight: bold;
+                   -fx-text-fill: white;
+                   -fx-padding: 15;
+                   -fx-background-radius: 12;
+                   -fx-background-color: linear-gradient(to right, #5EC401, #FFC107);" />
+
+                    <!-- Place Solo Order Button -->
+                    <Button text="Place Solo Order" prefWidth="375"
+                            style="-fx-background-color: #5EC401;
+                   -fx-font-size: 16px;
+                   -fx-text-fill: white;
+                   -fx-font-weight: bold;
+                   -fx-background-radius: 12;
+                   -fx-padding: 15;" />
                 </VBox>
             </VBox>
         </ScrollPane>

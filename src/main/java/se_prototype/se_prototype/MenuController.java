@@ -1,150 +1,198 @@
 package se_prototype.se_prototype;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import javafx.scene.image.Image;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
-import javafx.geometry.*;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.SVGPath;
+import javafx.scene.image.Image;
+import se_prototype.se_prototype.Model.Product;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.stage.Stage;
+
 
 public class MenuController {
 
     @FXML
-    public ImageView basket;
+    private TextField searchField;
 
     @FXML
-    private VBox productContainer;
+    private Label locationText;
 
     @FXML
-    private Label basketCountLabel;
+    private GridPane menuGrid;
 
     @FXML
-    private Button checkoutButton;
+    private HBox locationContainer;
 
-    private int basketCount = 0;
-
-    private final List<Product> products = List.of(
-            new Product("Tomatoes", "Fresh tomatoes from Fresh Farms", 1.20, "tomatoes.png"),
-            new Product("Celery", "Crunchy celery from Fresh Farms", 0.95, "celery.png"),
-            new Product("Onion", "Organic onions from Green Growers", 0.85, "onion.png"),
-            new Product("Potatoes", "Fresh potatoes from Green Growers", 0.65, "potatoes.png"),
-            new Product("Lettuce", "Crisp lettuce from Green Growers", 1.10, "lettuce.png"),
-            new Product("Bananas", "Sweet bananas from Tropical Harvest", 0.70, "bananas.png"),
-            new Product("Apples", "Juicy apples from Tropical Harvest", 1.50, "apples.png"),
-            new Product("Oranges", "Fresh oranges from Citrus Direct", 1.30, "oranges.png"),
-            new Product("Grapes", "Sweet grapes from Citrus Direct", 2.00, "grapes.png"),
-            new Product("Milk", "Fresh milk from Dairyland Supply", 1.25, "milk.png"),
-            new Product("Cheese", "Delicious cheese from Dairyland Supply", 2.50, "cheese.png"),
-            new Product("Butter", "Creamy butter from Dairyland Supply", 1.75, "butter.png"),
-            new Product("Yogurt", "Healthy yogurt from Healthy Creamery", 0.80, "yogurt.png"),
-            new Product("Eggs", "Farm fresh eggs from Healthy Creamery", 3.00, "eggs.png"),
-            new Product("Chicken Breast", "Tender chicken breast from Farm Fresh Meats", 4.00, "chicken_breast.png"),
-            new Product("Ground Beef", "Premium ground beef from Farm Fresh Meats", 5.50, "ground_beef.png"),
-            new Product("Pork Chops", "Juicy pork chops from Butcher's Best", 4.75, "pork_chops.png"),
-            new Product("Salmon Fillet", "Fresh salmon fillet from Ocean's Harvest", 10.00, "salmon_fillet.png"),
-            new Product("Shrimp", "Delicious shrimp from Ocean's Harvest", 12.00, "shrimp.png"),
-            new Product("Bread", "Freshly baked bread from Baker's Delight", 2.00, "bread.png"),
-            new Product("Croissant", "Buttery croissants from Baker's Delight", 1.50, "croissant.png"),
-            new Product("Cereal", "Nutritious cereal from Pantry Provisions", 3.25, "cereal.png"),
-            new Product("Pasta", "High-quality pasta from Pantry Provisions", 1.80, "pasta.png"),
-            new Product("Olive Oil", "Premium olive oil from Gourmet Supplies", 6.50, "olive_oil.png"),
-            new Product("Coffee Beans", "Rich coffee beans from Gourmet Supplies", 8.00, "coffee_beans.png")
-    );
-
-    @FXML
     public void initialize() {
-        loadProducts();
-        setupBasketImage();
-        //checkoutButton.setOnAction(event -> handleCheckout());
-    }
+        StackPane svgIcon = createSvgIcon();
+        locationContainer.getChildren().add(0, svgIcon);
+        locationContainer.setOnMouseClicked(this::onLocationBoxClick);
+        List<Product> products = List.of(
+                new Product("Fruits & Vegetables", "Fresh fruits and veggies", 5.0, "mango.png", 0 , 1),
+                new Product("Breakfast", "Start your day right", 10.0, "breakfast.png", 0, 1),
+                new Product("Beverages", "Quench your thirst", 3.0, "beverages.png", 0,1),
+                new Product("Meat & Fish", "Freshly sourced", 15.0, "meat.png",0,1),
+                new Product("Snacks", "Delicious treats", 2.0, "snacks.png",0,1),
+                new Product("Dairy", "Milk and dairy products", 4.0, "milk.png",0,1),
+                new Product("Frozen Foods", "Quick and convenient meals", 7.0, "milk.png",0,1),
+                new Product("Bakery", "Freshly baked goods", 6.0, "milk.png",0,1),
+                new Product("Household Supplies", "Everyday essentials", 12.0, "milk.png",0,1),
+                new Product("Personal Care", "Care for yourself", 8.0, "milk.png",0,1)
+        );
 
-    private void loadProducts() {
+        populateMenu(products);
+    }
+    private void populateMenu(List<Product> products) {
+        int column = 0;
+        int row = 0;
+
         for (Product product : products) {
-            HBox productCard = createProductCard(product); // Create a product card
-            productContainer.getChildren().add(productCard); // Add it to the productContainer VBox
+            VBox productCard = createProductCard(product);
+            productCard.setOnMouseClicked(event -> navigateToCategory(product.getName()));
+            menuGrid.add(productCard, column, row);
+            column++;
+            if (column == 2) {
+                column = 0;
+                row++;
+            }
         }
+        menuGrid.setAlignment(javafx.geometry.Pos.CENTER);
     }
 
-    private HBox createProductCard(Product product) {
-        HBox card = new HBox(10);
-        card.setAlignment(Pos.CENTER_LEFT);
-        card.setStyle("-fx-border-color: #ccc; -fx-border-radius: 5; -fx-padding: 10;");
-        card.setPrefWidth(360);
 
-        // Product details container
-        VBox details = new VBox(5);
-        Label nameLabel = new Label(product.getName());
-        nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
-        Label descriptionLabel = new Label(product.getDescription());
-        Label priceLabel = new Label(String.format("$%.2f", product.getPrice()));
-        details.getChildren().addAll(nameLabel, descriptionLabel, priceLabel);
+    private VBox createProductCard(Product product) {
+        VBox productCard = new VBox();
+        productCard.setSpacing(5);
+        productCard.setStyle("-fx-background-color: white; -fx-padding: 8; -fx-border-radius: 8; -fx-background-radius: 8; -fx-border-color: #D9D9D9; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0);");
+        productCard.setAlignment(javafx.geometry.Pos.CENTER);
 
-        // Add to Basket button
-        Button addToBasketButton = new Button("Add to Basket");
-        addToBasketButton.setOnAction(event -> addToBasket(product));
+        productCard.setPrefWidth(140);
+        productCard.setPrefHeight(140);
 
-        // Combine details and button into the card
-        card.getChildren().addAll(details, addToBasketButton);
-        return card;
+        ImageView productImage = new ImageView(new Image(product.getImageUrl()));
+        productImage.setFitHeight(80);
+        productImage.setFitWidth(80);
+        productImage.setPreserveRatio(true);
+
+        Label productName = new Label(product.getName());
+        productName.setStyle("-fx-font-weight: bold; -fx-font-size: 12px; -fx-text-fill: #37474F;");
+
+        productCard.getChildren().addAll(productImage, productName);
+
+        return productCard;
     }
 
-    private void addToBasket(Product product) {
-        basketCount++;
-        basketCountLabel.setText(String.valueOf(basketCount));
-        System.out.println(product.getName() + " added to basket.");
-    }
+    private StackPane createSvgIcon() {
+        SVGPath svgPath = new SVGPath();
+        svgPath.setContent("M12 2C8.13 2 5 5.13 5 9C5 13.17 9.42 18.92 11.24 21.11C11.64 21.59 12.37 21.59 12.77 21.11C14.58 18.92 19 13.17 19 9C19 5.13 15.87 2 12 2ZM7 9C7 6.24 9.24 4 12 4C14.76 4 17 6.24 17 9C17 11.88 14.12 16.19 12 18.88C9.92 16.21 7 11.85 7 9ZM9.5 9C9.5 10.38 10.62 11.5 12 11.5C13.38 11.5 14.5 10.38 14.5 9C14.5 7.62 13.38 6.5 12 6.5C10.62 6.5 9.5 7.62 9.5 9Z");
+        svgPath.setFill(Color.web("#5EC401")); // Set the icon's color
+        StackPane svgContainer = new StackPane(svgPath);
+        svgContainer.setPrefSize(32, 32); // Adjusted size for the layout
+        svgContainer.setStyle("-fx-padding: 5;");
 
-    private void handleCheckout() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Checkout");
-        alert.setHeaderText("Basket Summary");
-        alert.setContentText("You have " + basketCount + " items in your basket.");
-        alert.showAndWait();
+        return svgContainer;
     }
 
     @FXML
-    private void setupBasketImage() {
+    private void onLocationBoxClick(MouseEvent event) {
+        System.out.println("Location box clicked!");
+    }
+
+    private void navigateToCategory(String categoryName) {
         try {
-            // Correct the resource path
-            Image image = new Image(getClass().getResourceAsStream("/basket.png")); // Adjust path if img.png is in a subfolder
-            basket.setImage(image);
-            basket.setFitWidth(30); // Adjust as needed
-            basket.setPreserveRatio(true);
-        } catch (Exception e) {
-            System.err.println("Error loading image: " + e.getMessage());
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("category.fxml"));
+            Parent categoryPage = loader.load();
+
+            CategoryController controller = loader.getController();
+            List<Product> products = fetchProductsForCategory(categoryName); // Fetch products for this category
+            controller.initializeCategory(categoryName, products, this);
+
+            Stage stage = (Stage) menuGrid.getScene().getWindow();
+            stage.getScene().setRoot(categoryPage);
+
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    // Simple Product Class
-    static class Product {
-        private final String name;
-        private final String description;
-        private final double price;
-        private final String imagePath;
-
-        public Product(String name, String description, double price, String imagePath) {
-            this.name = name;
-            this.description = description;
-            this.price = price;
-            this.imagePath = imagePath;
+    private List<Product> fetchProductsForCategory(String categoryName) {
+        List<Product> products = new ArrayList<>();
+        String fileName = null;
+        switch (categoryName) {
+            case "Fruits & Vegetables":
+                fileName = "fruits.txt";
+                break;
+            case "Beverages":
+                fileName = "beverages.txt";
+                break;
+            case "Breakfast":
+                fileName = "breakfast.txt";
+                break;
+            case "Dairy":
+                fileName = "dairy.txt";
+                break;
+            case "Meat & Fish":
+                fileName = "meat.txt";
+                break;
+            case "Snacks":
+                fileName = "snacks.txt";
+                break;
+            case "Frozen Foods":
+                fileName = "frozen_foods.txt";
+                break;
+            case "Bakery":
+                fileName = "bakery.txt";
+                break;
+            case "Household Supplies":
+                fileName = "household_supplies.txt";
+                break;
+            case "Personal Care":
+                fileName = "personal_care.txt";
+                break;
+            default:
+                System.out.println("No file mapped for category: " + categoryName);
+                return products;
         }
 
-        public String getName() {
-            return name;
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                getClass().getClassLoader().getResourceAsStream(fileName)
+        ))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length >= 4) {
+                    String name = parts[0];
+                    String description = parts[1];
+                    double price = Double.parseDouble(parts[2]);
+                    String imageUrl = parts[3];
+                    double discount = parts.length > 4 ? Double.parseDouble(parts[4]) : 0;
+                    int quantity = parts.length > 5 ? Integer.parseInt(parts[5]) : 1;
+                    products.add(new Product(name, description, price, imageUrl, discount, quantity));
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error loading products from file: " + fileName);
+            e.printStackTrace();
         }
 
-        public String getDescription() {
-            return description;
-        }
-
-        public double getPrice() {
-            return price;
-        }
-
-        public String getImagePath() {
-            return imagePath;
-        }
+        return products;
     }
+
+
 }
+

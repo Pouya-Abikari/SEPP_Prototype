@@ -1,0 +1,10 @@
+Frozen Pizza,Delicious frozen pizza for quick meals,5.0,milk.png,0,1
+Ice Cream,Refreshing ice cream in various flavors,4.0,milk.png,0,1
+Frozen Vegetables,Assorted frozen veggies for convenience,3.5,milk.png,0,1
+Frozen Chicken Nuggets,Crispy chicken nuggets ready to cook,6.0,milk.png,0,1
+Frozen Fish Fillets,High-quality frozen fish fillets,8.0,milk.png,0,1
+Frozen Meatballs,Tender meatballs for easy meals,7.0,milk.png,0,1
+Frozen Berries,Perfect for smoothies or desserts,5.5,milk.png,0,1
+Frozen Waffles,Golden waffles ready to toast,3.0,milk.png,0,1
+Frozen Pastries,Assorted pastries for baking at home,6.5,milk.png,0,1
+Frozen Dumplings,Authentic frozen dumplings,7.5,milk.png,0,1

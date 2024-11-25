@@ -1,0 +1,10 @@
+Tomatoes,Fresh tomatoes from Fresh Farms,1.2,milk.png,0,1
+Celery,Crunchy celery from Fresh Farms,0.95,milk.png,0,8
+Onion,Organic onions from Green Growers,0.85,milk.png,0,1
+Potatoes,Fresh potatoes from Green Growers,0.65,milk.png,0,1
+Lettuce,Crisp lettuce from Green Growers,1.1,milk.png,10,1
+Bananas,Sweet bananas from Tropical Harvest,0.7,milk.png,0,1
+Apples,Juicy apples from Tropical Harvest,1.5,milk.png,20,1
+Oranges,Fresh oranges from Citrus Direct,1.3,milk.png,0,1
+Grapes,Sweet grapes from Citrus Direct,2.0,milk.png,0,1
+Peppers,Colorful peppers from Green Growers,1.4,milk.png,0,1

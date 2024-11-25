@@ -32,6 +32,8 @@ public class CartController {
     private Button cartButton;
     @FXML
     private Button settingsButton;
+    @FXML
+    private Button addMoreItems;
 
     private final String CART_FILE = "src/main/resources/cart.txt";
 
@@ -46,6 +48,7 @@ public class CartController {
         homeButton.setOnAction(event -> switchToPage("home_screen.fxml", "Home"));
         menuButton.setOnAction(event -> switchToPage("menu.fxml", "Menu"));
         settingsButton.setOnAction(event -> switchToPage("settings.fxml", "Settings"));
+        addMoreItems.setOnAction(event -> switchToPage("menu.fxml", "Menu"));
     }
 
     private void loadCartFromFile() {
@@ -186,13 +189,19 @@ public class CartController {
         increaseButton.setStyle("-fx-background-color: #5EC401; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-border-radius: 8;");
         increaseButton.setPrefSize(30, 30);
 
-        // Update the quantity and total price on button clicks
+        // Update the quantity and total price on button clicks (and remove item if the quantity is 0)
         decreaseButton.setOnAction(e -> {
             if (Integer.parseInt(quantityLabel.getText()) > 1) {
                 int newQuantity = Integer.parseInt(quantityLabel.getText()) - 1;
                 quantityLabel.setText(String.valueOf(newQuantity));
                 totalPriceLabel.setText("(Total: $" + String.format("%.2f", (price - (price * discount / 100)) * newQuantity) + ")");
                 updateQuantity(name, -1, quantityLabel);
+            } else if (Integer.parseInt(quantityLabel.getText()) == 1) {
+                productContainer.getChildren().remove(productBox);
+                List<String[]> products = readCartFile();
+                products.removeIf(productData -> productData[0].equals(name));
+                writeCartFile(products);
+                updateCartSummary();
             }
         });
 

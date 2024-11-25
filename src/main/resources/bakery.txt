@@ -1,0 +1,10 @@
+Baguette,Freshly baked French baguette,3.0,milk.png,0,1
+Croissants,Flaky and buttery croissants,4.0,milk.png,0,1
+Sourdough Bread,Artisan sourdough bread,5.0,milk.png,0,1
+Muffins,Assorted muffins with various flavors,3.5,milk.png,0,1
+Bagels,Soft and chewy bagels,2.0,milk.png,0,1
+Brownies,Rich and chocolaty brownies,4.5,milk.png,0,1
+Cupcakes,Delicious cupcakes with frosting,3.8,milk.png,0,1
+Dinner Rolls,Soft dinner rolls for any meal,2.5,milk.png,0,1
+Pies,Classic pies in various flavors,6.0,milk.png,0,1
+Cinnamon Rolls,Sweet and spiced cinnamon rolls,4.5,milk.png,0,1
