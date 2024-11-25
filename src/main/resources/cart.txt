@@ -22,4 +22,4 @@ Croissant,Buttery croissants from Baker's Delight,1.5,croissant.png,0,1
 Cereal,Nutritious cereal from Pantry Provisions,3.25,cereal.png,25,1
 Pasta,High-quality pasta from Pantry Provisions,1.8,pasta.png,30,1
 Olive Oil,Premium olive oil from Gourmet Supplies,6.5,olive_oil.png,0,1
-Coffee Beans,Rich coffee beans from Gourmet Supplies,8.0,coffee_beans.png,0,2
+Coffee Beans,Rich coffee beans from Gourmet Supplies,8.0,coffee_beans.png,0,1
