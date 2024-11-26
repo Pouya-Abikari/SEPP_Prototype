@@ -76,6 +76,8 @@ public class MenuController {
         homeButton.setOnAction(event -> switchToPage("home_screen.fxml", "Home"));
         menuButton.setOnAction(event -> switchToPage("menu.fxml", "Menu"));
         settingsButton.setOnAction(event -> switchToPage("settings.fxml", "Settings"));
+        cartButton.setOnAction(event -> switchToPage("cart.fxml", "Cart"));
+
     }
 
     private void setupImages() {
