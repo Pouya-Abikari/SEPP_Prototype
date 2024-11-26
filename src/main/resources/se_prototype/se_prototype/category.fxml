@@ -18,7 +18,7 @@
     <VBox alignment="CENTER_LEFT" style="-fx-background-color: transparent; -fx-padding: 10;">
         <HBox alignment="CENTER_LEFT" spacing="10">
             <Button text="←" onAction="#onBackButtonClick" style="-fx-font-size: 20px; -fx-background-color: transparent; -fx-text-fill: #37474F;" />
-            <Label fx:id="categoryTitle" text="Category" style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+            <Label fx:id="categoryTitle" text="Category" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
         </HBox>
     </VBox>
 

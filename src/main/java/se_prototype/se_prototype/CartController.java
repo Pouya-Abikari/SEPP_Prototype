@@ -7,10 +7,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -25,6 +22,8 @@ import javafx.scene.shape.Rectangle;
 
 public class CartController {
 
+    @FXML
+    private Hyperlink change_location;
     @FXML
     private BorderPane rootPane;
     @FXML
@@ -75,6 +74,7 @@ public class CartController {
         settingsButton.setOnAction(event -> switchToPage("settings.fxml", "Settings"));
         addMoreItems.setOnAction(event -> switchToPage("menu.fxml", "Menu"));
         addMoreItems_empty.setOnAction(event -> switchToPage("menu.fxml", "Menu"));
+        change_location.setOnAction(event -> switchToPage("location.fxml", "Location"));
     }
 
     private void loadCartFromFile() {
@@ -157,9 +157,11 @@ public class CartController {
         if (totalSavings > 0) {
             totalSavingsLabel.setText("Total Savings: $" + String.format("%.2f", totalSavings));
             HBox_discount.setVisible(true);
+            HBox_discount.setManaged(true);
         } else {
             totalSavingsLabel.setText("");
             HBox_discount.setVisible(false);
+            HBox_discount.setManaged(false);
         }
         deliveryChargeLabel.setText("$" + String.format("%.2f", deliveryCharge));
     }

@@ -11,7 +11,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
 import se_prototype.se_prototype.Model.Product;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,17 +69,17 @@ public class CategoryController {
 
         Button addToBagButton = new Button("Add to Bag");
         addToBagButton.setStyle("-fx-background-color: #5EC401; -fx-text-fill: white; -fx-padding: 5 10;");
-        addToBagButton.setOnAction(event -> addToCart(product));
-
 
         productName.setWrapText(true);
         productPrice.setPrefHeight(20);
         addToBagButton.setPrefHeight(30);
+        addToBagButton.setOnAction(event -> addToCart(product));
 
         productCard.getChildren().addAll(productImage, productName, productPrice, addToBagButton);
         return productCard;
 
     }
+
     private void addToCart(Product product) {
         List<String[]> cartItems = readCartFile();
         boolean productExists = false;
@@ -109,9 +108,10 @@ public class CategoryController {
         writeCartFile(cartItems); // Write the updated cart back to the file
         System.out.println("Added to cart: " + product.getName());
     }
+
     private List<String[]> readCartFile() {
         List<String[]> cartItems = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader("cart.txt"))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/cart.txt"))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 cartItems.add(line.split(","));
@@ -121,8 +121,9 @@ public class CategoryController {
         }
         return cartItems;
     }
+
     private void writeCartFile(List<String[]> cartItems) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("cart.txt"))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("src/main/resources/cart.txt"))) {
             for (String[] cartItem : cartItems) {
                 writer.write(String.join(",", cartItem));
                 writer.newLine();
@@ -131,8 +132,6 @@ public class CategoryController {
             System.err.println("Error writing to cart file: " + e.getMessage());
         }
     }
-
-
 
 
 

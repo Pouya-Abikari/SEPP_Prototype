@@ -52,6 +52,10 @@ public class Product {
         return discount > 0;
     }
 
+    public double getDiscount() {
+        return discount;
+    }
+
     public double getDiscountedPrice() {
         return price - (price * discount / 100);
     }

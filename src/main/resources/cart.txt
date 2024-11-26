@@ -1,0 +1,1 @@
+Potato Chips,Crunchy potato chips from Snacky Treats,1.5,potato_chips.png,0.0,1
