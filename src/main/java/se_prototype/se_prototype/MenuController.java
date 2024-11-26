@@ -195,10 +195,15 @@ public class MenuController {
             List<Product> products = fetchProductsForCategory(categoryName); // Fetch products for this category
             controller.initializeCategory(categoryName, products, this);
 
+            Scene scene = new Scene(categoryPage, 400, 711);
+            scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+
             Stage stage = (Stage) menuGrid.getScene().getWindow();
-            stage.getScene().setRoot(categoryPage);
+            stage.setScene(scene);
+            stage.show();
 
         } catch (IOException e) {
+            System.err.println("Failed to load category.fxml");
             e.printStackTrace();
         }
     }

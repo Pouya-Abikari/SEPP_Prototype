@@ -1,10 +1,10 @@
-Potato Chips,Crunchy potato chips from Snacky Treats,1.5,milk.png,0,1
-Popcorn,Buttery popcorn from Movie Nights,1.8,milk.png,0,1
-Pretzels,Salty pretzels from Snacky Treats,2.0,milk.png,0,1
-Cookies,Chocolate chip cookies from Sweet Treats,2.5,milk.png,10,1
-Candy,Sweet candies from Sugar Rush,1.0,milk.png,0,1
-Nuts,Mixed nuts from Healthy Bites,3.0,milk.png,0,1
-Trail Mix,Energy trail mix from Healthy Snacks,3.5,milk.png,20,1
-Granola Bar,Healthy granola bars from Snacky Bites,1.5,milk.png,0,1
-Crackers,Crunchy crackers from Gourmet Snacks,2.2,milk.png,0,1
-Jerky,Beef jerky from Butcher's Snacks,5.0,milk.png,0,1
+Potato Chips,Crunchy potato chips from Snacky Treats,1.5,potato_chips.png,0,1
+Popcorn,Buttery popcorn from Movie Nights,1.8,popcorn.png,0,1
+Pretzels,Salty pretzels from Snacky Treats,2.0,pretzels.png,0,1
+Cookies,Chocolate chip cookies from Sweet Treats,2.5,coockies.png,10,1
+Candy,Sweet candies from Sugar Rush,1.0,candy.png,0,1
+Nuts,Mixed nuts from Healthy Bites,3.0,nuts.png,0,1
+Trail Mix,Energy trail mix from Healthy Snacks,3.5,trail_mix.png,20,1
+Granola Bar,Healthy granola bars from Snacky Bites,1.5,granola_bar.png,0,1
+Crackers,Crunchy crackers from Gourmet Snacks,2.2,crackers.png,0,1
+Jerky,Beef jerky from Butcher's Snacks,5.0,jerky.png,0,1

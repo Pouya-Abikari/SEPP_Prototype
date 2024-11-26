@@ -1,10 +1,10 @@
-Orange Juice,Fresh orange juice from Citrus Farms,2.5,milk.png,0,1
-Apple Juice,Natural apple juice from Orchard's Best,2.0,milk.png,0,1
-Coffee,Rich coffee from Gourmet Roasters,3.0,milk.png,10,1
-Tea Bags,Premium tea from Tea Leaves Co.,4.0,milk.png,0,1
-Soda,Fizzy soda from Beverage Co.,1.5,milk.png,0,1
-Water,Bottled water from Aqua Fresh,1.0,milk.png,0,1
-Energy Drink,Boost energy drink from Active Life,2.5,milk.png,0,1
-Milkshake,Delicious milkshake from Dairy Treats,3.0,milk.png,20,1
-Iced Coffee,Chilled iced coffee from Coffee Corner,3.5,milk.png,0,1
-Smoothie,Fruit smoothie from Healthy Drinks,4.0,milk.png,0,1
+Orange Juice,Fresh orange juice from Citrus Farms,2.5,orange_juice.png,0,1
+Apple Juice,Natural apple juice from Orchard's Best,2.0,apple_juice.png,0,1
+Coffee,Rich coffee from Gourmet Roasters,3.0,coffee_beans.png,10,1
+Tea Bags,Premium tea from Tea Leaves Co.,4.0,tea_bag.png,0,1
+Soda,Fizzy soda from Beverage Co.,1.5,soda.png,0,1
+Water,Bottled water from Aqua Fresh,1.0,water.png,0,1
+Energy Drink,Boost energy drink from Active Life,2.5,energy_drink.png,0,1
+Milkshake,Delicious milkshake from Dairy Treats,3.0,milk_shake.png,20,1
+Iced Coffee,Chilled iced coffee from Coffee Corner,3.5,iced_coffee.png,0,1
+Smoothie,Fruit smoothie from Healthy Drinks,4.0,smoothie.png,0,1

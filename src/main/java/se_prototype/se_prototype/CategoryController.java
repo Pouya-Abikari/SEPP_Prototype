@@ -84,6 +84,7 @@ public class CategoryController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("menu.fxml"));
             Scene scene = new Scene(loader.load() , 400, 711);
+            scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
             Stage stage = (Stage) productGrid.getScene().getWindow();
             stage.setScene(scene);
             stage.show();
@@ -92,7 +93,4 @@ public class CategoryController {
             e.printStackTrace();
         }
     }
-
 }
-
-
