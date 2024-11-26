@@ -32,6 +32,10 @@ public class Product {
     public String getImageUrl() {
         return imageUrl;
     }
+    public double getDiscount() {
+        return discount;
+    }
+
 
     public String getDiscountPrice(int discount) {
         if (discount < 0 || discount > 100) {

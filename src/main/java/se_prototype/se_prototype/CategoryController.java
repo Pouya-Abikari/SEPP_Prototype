@@ -12,7 +12,8 @@ import javafx.scene.control.Button;
 import javafx.stage.Stage;
 import se_prototype.se_prototype.Model.Product;
 
-import java.io.IOException;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CategoryController {
@@ -69,6 +70,8 @@ public class CategoryController {
 
         Button addToBagButton = new Button("Add to Bag");
         addToBagButton.setStyle("-fx-background-color: #5EC401; -fx-text-fill: white; -fx-padding: 5 10;");
+        addToBagButton.setOnAction(event -> addToCart(product));
+
 
         productName.setWrapText(true);
         productPrice.setPrefHeight(20);
@@ -78,6 +81,60 @@ public class CategoryController {
         return productCard;
 
     }
+    private void addToCart(Product product) {
+        List<String[]> cartItems = readCartFile();
+        boolean productExists = false;
+
+        for (String[] cartItem : cartItems) {
+            if (cartItem[0].equals(product.getName())) {
+                int currentQuantity = Integer.parseInt(cartItem[5]);
+                cartItem[5] = String.valueOf(currentQuantity + 1);
+                productExists = true;
+                break;
+            }
+        }
+
+        if (!productExists) {
+            // Add a new product to the cart
+            cartItems.add(new String[]{
+                    product.getName(),
+                    product.getDescription(),
+                    String.valueOf(product.getPrice()),
+                    product.getImageUrl(),
+                    String.valueOf(product.getDiscount()),
+                    String.valueOf(1) // Default quantity is 1
+            });
+        }
+
+        writeCartFile(cartItems); // Write the updated cart back to the file
+        System.out.println("Added to cart: " + product.getName());
+    }
+    private List<String[]> readCartFile() {
+        List<String[]> cartItems = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader("cart.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                cartItems.add(line.split(","));
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading cart file: " + e.getMessage());
+        }
+        return cartItems;
+    }
+    private void writeCartFile(List<String[]> cartItems) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("cart.txt"))) {
+            for (String[] cartItem : cartItems) {
+                writer.write(String.join(",", cartItem));
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            System.err.println("Error writing to cart file: " + e.getMessage());
+        }
+    }
+
+
+
+
 
     @FXML
     private void onBackButtonClick() {
