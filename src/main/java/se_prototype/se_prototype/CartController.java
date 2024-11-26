@@ -5,9 +5,11 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.ImageCursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -52,15 +54,14 @@ public class CartController {
     @FXML
     private ScrollPane productScrollPane;
 
-
     private final String CART_FILE = "src/main/resources/cart.txt";
 
     @FXML
     public void initialize() {
+        setupImages();
         loadCartFromFile();
         updateCartSummary();
-
-        setupImages();
+        initializeLoadingOverlay();
 
         // Set up button actions
         homeButton.setOnAction(event -> switchToPage("home_screen.fxml", "Home"));
@@ -113,14 +114,18 @@ public class CartController {
         double totalSavings = 0;
         double deliveryCharge = 10.0;
 
-        //display a message if no items in cart
+        // If the cart is empty, show the empty cart label and hide product list
         if (products.isEmpty()) {
             empty_cart_label.setVisible(true);
+            empty_cart_label.setManaged(true);
             productScrollPane.setVisible(false);
+            productScrollPane.setManaged(false);
             return;
         } else {
             empty_cart_label.setVisible(false);
+            empty_cart_label.setManaged(false);
             productScrollPane.setVisible(true);
+            productScrollPane.setManaged(true);
         }
 
         for (String[] productData : products) {
@@ -253,7 +258,6 @@ public class CartController {
             // Capture the current scroll position
             double scrollOffset = productScrollPane.getVvalue();
 
-
             if (Integer.parseInt(quantityLabel.getText()) > 1) {
                 int newQuantity = Integer.parseInt(quantityLabel.getText()) - 1;
                 quantityLabel.setText(String.valueOf(newQuantity));
@@ -265,12 +269,13 @@ public class CartController {
                 products.removeIf(productData -> productData[0].equals(name));
                 writeCartFile(products);
                 updateCartSummary();
-
-                // Hide the loading overlay
-                loadingOverlay.setVisible(false);
             }
 
             Timeline timeline = getTimeline(scrollOffset);
+            timeline.setOnFinished(ev -> {
+                // Hide the loading overlay after the timeline completes
+                loadingOverlay.setVisible(false);
+            });
             timeline.play();
         });
 
@@ -338,11 +343,11 @@ public class CartController {
             settingsButton.setGraphic(settingsImgView);
 
             // Image for empty_cart
-            Image emptyCartImg = new Image(getClass().getResourceAsStream("/empty_cart.png"));
+            Image emptyCartImg = new Image(getClass().getResourceAsStream("/bottomPartSymbols/empty_cart.png"));
+            ImageView emptyCartImgView = new ImageView(emptyCartImg);
+            emptyCartImgView.setFitWidth(200);
+            emptyCartImgView.setFitHeight(200);
             empty_cart.setImage(emptyCartImg);
-            empty_cart.setFitHeight(350);
-            empty_cart.setFitWidth(350);
-
 
         } catch (Exception e) {
             System.err.println("Error loading images: " + e.getMessage());
@@ -351,19 +356,26 @@ public class CartController {
     }
 
     private void initializeLoadingOverlay() {
-        loadingOverlay = new Pane();
         loadingOverlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);");
         loadingOverlay.setVisible(false);
 
-        // Add a loading indicator (e.g., a spinning circle)
+        // Add a loading indicator (spinner or label)
+        VBox overlayContent = new VBox(10);
+        overlayContent.setAlignment(Pos.CENTER);
+
+        // Add a spinner
+        ProgressIndicator spinner = new ProgressIndicator();
+        spinner.setStyle("-fx-progress-color: white;");
+
+        // Add a loading label
         Label loadingLabel = new Label("Loading...");
         loadingLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: white; -fx-font-weight: bold;");
-        StackPane.setAlignment(loadingLabel, Pos.CENTER);
 
-        loadingOverlay.getChildren().add(loadingLabel);
+        overlayContent.getChildren().addAll(spinner, loadingLabel);
 
-        // Add the overlay to the root pane
-        rootPane.getChildren().add(loadingOverlay);
+        loadingOverlay.getChildren().clear();
+        loadingOverlay.getChildren().add(overlayContent);
+        StackPane.setAlignment(overlayContent, Pos.CENTER);
     }
 
     private void switchToPage(String fxmlFile, String title) {
