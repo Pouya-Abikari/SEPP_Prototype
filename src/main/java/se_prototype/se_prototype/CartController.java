@@ -1,11 +1,11 @@
 package se_prototype.se_prototype;
 
+import javafx.animation.FadeTransition;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.ImageCursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -15,20 +15,26 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.scene.effect.GaussianBlur;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 
 public class CartController {
 
+    @FXML
+    private BorderPane rootPane;
+    @FXML
+    private Button addMoreItems_empty;
     @FXML
     private ImageView empty_cart;
     @FXML
     private Pane loadingOverlay;
     @FXML
     private VBox empty_cart_label;
-    @FXML
-    private BorderPane rootPane;
     @FXML
     private HBox HBox_discount;
     @FXML
@@ -68,6 +74,7 @@ public class CartController {
         menuButton.setOnAction(event -> switchToPage("menu.fxml", "Menu"));
         settingsButton.setOnAction(event -> switchToPage("settings.fxml", "Settings"));
         addMoreItems.setOnAction(event -> switchToPage("menu.fxml", "Menu"));
+        addMoreItems_empty.setOnAction(event -> switchToPage("menu.fxml", "Menu"));
     }
 
     private void loadCartFromFile() {
@@ -250,9 +257,10 @@ public class CartController {
         increaseButton.setStyle("-fx-background-color: #5EC401; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-border-radius: 8;");
         increaseButton.setPrefSize(30, 30);
 
-        // Update the quantity and total price on button clicks (and remove item if the quantity is 0)
+        // Inside the decreaseButton action
         decreaseButton.setOnAction(e -> {
-            // Show the loading overlay
+            // Show the loading overlay and blur background
+            applyBlurredBackgroundEffect(true);
             loadingOverlay.setVisible(true);
 
             // Capture the current scroll position
@@ -271,12 +279,39 @@ public class CartController {
                 updateCartSummary();
             }
 
-            Timeline timeline = getTimeline(scrollOffset);
-            timeline.setOnFinished(ev -> {
-                // Hide the loading overlay after the timeline completes
-                loadingOverlay.setVisible(false);
+            // Create the fade-in transition
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(100), loadingOverlay);
+            fadeIn.setFromValue(0);
+            fadeIn.setToValue(1);
+            fadeIn.setOnFinished(event -> {
+                // Use a timeline for a delay
+                Timeline delay = new Timeline(
+                        new javafx.animation.KeyFrame(
+                                Duration.millis(200), // 0.5-second delay while the overlay is fully visible
+                                ev -> {
+                                    // Restore the scroll position
+                                    productScrollPane.layout();
+                                    productScrollPane.setVvalue(scrollOffset);
+
+                                    // Create the fade-out transition
+                                    FadeTransition fadeOut = new FadeTransition(Duration.millis(100), loadingOverlay);
+                                    fadeOut.setFromValue(1);
+                                    fadeOut.setToValue(0);
+                                    fadeOut.setOnFinished(ev2 -> {
+                                        // Hide the overlay completely after fading out
+                                        loadingOverlay.setVisible(false);
+                                        applyBlurredBackgroundEffect(false);
+                                    });
+                                    fadeOut.play();
+                                }
+                        )
+                );
+                delay.play();
             });
-            timeline.play();
+
+            // Make sure the overlay is visible and start the fade-in animation
+            loadingOverlay.setVisible(true);
+            fadeIn.play();
         });
 
         increaseButton.setOnAction(e -> {
@@ -352,6 +387,37 @@ public class CartController {
         } catch (Exception e) {
             System.err.println("Error loading images: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    private void applyBlurredBackgroundEffect(boolean enable) {
+        // Access the rootPane's parent (StackPane)
+        StackPane parentPane = (StackPane) rootPane.getParent();
+
+        // Check if the overlay already exists
+        Rectangle blurOverlay = (Rectangle) parentPane.lookup("#blurOverlay");
+        if (blurOverlay == null) {
+            // Create a new Rectangle for the blur overlay if it doesn't exist
+            blurOverlay = new Rectangle();
+            blurOverlay.setId("blurOverlay"); // Set an ID to find it later
+            blurOverlay.widthProperty().bind(parentPane.widthProperty());
+            blurOverlay.heightProperty().bind(parentPane.heightProperty());
+            blurOverlay.setFill(Color.rgb(144, 238, 144, 0.4)); // Light green color with transparency
+            parentPane.getChildren().add(blurOverlay); // Add to parent
+        }
+
+        if (enable) {
+            // Enable blur and show overlay
+            GaussianBlur blurEffect = new GaussianBlur(10); // Adjust the radius as needed for more/less blur
+            rootPane.setEffect(blurEffect);
+            blurOverlay.setVisible(true);
+            loadingOverlay.toFront(); // Ensure loadingOverlay appears on top
+            loadingOverlay.setVisible(true);
+        } else {
+            // Remove blur and hide overlay
+            rootPane.setEffect(null);
+            blurOverlay.setVisible(false);
+            loadingOverlay.setVisible(false);
         }
     }
 
