@@ -1,5 +1,6 @@
 package se_prototype.se_prototype;
 
+import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -7,6 +8,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -18,12 +20,25 @@ import java.util.List;
 public class CartController {
 
     @FXML
+    private ImageView empty_cart;
+    @FXML
+    private Pane loadingOverlay;
+    @FXML
+    private VBox empty_cart_label;
+    @FXML
+    private BorderPane rootPane;
+    @FXML
+    private HBox HBox_discount;
+    @FXML
+    private Label totalSavingsLabel;
+    @FXML
+    private Label deliveryChargeLabel;
+    @FXML
     private VBox productContainer;
     @FXML
     private Label totalPriceLabel;
     @FXML
     private Label totalItemsLabel;
-
     @FXML
     private Button homeButton;
     @FXML
@@ -34,6 +49,9 @@ public class CartController {
     private Button settingsButton;
     @FXML
     private Button addMoreItems;
+    @FXML
+    private ScrollPane productScrollPane;
+
 
     private final String CART_FILE = "src/main/resources/cart.txt";
 
@@ -52,6 +70,10 @@ public class CartController {
     }
 
     private void loadCartFromFile() {
+        // Capture the current scroll position using bounds
+        double scrollOffset = productScrollPane.getVvalue();
+
+        // Clear and reload products
         productContainer.getChildren().clear();
         List<String[]> products = readCartFile();
         for (String[] productData : products) {
@@ -63,6 +85,10 @@ public class CartController {
             int quantity = Integer.parseInt(productData[5]);
             productContainer.getChildren().add(createProductNode(name, description, price, imageUrl, discount, quantity));
         }
+
+        // Restore scroll position after layout updates
+        productScrollPane.layout();
+        productScrollPane.setVvalue(scrollOffset);
     }
 
     private void updateQuantity(String name, int delta, Label quantityLabel) {
@@ -84,16 +110,46 @@ public class CartController {
         List<String[]> products = readCartFile();
         int totalItems = 0;
         double totalPrice = 0;
+        double totalSavings = 0;
+        double deliveryCharge = 10.0;
+
+        //display a message if no items in cart
+        if (products.isEmpty()) {
+            empty_cart_label.setVisible(true);
+            productScrollPane.setVisible(false);
+            return;
+        } else {
+            empty_cart_label.setVisible(false);
+            productScrollPane.setVisible(true);
+        }
+
         for (String[] productData : products) {
             int quantity = Integer.parseInt(productData[5]);
             double price = Double.parseDouble(productData[2]);
             double discount = Double.parseDouble(productData[4]);
 
             totalItems += quantity;
-            totalPrice += quantity * (price - (price * discount / 100));
+            double discountedPrice = price - (price * discount / 100);
+            totalPrice += quantity * discountedPrice;
+            totalSavings += quantity * (price - discountedPrice);
         }
+
+        // Adjust delivery charge dynamically
+        if (totalPrice > 50) {
+            deliveryCharge = 5.0;
+        }
+
+        // Update labels
         totalItemsLabel.setText("Total Items: " + totalItems);
-        totalPriceLabel.setText("Total Price: $" + String.format("%.2f", totalPrice));
+        totalPriceLabel.setText("$" + String.format("%.2f", totalPrice));
+        if (totalSavings > 0) {
+            totalSavingsLabel.setText("Total Savings: $" + String.format("%.2f", totalSavings));
+            HBox_discount.setVisible(true);
+        } else {
+            totalSavingsLabel.setText("");
+            HBox_discount.setVisible(false);
+        }
+        deliveryChargeLabel.setText("$" + String.format("%.2f", deliveryCharge));
     }
 
     private List<String[]> readCartFile() {
@@ -191,6 +247,13 @@ public class CartController {
 
         // Update the quantity and total price on button clicks (and remove item if the quantity is 0)
         decreaseButton.setOnAction(e -> {
+            // Show the loading overlay
+            loadingOverlay.setVisible(true);
+
+            // Capture the current scroll position
+            double scrollOffset = productScrollPane.getVvalue();
+
+
             if (Integer.parseInt(quantityLabel.getText()) > 1) {
                 int newQuantity = Integer.parseInt(quantityLabel.getText()) - 1;
                 quantityLabel.setText(String.valueOf(newQuantity));
@@ -202,7 +265,13 @@ public class CartController {
                 products.removeIf(productData -> productData[0].equals(name));
                 writeCartFile(products);
                 updateCartSummary();
+
+                // Hide the loading overlay
+                loadingOverlay.setVisible(false);
             }
+
+            Timeline timeline = getTimeline(scrollOffset);
+            timeline.play();
         });
 
         increaseButton.setOnAction(e -> {
@@ -222,6 +291,20 @@ public class CartController {
         productBox.getChildren().addAll(imageContainer, productDetails, spacer, quantityControls);
 
         return productBox;
+    }
+
+    private Timeline getTimeline(double scrollOffset) {
+        Timeline timeline = new Timeline(
+                new javafx.animation.KeyFrame(
+                        javafx.util.Duration.millis(50), // Adjust delay as needed
+                        actionEvent -> {
+                            productScrollPane.layout();
+                            productScrollPane.setVvalue(scrollOffset);
+                        }
+                )
+        );
+        timeline.setCycleCount(1);
+        return timeline;
     }
 
     private void setupImages() {
@@ -254,12 +337,33 @@ public class CartController {
             settingsImgView.setFitHeight(35);
             settingsButton.setGraphic(settingsImgView);
 
+            // Image for empty_cart
+            Image emptyCartImg = new Image(getClass().getResourceAsStream("/empty_cart.png"));
+            empty_cart.setImage(emptyCartImg);
+            empty_cart.setFitHeight(350);
+            empty_cart.setFitWidth(350);
 
 
         } catch (Exception e) {
             System.err.println("Error loading images: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private void initializeLoadingOverlay() {
+        loadingOverlay = new Pane();
+        loadingOverlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);");
+        loadingOverlay.setVisible(false);
+
+        // Add a loading indicator (e.g., a spinning circle)
+        Label loadingLabel = new Label("Loading...");
+        loadingLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: white; -fx-font-weight: bold;");
+        StackPane.setAlignment(loadingLabel, Pos.CENTER);
+
+        loadingOverlay.getChildren().add(loadingLabel);
+
+        // Add the overlay to the root pane
+        rootPane.getChildren().add(loadingOverlay);
     }
 
     private void switchToPage(String fxmlFile, String title) {
