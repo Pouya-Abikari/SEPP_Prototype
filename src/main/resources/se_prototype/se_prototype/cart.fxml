@@ -161,11 +161,6 @@
     </BorderPane>
 
     <!-- Loading Overlay -->
-    <Pane fx:id="loadingOverlay" style="-fx-background-color: rgba(0,0,0,0.5); -fx-background-image: black" visible="false">
-        <VBox alignment="CENTER" spacing="10" style="-fx-padding: 20;">
-            <ProgressIndicator/>
-            <Label text="Loading..." style="-fx-font-size: 25px; -fx-text-fill: white; -fx-font-weight: bold;" />
-        </VBox>
-    </Pane>
+    <Pane fx:id="loadingOverlay" style="-fx-background-color: rgba(0, 0, 0, 0.5);" visible="false" prefWidth="400" prefHeight="711" />
 
 </StackPane>

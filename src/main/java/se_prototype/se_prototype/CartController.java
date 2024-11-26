@@ -315,10 +315,45 @@ public class CartController {
         });
 
         increaseButton.setOnAction(e -> {
+            // Show the loading overlay and blur background
+            applyBlurredBackgroundEffect(true);
+            loadingOverlay.setVisible(true);
+
             int newQuantity = Integer.parseInt(quantityLabel.getText()) + 1;
             quantityLabel.setText(String.valueOf(newQuantity));
             totalPriceLabel.setText("(Total: $" + String.format("%.2f", (price - (price * discount / 100)) * newQuantity) + ")");
             updateQuantity(name, 1, quantityLabel);
+
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(100), loadingOverlay);
+            fadeIn.setFromValue(0);
+            fadeIn.setToValue(1);
+            fadeIn.setOnFinished(event -> {
+                // Use a timeline for a delay
+                Timeline delay = new Timeline(
+                        new javafx.animation.KeyFrame(
+                                Duration.millis(200), // 0.5-second delay while the overlay is fully visible
+                                ev -> {
+
+                                    // Create the fade-out transition
+                                    FadeTransition fadeOut = new FadeTransition(Duration.millis(100), loadingOverlay);
+                                    fadeOut.setFromValue(1);
+                                    fadeOut.setToValue(0);
+                                    fadeOut.setOnFinished(ev2 -> {
+                                        // Hide the overlay completely after fading out
+                                        loadingOverlay.setVisible(false);
+                                        applyBlurredBackgroundEffect(false);
+                                    });
+                                    fadeOut.play();
+                                }
+                        )
+                );
+                delay.play();
+            });
+
+            // Make sure the overlay is visible and start the fade-in animation
+            loadingOverlay.setVisible(true);
+            fadeIn.play();
+
         });
 
         quantityControls.getChildren().addAll(decreaseButton, quantityLabel, increaseButton);
@@ -422,14 +457,25 @@ public class CartController {
     }
 
     private void initializeLoadingOverlay() {
+        // Set the style and initial visibility of the loading overlay
         loadingOverlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);");
         loadingOverlay.setVisible(false);
 
-        // Add a loading indicator (spinner or label)
+        // Ensure the loadingOverlay spans the full parent size
+        loadingOverlay.prefWidthProperty().bind(rootPane.widthProperty());
+        loadingOverlay.prefHeightProperty().bind(rootPane.heightProperty());
+
+        // Create a VBox to fill the screen
+        VBox fullScreenBox = new VBox();
+        fullScreenBox.setAlignment(Pos.CENTER); // Center all content within this VBox
+        fullScreenBox.prefWidthProperty().bind(loadingOverlay.widthProperty());
+        fullScreenBox.prefHeightProperty().bind(loadingOverlay.heightProperty());
+
+        // Create a VBox for the overlay content
         VBox overlayContent = new VBox(10);
         overlayContent.setAlignment(Pos.CENTER);
 
-        // Add a spinner
+        // Add a spinner (ProgressIndicator)
         ProgressIndicator spinner = new ProgressIndicator();
         spinner.setStyle("-fx-progress-color: white;");
 
@@ -437,11 +483,18 @@ public class CartController {
         Label loadingLabel = new Label("Loading...");
         loadingLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: white; -fx-font-weight: bold;");
 
+        // Add spinner and label to the overlay content
         overlayContent.getChildren().addAll(spinner, loadingLabel);
 
+        // Add the overlay content to the full-screen VBox
+        fullScreenBox.getChildren().add(overlayContent);
+
+        // Clear any existing children in the loadingOverlay and add the full-screen VBox
         loadingOverlay.getChildren().clear();
-        loadingOverlay.getChildren().add(overlayContent);
-        StackPane.setAlignment(overlayContent, Pos.CENTER);
+        loadingOverlay.getChildren().add(fullScreenBox);
+
+        // Ensure the overlay is aligned within the StackPane
+        StackPane.setAlignment(loadingOverlay, Pos.CENTER);
     }
 
     private void switchToPage(String fxmlFile, String title) {
