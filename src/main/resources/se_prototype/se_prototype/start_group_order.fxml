@@ -23,32 +23,32 @@
     <VBox spacing="25" style="-fx-padding: 20; -fx-font-family: Arial" alignment="TOP_LEFT">
         <!-- Timer -->
         <HBox spacing="20" alignment="CENTER_LEFT">
-            <ImageView fx:id="timerIcon" fitWidth="32" fitHeight="32" />
-            <Label text="1 hour timer" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" wrapText="true" prefWidth="300" />
+            <ImageView fx:id="timerIcon" fitWidth="35" fitHeight="35" />
+            <Label text="1 hour timer" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #37474F;" wrapText="true" prefWidth="300" />
         </HBox>
 
         <!-- Min People -->
         <HBox spacing="20" alignment="CENTER_LEFT">
-            <ImageView fx:id="peopleIcon" fitWidth="32" fitHeight="32" />
-            <Label text="Min of 2 people to start an order" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" wrapText="true" prefWidth="300" />
+            <ImageView fx:id="peopleIcon" fitWidth="35" fitHeight="35" />
+            <Label text="Min of 2 people to start an order" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #37474F;" wrapText="true" prefWidth="300" />
         </HBox>
 
         <!-- Notifications -->
         <HBox spacing="20" alignment="CENTER_LEFT">
-            <ImageView fx:id="notificationIcon" fitWidth="32" fitHeight="32" />
-            <Label text="Notification will notify housemates" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" wrapText="true" prefWidth="300" />
+            <ImageView fx:id="notificationIcon" fitWidth="35" fitHeight="35" />
+            <Label text="Notification will notify housemates" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #37474F;" wrapText="true" prefWidth="300" />
         </HBox>
 
         <!-- Price Reduction -->
         <HBox spacing="20" alignment="CENTER_LEFT">
-            <ImageView fx:id="cartIcon" fitWidth="32" fitHeight="32" />
-            <Label text="Price will be reduced automatically from your account" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" wrapText="true" prefWidth="300" />
+            <ImageView fx:id="cartIcon" fitWidth="35" fitHeight="35" />
+            <Label text="Price will be reduced automatically from your account" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #37474F;" wrapText="true" prefWidth="300" />
         </HBox>
 
         <!-- Items Added -->
         <HBox spacing="20" alignment="CENTER_LEFT">
-            <ImageView fx:id="itemsIcon" fitWidth="32" fitHeight="32" />
-            <Label text="Items will be added to the group cart" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" wrapText="true" prefWidth="300" />
+            <ImageView fx:id="itemsIcon" fitWidth="35" fitHeight="35" />
+            <Label text="Items will be added to the group cart" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #37474F;" wrapText="true" prefWidth="300" />
         </HBox>
     </VBox>
 
@@ -57,8 +57,8 @@
         <Button fx:id="startGroupOrderButton" text="Start the Group Order"
                 style="-fx-background-color: #5EC401; -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 10;"
                 prefWidth="380" />
-        <Label text="The delivery cost will be split between the attendees.\nBy clicking, you agree to Terms and Conditions."
-               style="-fx-font-size: 14px; -fx-text-fill: #B0B0B0;" textAlignment="CENTER" />
+        <Label text="The delivery cost will be split between the attendees.By clicking, you agree to Terms and Conditions."
+               style="-fx-font-size: 14px; -fx-text-fill: #B0B0B0;" textAlignment="CENTER" wrapText="true"/>
     </VBox>
 
 </VBox>

@@ -1,10 +1,14 @@
 package se_prototype.se_prototype;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public class StartGroupOrderController {
+
+    @FXML
+    private Button backButton;
 
     @FXML
     private ImageView timerIcon;

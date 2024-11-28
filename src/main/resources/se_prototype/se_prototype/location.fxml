@@ -9,7 +9,7 @@
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="se_prototype.se_prototype.LocationController"
             prefHeight="711.0" prefWidth="400.0"
-            style="-fx-background-color: #F5F5F5;">
+            style="-fx-background-color: #F5F5F5; -fx-font-family: Arial">
 
     <!-- Header -->
     <top>
