@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="se_prototype.se_prototype.StartGroupOrderController"
+            prefHeight="711.0" prefWidth="400.0"
+            style="-fx-background-color: #F5F5F5; -fx-font-family: Arial">
+
+    <!-- Back Button and Title -->
+    <VBox alignment="CENTER_LEFT" style="-fx-background-color: transparent; -fx-padding: 10;">
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Button text="←" style="-fx-font-size: 20px; -fx-background-color: transparent; -fx-text-fill: #37474F;" fx:id="backButton" />
+            <Label text="Start a Group Order" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+        </HBox>
+    </VBox>
+
+
+    <!-- Content -->
+    <VBox spacing="25" style="-fx-padding: 20; -fx-font-family: Arial" alignment="TOP_LEFT">
+        <!-- Timer -->
+        <HBox spacing="20" alignment="CENTER_LEFT">
+            <ImageView fx:id="timerIcon" fitWidth="32" fitHeight="32" />
+            <Label text="1 hour timer" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" wrapText="true" prefWidth="300" />
+        </HBox>
+
+        <!-- Min People -->
+        <HBox spacing="20" alignment="CENTER_LEFT">
+            <ImageView fx:id="peopleIcon" fitWidth="32" fitHeight="32" />
+            <Label text="Min of 2 people to start an order" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" wrapText="true" prefWidth="300" />
+        </HBox>
+
+        <!-- Notifications -->
+        <HBox spacing="20" alignment="CENTER_LEFT">
+            <ImageView fx:id="notificationIcon" fitWidth="32" fitHeight="32" />
+            <Label text="Notification will notify housemates" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" wrapText="true" prefWidth="300" />
+        </HBox>
+
+        <!-- Price Reduction -->
+        <HBox spacing="20" alignment="CENTER_LEFT">
+            <ImageView fx:id="cartIcon" fitWidth="32" fitHeight="32" />
+            <Label text="Price will be reduced automatically from your account" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" wrapText="true" prefWidth="300" />
+        </HBox>
+
+        <!-- Items Added -->
+        <HBox spacing="20" alignment="CENTER_LEFT">
+            <ImageView fx:id="itemsIcon" fitWidth="32" fitHeight="32" />
+            <Label text="Items will be added to the group cart" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" wrapText="true" prefWidth="300" />
+        </HBox>
+    </VBox>
+
+    <!-- Start Button -->
+    <VBox alignment="CENTER" spacing="10" style="-fx-padding: 0 20 20 20;">
+        <Button fx:id="startGroupOrderButton" text="Start the Group Order"
+                style="-fx-background-color: #5EC401; -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 10;"
+                prefWidth="380" />
+        <Label text="The delivery cost will be split between the attendees.\nBy clicking, you agree to Terms and Conditions."
+               style="-fx-font-size: 14px; -fx-text-fill: #B0B0B0;" textAlignment="CENTER" />
+    </VBox>
+
+</VBox>

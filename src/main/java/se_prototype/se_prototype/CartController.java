@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.shape.SVGPath;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import java.io.*;
@@ -22,6 +23,8 @@ import javafx.scene.shape.Rectangle;
 
 public class CartController {
 
+    @FXML
+    private Button start_group_order_button;
     @FXML
     private Hyperlink change_location;
     @FXML
@@ -58,6 +61,12 @@ public class CartController {
     private Button addMoreItems;
     @FXML
     private ScrollPane productScrollPane;
+    @FXML
+    private ComboBox<String> paymentMethodComboBox;
+    @FXML
+    private SVGPath paymentIcon;
+    @FXML
+    private StackPane paymentIconContainer;
 
     private final String CART_FILE = "src/main/resources/cart.txt";
 
@@ -67,6 +76,7 @@ public class CartController {
         loadCartFromFile();
         updateCartSummary();
         initializeLoadingOverlay();
+        payment_icon_and_method();
 
         // Set up button actions
         homeButton.setOnAction(event -> switchToPage("home_screen.fxml", "Home"));
@@ -75,6 +85,7 @@ public class CartController {
         addMoreItems.setOnAction(event -> switchToPage("menu.fxml", "Menu"));
         addMoreItems_empty.setOnAction(event -> switchToPage("menu.fxml", "Menu"));
         change_location.setOnAction(event -> switchToPage("location.fxml", "Location"));
+        start_group_order_button.setOnAction(event -> switchToPage("start_group_order.fxml", "Start Group Order"));
     }
 
     private void loadCartFromFile() {
@@ -97,6 +108,38 @@ public class CartController {
         // Restore scroll position after layout updates
         productScrollPane.layout();
         productScrollPane.setVvalue(scrollOffset);
+    }
+
+    private void payment_icon_and_method() {
+        // Set default icon to "Choose Method"
+        ImageView paymentIconImage = new ImageView(new Image(getClass().getResourceAsStream("/bottomPartSymbols/choose_method.png")));
+        paymentIconImage.setFitWidth(24);
+        paymentIconImage.setFitHeight(24);
+
+        // Add the ImageView to the container
+        paymentIconContainer.getChildren().clear();
+        paymentIconContainer.getChildren().add(paymentIconImage);
+
+        // Add a listener to the ComboBox to dynamically update the icon
+        paymentMethodComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            String iconPath;
+            switch (newValue) {
+                case "Cash":
+                    iconPath = "/bottomPartSymbols/cash.png";
+                    break;
+
+                case "Card":
+                    iconPath = "/bottomPartSymbols/card.png";
+                    break;
+
+                default: // "Choose Method" or other
+                    iconPath = "/bottomPartSymbols/choose_method.png";
+                    break;
+            }
+
+            // Update the icon in the container
+            paymentIconImage.setImage(new Image(getClass().getResourceAsStream(iconPath)));
+        });
     }
 
     private void updateQuantity(String name, int delta, Label quantityLabel) {

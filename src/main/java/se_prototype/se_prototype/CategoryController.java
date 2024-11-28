@@ -94,18 +94,17 @@ public class CategoryController {
         }
 
         if (!productExists) {
-            // Add a new product to the cart
             cartItems.add(new String[]{
                     product.getName(),
                     product.getDescription(),
                     String.valueOf(product.getPrice()),
                     product.getImageUrl(),
                     String.valueOf(product.getDiscount()),
-                    String.valueOf(1) // Default quantity is 1
+                    String.valueOf(1)
             });
         }
 
-        writeCartFile(cartItems); // Write the updated cart back to the file
+        writeCartFile(cartItems);
         System.out.println("Added to cart: " + product.getName());
     }
 

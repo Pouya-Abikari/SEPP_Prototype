@@ -32,6 +32,7 @@ public class Product {
     public String getImageUrl() {
         return imageUrl;
     }
+
     public double getDiscount() {
         return discount;
     }
@@ -50,10 +51,6 @@ public class Product {
 
     public boolean hasDiscount() {
         return discount > 0;
-    }
-
-    public double getDiscount() {
-        return discount;
     }
 
     public double getDiscountedPrice() {

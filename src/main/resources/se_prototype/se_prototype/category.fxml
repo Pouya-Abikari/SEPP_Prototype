@@ -10,7 +10,7 @@
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="se_prototype.se_prototype.CategoryController"
-      style="-fx-background-color: #F5F5F5;"
+      style="-fx-background-color: #F5F5F5;  -fx-font-family: Arial"
       prefWidth="400"
       prefHeight="711">
 

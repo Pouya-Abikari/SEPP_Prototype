@@ -5,13 +5,15 @@
 <?import javafx.scene.shape.SVGPath?>
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.image.ImageView?>
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
 
 <StackPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="se_prototype.se_prototype.CartController"
-            prefWidth="400"
-            prefHeight="711"
-            style="-fx-background-color: #F5F5F5;">
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="se_prototype.se_prototype.CartController"
+           prefWidth="400"
+           prefHeight="711"
+           style="-fx-background-color: #F5F5F5;  -fx-font-family: Arial">
 
     <BorderPane fx:id="rootPane" style="-fx-background-color: #F5F5F5;">
         <!-- Header -->
@@ -53,7 +55,7 @@
                               spacing="5">
                             <HBox alignment="CENTER_LEFT" spacing="10">
                                 <Label text="Delivery Location" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
-                                <Region prefWidth="120" />
+                                <Region prefWidth="100" />
                                 <Hyperlink alignment="CENTER_RIGHT" text="Change" style="-fx-font-size: 14px; -fx-text-fill: #5EC401;" fx:id="change_location"/>
                             </HBox>
                             <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 5 0;">
@@ -69,9 +71,8 @@
 
                         <!-- Delivery Summary -->
                         <VBox alignment="CENTER_LEFT"
-                              style="-fx-background-color: white; -fx-border-radius: 16; -fx-padding: 20;
-             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0); -fx-background-radius: 16;"
-                              spacing="10">
+                              style="-fx-background-color: white; -fx-border-radius: 16; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0); -fx-background-radius: 16;" spacing="10">
+
                             <!-- No of Items -->
                             <HBox alignment="CENTER_LEFT" spacing="10">
                                 <Label text="No of Items" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
@@ -103,17 +104,37 @@
                             </VBox>
                         </VBox>
 
-                        <!-- Payment Method Section -->
-                        <VBox spacing="15" style="-fx-background-color: white; -fx-border-radius: 16; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0); -fx-background-radius: 16">
+                        <!-- Payment Method -->
+                        <VBox alignment="CENTER_LEFT"
+                              style="-fx-background-color: white; -fx-border-radius: 16; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0); -fx-background-radius: 16;" spacing="10">
                             <!-- Title -->
-                            <Label text="Payment Method" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                            <Label text="Payment Method" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
 
                             <!-- Payment Option -->
-                            <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 10; -fx-background-color: #F9F9F9; -fx-border-radius: 12; -fx-border-color: #E0E0E0; -fx-border-width: 1;">
-                                <Circle radius="14" fill="#5EC401" />
-                                <Label text="Tap to select your payment method" style="-fx-font-size: 15px; -fx-font-weight: normal; -fx-text-fill: #757575;" />
+                            <HBox alignment="CENTER_LEFT" spacing="10"
+                                  style="-fx-padding: 10; -fx-background-color: #FFFFFF; -fx-border-radius: 16; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 5, 0, 0, 0); -fx-background-radius: 16">
+
                                 <Region HBox.hgrow="ALWAYS" />
-                                <SVGPath content="M10 10L20 15L10 20Z" fill="#757575" />
+
+                                <!-- Dynamic Payment Icon -->
+                                <StackPane fx:id="paymentIconContainer" style="-fx-alignment: center;">
+                                    <Circle radius="18" fill="#5EC401"/>
+                                    <SVGPath fx:id="paymentIcon" style="-fx-fill: white;" />
+                                </StackPane>
+
+                                <Region HBox.hgrow="ALWAYS" />
+
+                                <!-- ComboBox for Payment Method -->
+                                <ComboBox fx:id="paymentMethodComboBox" promptText="Select Payment Method"
+                                          style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-color: transparent; -fx-border-width: 0; -fx-padding: 5; -fx-text-fill: #37474F; -fx-border-color: transparent; -fx-border-radius: 16; -fx-background-radius: 16">
+                                    <items>
+                                        <FXCollections fx:factory="observableArrayList">
+                                            <String fx:value="Cash" />
+                                            <String fx:value="Card" />
+                                        </FXCollections>
+                                    </items>
+                                </ComboBox>
+                                <Region HBox.hgrow="ALWAYS" />
                             </HBox>
 
                             <!-- Optional Note -->
@@ -124,7 +145,7 @@
                         <!-- Action Buttons -->
                         <VBox spacing="15" alignment="CENTER" style="-fx-padding: 10;">
                             <!-- Start Group Order Button -->
-                            <Button text="Start Group Order" prefWidth="375"
+                            <Button text="Start Group Order" prefWidth="375" fx:id="start_group_order_button"
                                     style="-fx-background-color: #FFC107;
                    -fx-font-size: 16px;
                    -fx-text-fill: white;
