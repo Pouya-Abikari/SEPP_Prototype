@@ -4,16 +4,18 @@ public class User {
     String name;
     String email;
     String password;
-    String address;
+    String[] addresses;       // All addresses
+    String currentAddress;    // Current address
     int[] orderID;
     int currentOrderID;
     int errorCase;
 
-    public User(String name, String email, String password, String address,int[] orderID, int currentOrderID, int errorCase) {
+    public User(String name, String email, String password, String[] addresses, String currentAddress, int[] orderID, int currentOrderID, int errorCase) {
         this.name = name;
         this.email = email;
         this.password = password;
-        this.address = address;
+        this.addresses = addresses;
+        this.currentAddress = currentAddress;
         this.orderID = orderID;
         this.currentOrderID = currentOrderID;
         this.errorCase = errorCase;
@@ -31,8 +33,12 @@ public class User {
         return password;
     }
 
-    public String getAddress() {
-        return address;
+    public String[] getAddresses() {
+        return addresses;
+    }
+
+    public String getCurrentAddress() {
+        return currentAddress;
     }
 
     public int[] getOrderID() {
@@ -59,8 +65,12 @@ public class User {
         this.password = password;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setAddresses(String[] addresses) {
+        this.addresses = addresses;
+    }
+
+    public void setCurrentAddress(String currentAddress) {
+        this.currentAddress = currentAddress;
     }
 
     public void setOrderID(int[] orderID) {

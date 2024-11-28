@@ -8,11 +8,11 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
-
 <?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.layout.StackPane?>
+
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="se_prototype.se_prototype.LoginController"
@@ -20,7 +20,7 @@
       spacing="20.0"
       prefWidth="400"
       prefHeight="711"
-      style="-fx-background-color: #F5F5F5;">
+      style="-fx-background-color: #F5F5F5; -fx-font-family: Arial">
 
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
@@ -38,10 +38,10 @@
 
     <!-- Login Heading -->
     <Label text="LOGIN"
-           style="-fx-font-size: 42px; -fx-font-weight: 900; -fx-font-family: 'Arial Black'; -fx-text-fill: #37474F;" />
+           style="-fx-font-size: 42px; -fx-font-weight: 900; -fx-text-fill: #37474F;" />
 
     <!-- Login Form -->
-    <VBox spacing="20.0" alignment="CENTER"
+    <VBox spacing="10.0" alignment="CENTER"
           style="-fx-background-color: white; -fx-border-radius: 16; -fx-border-color: #D9D9D9; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 0); -fx-background-radius: 16;"
           maxWidth="350">
 
@@ -57,27 +57,36 @@
         <VBox alignment="CENTER_LEFT" spacing="10"
               style="-fx-border-radius: 8;">
             <Label text="Password" style="-fx-text-fill: #37474F; -fx-font-size: 14px;"/>
-            <PasswordField fx:id="passwordField" promptText="Enter your password"
+            <StackPane>
+                <PasswordField fx:id="passwordField" promptText="Enter your password"
+                               style="-fx-border-color: transparent; -fx-padding: 10; -fx-background-radius: 8;"/>
+                <TextField fx:id="visiblePasswordField" promptText="Enter your password"
+                           visible="false" managed="false"
                            style="-fx-border-color: transparent; -fx-padding: 10; -fx-background-radius: 8;"/>
-            <TextField fx:id="visiblePasswordField" promptText="Enter your password"
-                       visible="false" managed="false"
-                       style="-fx-border-color: transparent; -fx-padding: 10; -fx-background-radius: 8;"/>
-            <CheckBox fx:id="showPasswordCheckBox" text="Show Password"
-                      style="-fx-text-fill: #37474F; -fx-font-size: 14px;" onAction="#togglePasswordVisibility"/>
+                <Button style="-fx-background-color: transparent" StackPane.alignment="CENTER_RIGHT" onMouseClicked="#togglePasswordVisibility">
+                    <graphic>
+                        <ImageView fx:id="showPasswordButton" fitWidth="25" fitHeight="25"
+                                   style="-fx-cursor: hand; -fx-padding: 30"/>
+                    </graphic>
+                </Button>
+            </StackPane>
         </VBox>
 
+        <Label fx:id="errorLabel" text="Error" style="-fx-text-fill: red;"/>
+
         <!-- Sign In Button -->
-        <Button text="Sign In" onAction="#handleLogin"
+        <Button text="Login" onAction="#handleLogin" fx:id="loginButton"
                 style="-fx-background-color: #5EC401; -fx-text-fill: white; -fx-font-weight: bold; -fx-border-radius: 8; -fx-padding: 10;  -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0); -fx-background-radius: 8;"
-                maxWidth="300"/>
+                maxWidth="350"/>
 
         <!-- Forgot Password and Sign Up Section -->
-        <HBox spacing="20" alignment="CENTER" maxWidth="300">
-            <Hyperlink text="Forgot password?" fx:id="forgotPasswordLink" onAction="#forgotPassword"
-                       style="-fx-text-fill: #37474F; -fx-font-size: 14px;" />
+        <HBox spacing="10" alignment="CENTER">
             <Region/>
-            <Hyperlink text="Sign up" fx:id="signUpLink" onAction="#switchToSignup"
-                       style="-fx-text-fill: #37474F; -fx-font-size: 14px;" />
+            <Hyperlink text="Forgot Password?" onAction="#forgotPassword"
+                       style="-fx-text-fill : #37474F; -fx-font-size: 14px;"/>
+            <Label text="|"/>
+            <Hyperlink text="Sign Up" onAction="#switchToSignup"
+                       style="-fx-text-fill: #5EC401; -fx-font-size: 14px;"/>
         </HBox>
     </VBox>
 </VBox>
