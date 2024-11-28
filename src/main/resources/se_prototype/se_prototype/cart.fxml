@@ -138,8 +138,8 @@
                             </HBox>
 
                             <!-- Optional Note -->
-                            <Label text="You can select a preferred method or add a new one during checkout."
-                                   style="-fx-font-size: 12px; -fx-text-fill: #B0B0B0; -fx-padding: 5 0 0 0;" />
+                            <Label text="The amount will be deducted after the order is confirmed."
+                                   style="-fx-font-size: 12px; -fx-text-fill: #B0B0B0; -fx-padding: 5 0 0 0;" wrapText="true"/>
                         </VBox>
 
                         <!-- Action Buttons -->
@@ -171,6 +171,17 @@
                    -fx-background-radius: 12;
                    -fx-padding: 15;" />
                         </VBox>
+
+
+                        <Label text="By proceeding, you agree to the Terms and Conditions:
+1. Prices are subject to change based on item availability.
+2. The final amount will be deducted only after the order is confirmed.
+3. Orders are subject to availability, and items may be replaced if unavailable.
+4. Delivery fees may vary depending on the location and order size."
+                               style="-fx-font-size: 12px; -fx-text-fill: #B0B0B0; -fx-padding: 0 0 10 20;"
+                               textAlignment="JUSTIFY"
+                               wrapText="true"
+                               prefWidth="350" />
                     </VBox>
                 </ScrollPane>
             </StackPane>
