@@ -1,5 +1,4 @@
 Potato Chips,Crunchy potato chips from Snacky Treats,1.5,potato_chips.png,0.0,2
 Milk,Fresh milk from Dairyland Supply,1.25,milk.png,0.0,2
 Cinnamon Roll,Sweet and spiced cinnamon rolls,4.5,cinnamon_rolls.png,0.0,2
-Bacon,Crispy smoked bacon strips,4.0,bacon.png,10.0,2
-Body Wash,Invigorating body wash,4.5,body_wash.png,0.0,1
+Bacon,Crispy smoked bacon strips,4.0,bacon.png,10.0,3
