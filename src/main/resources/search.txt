@@ -1,0 +1,89 @@
+Orange Juice,Fresh orange juice from Citrus Farms,2.5,orange_juice.png,40,1
+Apple Juice,Natural apple juice from Orchard's Best,2.0,apple_juice.png,0,1
+Coffee,Rich coffee from Gourmet Roasters,3.0,coffee_beans.png,50,1
+Tea Bags,Premium tea from Tea Leaves Co.,4.0,tea_bag.png,50,1
+Soda,Fizzy soda from Beverage Co.,1.5,soda.png,0,1
+Water,Bottled water from Aqua Fresh,1.0,water.png,0,1
+Energy Drink,Boost energy drink from Active Life,2.5,energy_drink.png,0,1
+Milkshake,Delicious milkshake from Dairy Treats,3.0,milk_shake.png,30,1
+Iced Coffee,Chilled iced coffee from Coffee Corner,3.5,iced_coffee.png,0,1
+Smoothie,Fruit smoothie from Healthy Drinks,4.0,smoothie.png,30,1
+Pancakes,Fluffy pancakes served with maple syrup,5.0,pancake.png,30,1
+Scrambled Eggs,Fresh scrambled eggs with a hint of butter,3.0,scrambled_eggs.png,0,1
+Bacon,Crispy smoked bacon strips,4.0,bacon.png,10,1
+Croissant,Buttery croissant from the local bakery,2.5,croissant.png,0,1
+Bagel,Toasted bagel served with cream cheese,3.0,bagel.png,30,1
+Granola,Crunchy granola with dried fruits and nuts,4.0,granola.png,0,1
+Yogurt,Plain yogurt with a side of honey,2.0,yogurt.png,0,1
+Oatmeal,Healthy oatmeal with fresh berries,3.5,oatmeal.png,20,1
+Muffin,Chocolate chip muffin from the bakery,2.5,muffin.png,0,1
+Avocado Toast,Whole grain toast topped with smashed avocado,6.0,avocado_toast.png,50,1
+Milk,Fresh milk from Dairyland Supply,1.25,milk.png,0,1
+Cheese,Delicious cheese from Dairyland Supply,2.5,cheese.png,50,1
+Butter,Creamy butter from Dairyland Supply,1.75,butter.png,30,1
+Yogurt,Healthy yogurt from Dairyland Supply,0.8,yogurt.png,0,1
+Cream,Fresh cream from Dairyland Supply,1.5,cream.png,0,1
+Ice Cream,Sweet ice cream from Cold Treats,3.5,ice_cream.png,20,1
+Cottage Cheese,Rich cottage cheese from Healthy Dairy,2.0,cottage_cheese.png,0,1
+Whipped Cream,Light whipped cream from Dairy Delights,1.8,whipped_cream.png,0,1
+Sour Cream,Tangy sour cream from Dairyland Supply,1.2,sour_cream.png,20,1
+Mozzarella,Fresh mozzarella cheese from Dairyland Supply,2.8,mozzarella.png,30,1
+Frozen Pizza,Delicious frozen pizza for quick meals,5.0,frozen_pizza.png,0,1
+Ice Cream,Refreshing ice cream in various flavors,4.0,ice_cream.png,30,1
+Frozen Vegetables,Assorted frozen veggies for convenience,3.5,frozen_vegetables.png,0,1
+Frozen Nuggets,Crispy chicken nuggets ready to cook,6.0,frozen_nuggets.png,40,1
+Frozen Fish,High-quality frozen fish fillets,8.0,frozen_fish.png,0,1
+Frozen Meatballs,Tender meatballs for easy meals,7.0,frozen_meatballs.png,40,1
+Frozen Berries,Perfect for smoothies or desserts,5.5,frozen_berries.png,0,1
+Frozen Waffles,Golden waffles ready to toast,3.0,frozen_waffles.png,20,1
+Frozen Pastries,Assorted pastries for baking at home,6.5,frozen_pastry.png,0,1
+Frozen Dumplings,Authentic frozen dumplings,7.5,frozen_dumplings.png,30,1
+Tomatoes,Fresh tomatoes from Fresh Farms,1.2,Fruits&Vegetables/tomatoes.png,20,1
+Celery,Crunchy celery from Fresh Farms,0.95,Fruits&Vegetables/celery.png,0,1
+Onion,Organic onions from Green Growers,0.85,Fruits&Vegetables/onion.png,10,1
+Potatoes,Fresh potatoes from Green Growers,0.65,Fruits&Vegetables/potatoes.png,0,1
+Lettuce,Crisp lettuce from Green Growers,1.1,Fruits&Vegetables/lettuce.png,10,1
+Bananas,Sweet bananas from Tropical Harvest,0.7,Fruits&Vegetables/bananas.png,0,1
+Apples,Juicy apples from Tropical Harvest,1.5,Fruits&Vegetables/apples.png,20,1
+Oranges,Fresh oranges from Citrus Direct,1.3,Fruits&Vegetables/oranges.png,0,1
+Grapes,Sweet grapes from Citrus Direct,2.0,Fruits&Vegetables/grapes.png,30,1
+Laundry Detergent,Effective detergent from Clean & Fresh,12.0,laundry.png,20,1
+Dish Soap,Powerful dish soap from Sparkling Clean,5.0,dish_soap.png,0,1
+Toilet Paper,Soft toilet paper from Comfort Essentials,8.0,toilet_paper.png,0,1
+Paper Towels,Absorbent paper towels from Quick Clean,6.0,paper_towel.png,20,1
+Garbage Bags,Durable garbage bags from Eco Friendly,4.0,garbage.png,30,1
+Sponges,Reusable sponges from Clean Supplies,2.5,sponges.png,0,1
+Cleaning Spray,Multipurpose spray from Tidy Homes,5.5,cleaning_spray.png,10,1
+Hand Soap,Moisturizing soap from Soft Touch,3.0,hand_soap.png,0,1
+Mop,Easy-clean mop from Swift Cleaners,10.0,mop.png,40,1
+Broom,Sturdy broom from Clean Sweep,7.0,broom.png,0,1
+Chicken Breast,Fresh chicken breast from Farm Fresh Meats,4.0,chicken_breast.png,10,1
+Ground Beef,Premium ground beef from Butcher's Best,5.5,ground_beef.png,20,1
+Pork Chops,Juicy pork chops from Butcher's Best,4.75,pork_chops.png,0,1
+Salmon Fillet,Fresh salmon fillet from Ocean's Harvest,10.0,salmon_fillet.png,50,1
+Shrimp,Delicious shrimp from Ocean's Harvest,12.0,shrimp.png,0,1
+Turkey,Lean turkey from Butcher's Best,6.0,turkey.png,0,1
+Lamb Chops,Tender lamb chops from Farmer's Select,8.0,lamb_chops.png,30,1
+Tuna,Fresh tuna from Ocean's Harvest,9.0,tuna.png,0,1
+Crab,Juicy crab from Ocean's Harvest,15.0,crab.png,0,1
+Sausages,Savory sausages from Butcher's Delight,3.5,sausages.png,20,1
+Shampoo,Refreshing shampoo for healthy hair,6.0,shampoo.png,30,1
+Conditioner,Moisturizing conditioner for soft hair,5.5,conditioner.png,0,1
+Body Wash,Invigorating body wash,4.5,body_wash.png,20,1
+Toothpaste,Whitening and cavity protection toothpaste,2.5,toothpaste.png,0,1
+Toothbrush,Soft-bristle toothbrush for dental care,1.5,toothbrush.png,0,1
+Deodorant,Long-lasting deodorant protection,4.0,deodorant.png,30,1
+Hand Soap,Gentle hand soap for clean hands,3.0,hand_soap.png,0,1
+Moisturizer,Nourishing moisturizer for soft skin,8.0,moisturizer.png,20,1
+Sunscreen,SPF protection sunscreen,9.0,sunscreen.png,0,1
+Lip Balm,Hydrating lip balm for dry lips,2.0,lip_balm.png,20,1
+Potato Chips,Crunchy potato chips from Snacky Treats,1.5,potato_chips.png,0,1
+Popcorn,Buttery popcorn from Movie Nights,1.8,popcorn.png,10,1
+Pretzels,Salty pretzels from Snacky Treats,2.0,pretzels.png,0,1
+Cookies,Chocolate chip cookies from Sweet Treats,2.5,coockies.png,10,1
+Candy,Sweet candies from Sugar Rush,1.0,candy.png,0,1
+Nuts,Mixed nuts from Healthy Bites,3.0,nuts.png,20,1
+Trail Mix,Energy trail mix from Healthy Snacks,3.5,trail_mix.png,20,1
+Granola Bar,Healthy granola bars from Snacky Bites,1.5,granola_bar.png,0,1
+Crackers,Crunchy crackers from Gourmet Snacks,2.2,crackers.png,40,1
+Jerky,Beef jerky from Butcher's Snacks,5.0,jerky.png,0,1
