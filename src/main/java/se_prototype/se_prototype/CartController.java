@@ -2,6 +2,7 @@ package se_prototype.se_prototype;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -11,20 +12,33 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.SVGPath;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import se_prototype.se_prototype.Model.Product;
+import se_prototype.se_prototype.Model.UserCart;
 
 public class CartController {
 
     @FXML
+    private ScrollPane group_cart;
+    @FXML
+    private VBox groupUsersContainer;
+    @FXML
+    private Label error_payment_method;
+    @FXML
     private Button start_group_order_button;
+    @FXML
+    private Button join_group_order_button;
+    @FXML
+    private Button solo_order_button;
     @FXML
     private Hyperlink change_location;
     @FXML
@@ -67,8 +81,23 @@ public class CartController {
     private SVGPath paymentIcon;
     @FXML
     private StackPane paymentIconContainer;
+    @FXML
+    private StackPane toggleSwitch;
+    @FXML
+    private Circle toggleThumb;
+    @FXML
+    private Label soloLabel;
+    @FXML
+    private Label groupLabel;
+
+    private boolean isSoloCart = true;
 
     private final String CART_FILE = "src/main/resources/cart.txt";
+    private final List<UserCart> userCarts = new ArrayList<>();
+    private final String saveFile = "src/main/resources/group_cart_users.txt";
+    private final String allItemsFile = "src/main/resources/search.txt"; // File containing all products
+    private final List<Product> allProducts = new ArrayList<>();
+    private UserCart loggedInUserCart;
 
     @FXML
     public void initialize() {
@@ -77,6 +106,36 @@ public class CartController {
         updateCartSummary();
         initializeLoadingOverlay();
         payment_icon_and_method();
+        updateGroupCartUI();
+        startRandomUserUpdate();
+        loadGroupCart();
+        loadAllProducts();
+        loadLoggedInUserCart();
+        loadUserData();
+        System.out.println("Current userCarts: " + userCarts);
+        startRandomUserUpdate();
+        System.out.println("Current userCarts: " + userCarts);
+        group_cart.setVisible(false);
+        group_cart.setManaged(false);
+        soloLabel.setTranslateX(-22.5);
+        toggleThumb.setStyle("-fx-fill: #959595;");
+        animateToggleThumb(-30);
+
+        paymentMethodComboBox.getSelectionModel().selectedItemProperty().addListener((options, oldValue, newValue) -> {
+            if (newValue != null && (newValue.equals("Cash") || newValue.equals("Card"))) {
+                start_group_order_button.setDisable(false);
+                join_group_order_button.setDisable(false);
+                solo_order_button.setDisable(false);
+                error_payment_method.setVisible(false);
+                error_payment_method.setManaged(false);
+            } else {
+                start_group_order_button.setDisable(true);
+                join_group_order_button.setDisable(true);
+                solo_order_button.setDisable(true);
+                error_payment_method.setVisible(true);
+                error_payment_method.setManaged(true);
+            }
+        });
 
         // Set up button actions
         homeButton.setOnAction(event -> switchToPage("home_screen.fxml", "Home"));
@@ -86,6 +145,288 @@ public class CartController {
         addMoreItems_empty.setOnAction(event -> switchToPage("menu.fxml", "Menu"));
         change_location.setOnAction(event -> switchToPage("location.fxml", "Location"));
         start_group_order_button.setOnAction(event -> switchToPage("start_group_order.fxml", "Start Group Order"));
+    }
+
+    private void loadAllProducts() {
+        File file = new File(allItemsFile);
+        if (!file.exists()) {
+            System.err.println("Product file not found: " + allItemsFile);
+            return;
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length >= 6) {
+                    String name = parts[0];
+                    String description = parts[1];
+                    double price = Double.parseDouble(parts[2]);
+                    String imageUrl = parts[3];
+                    double discount = Double.parseDouble(parts[4]);
+                    int quantity = Integer.parseInt(parts[5]);
+                    allProducts.add(new Product(name, description, price, imageUrl, discount, quantity));
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadLoggedInUserCart() {
+        File file = new File(CART_FILE);
+        if (!file.exists()) {
+            System.err.println("Cart file not found: " + CART_FILE);
+            return;
+        }
+
+        List<Product> cartItems = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length >= 6) {
+                    cartItems.add(new Product(
+                            parts[0],
+                            parts[1],
+                            Double.parseDouble(parts[2]),
+                            parts[3],
+                            Double.parseDouble(parts[4]),
+                            Integer.parseInt(parts[5])
+                    ));
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Replace or add the "You" cart
+        userCarts.removeIf(cart -> cart.getUserName().equals("You"));
+        loggedInUserCart = new UserCart("You", cartItems);
+        userCarts.add(0, loggedInUserCart);
+    }
+
+    private void startRandomUserUpdate() {
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (userCarts.size() < 4) {
+                    Platform.runLater(() -> {
+                        addRandomUser();
+                        saveUserData();
+                        updateGroupCartUI();
+                    });
+                }
+            }
+        }, 0, 120000); // Add a new user every 2 minutes
+    }
+
+    private void addRandomUser() {
+        if (allProducts.isEmpty()) return;
+
+        // Check if the number of users exceeds 10
+        if (userCarts.size() >= 10) {
+            System.out.println("Maximum number of users reached. No new users will be added.");
+            return;
+        }
+
+        Random random = new Random();
+
+        // Generate random user data
+        String userName = "User " + (userCarts.size() + 1);
+        List<Product> cartItems = new ArrayList<>();
+
+        int numItems = random.nextInt(3) + 1; // Each user has 1-3 items
+        for (int i = 0; i < numItems; i++) {
+            Product randomProduct = allProducts.get(random.nextInt(allProducts.size()));
+            int quantity = random.nextInt(3) + 1; // 1-3 items per product
+            Product productCopy = new Product(
+                    randomProduct.getName(),
+                    randomProduct.getDescription(),
+                    randomProduct.getPrice(),
+                    randomProduct.getImageUrl(),
+                    randomProduct.getDiscount(),
+                    quantity
+            );
+            cartItems.add(productCopy);
+        }
+
+        userCarts.add(new UserCart(userName, cartItems));
+        saveUserData(); // Save the updated group cart to file
+        updateGroupCartUI(); // Update the UI
+    }
+
+    private void updateGroupCartUI() {
+        groupUsersContainer.getChildren().clear();
+
+        for (UserCart userCart : userCarts) {
+            VBox userCartBox = new VBox();
+            userCartBox.setStyle("-fx-background-color: white; -fx-border-radius: 8; -fx-padding: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0);");
+            userCartBox.setSpacing(10);
+
+            HBox userHeader = new HBox();
+            userHeader.setSpacing(10);
+
+            ImageView userImage = new ImageView(new Image("current_user_picture.png"));
+            userImage.setFitWidth(40);
+            userImage.setFitHeight(40);
+            userImage.setPreserveRatio(true);
+
+            Label userNameLabel = new Label(userCart.getUserName());
+            userNameLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #5EC401;");
+
+            userHeader.getChildren().addAll(userImage, userNameLabel);
+
+            VBox userCartItems = new VBox();
+            userCartItems.setSpacing(5);
+
+            for (Product item : userCart.getCartItems()) {
+                HBox itemBox = new HBox();
+                itemBox.setSpacing(10);
+
+                ImageView itemImage = new ImageView(new Image(item.getImageUrl()));
+                itemImage.setFitWidth(30);
+                itemImage.setFitHeight(30);
+                itemImage.setPreserveRatio(true);
+
+                Label itemLabel = new Label(item.getName() + " - " + item.getQuantity() + " x " + item.getDiscountPrice((int) item.getDiscount()));
+                itemLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #37474F;");
+
+                itemBox.getChildren().addAll(itemImage, itemLabel);
+
+                if (item.hasDiscount()) {
+                    Label discountLabel = new Label(item.getDiscountBadge());
+                    discountLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #FF6B6B; -fx-font-weight: bold;");
+                    itemBox.getChildren().add(discountLabel);
+                }
+
+                userCartItems.getChildren().add(itemBox);
+            }
+
+            userCartBox.getChildren().addAll(userHeader, userCartItems);
+            groupUsersContainer.getChildren().add(userCartBox);
+        }
+    }
+
+    private void saveUserData() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(saveFile))) {
+            for (UserCart userCart : userCarts) {
+                writer.write(userCart.toString());
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadUserData() {
+        File file = new File(saveFile);
+        if (!file.exists()) return;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                UserCart userCart = UserCart.fromString(line);
+
+                // Skip adding "You" since it's already added
+                if (userCart.getUserName().equals("You")) {
+                    continue;
+                }
+
+                userCarts.add(userCart);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleToggleSwitch() {
+        isSoloCart = !isSoloCart;
+
+        if (isSoloCart) {
+            soloLabel.setVisible(true);
+            toggleThumb.setStyle("-fx-fill: #959595;");
+            groupLabel.setVisible(false);
+            animateToggleThumb(-30);
+            group_cart.setVisible(false);
+            group_cart.setManaged(false);
+            productScrollPane.setVisible(true);
+            productScrollPane.setManaged(true);
+        } else {
+            soloLabel.setVisible(false);
+            groupLabel.setVisible(true);
+            toggleThumb.setStyle("-fx-fill: #5EC401;");
+            animateToggleThumb(30);
+            group_cart.setVisible(true);
+            group_cart.setManaged(true);
+            productScrollPane.setVisible(false);
+            productScrollPane.setManaged(false);
+            group_cart.setVvalue(0);
+        }
+    }
+
+    private void overrideYouCart() {
+        // Read the logged-in user's solo cart from CART_FILE
+        File file = new File(CART_FILE);
+        if (!file.exists()) {
+            System.err.println("Cart file not found: " + CART_FILE);
+            return;
+        }
+
+        List<Product> cartItems = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length >= 6) {
+                    String name = parts[0];
+                    String description = parts[1];
+                    double price = Double.parseDouble(parts[2]);
+                    String imageUrl = parts[3];
+                    double discount = Double.parseDouble(parts[4]);
+                    int quantity = Integer.parseInt(parts[5]);
+                    cartItems.add(new Product(name, description, price, imageUrl, discount, quantity));
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Create or update the "You" cart in userCarts
+        UserCart youCart = new UserCart("You", cartItems);
+        boolean youExists = false;
+
+        for (int i = 0; i < userCarts.size(); i++) {
+            if (userCarts.get(i).getUserName().equals("You")) {
+                userCarts.set(i, youCart); // Replace the existing "You" cart
+                youExists = true;
+                break;
+            }
+        }
+
+        if (!youExists) {
+            userCarts.add(0, youCart); // Add "You" as the first entry if it doesn't exist
+        }
+
+        saveUserData(); // Save the updated group cart to file
+        updateGroupCartUI(); // Update the UI
+    }
+
+    private void animateToggleThumb(double toX) {
+        javafx.animation.TranslateTransition transition = new javafx.animation.TranslateTransition();
+        transition.setNode(toggleThumb);
+        transition.setToX(toX);
+        transition.setDuration(javafx.util.Duration.millis(200)); // Adjust animation duration
+        transition.play();
+    }
+
+    private void loadGroupCart() {
+        userCarts.clear(); // Clear existing group cart
+        loadUserData(); // Load users from the group_cart_users.txt file
+        overrideYouCart(); // Override "You" section with latest data from cart.txt
+        updateGroupCartUI(); // Update the UI
     }
 
     private void loadCartFromFile() {

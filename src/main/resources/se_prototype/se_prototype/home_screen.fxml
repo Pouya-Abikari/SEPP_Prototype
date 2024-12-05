@@ -78,8 +78,6 @@
         </ScrollPane>
     </center>
 
-
-
     <!-- Bottom Section -->
     <bottom>
         <HBox alignment="CENTER" spacing="70" prefHeight="50" style="-fx-background-color: FFFFFF; -fx-padding: 10;">
