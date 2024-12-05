@@ -1,45 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.PasswordField?>
-<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
 
-<?import javafx.scene.layout.HBox?>
 <VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="se_prototype.se_prototype.SignupController" style="-fx-background-color: #D6E2D3;">
+      fx:controller="se_prototype.se_prototype.SignupController"
+      prefWidth="400" prefHeight="711"
+      style="-fx-background-color: #F5F5F5; -fx-font-family: Arial;">
+
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
     </padding>
 
-    <!-- Signup Form -->
-    <VBox spacing="10.0" alignment="CENTER">
-        <Label text="Sign Up" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
-
-        <TextField fx:id="firstNameField" promptText="First Name"
-                   style="-fx-pref-width: 300; -fx-pref-height: 40;"/>
-
-        <TextField fx:id="lastNameField" promptText="Last Name"
-                   style="-fx-pref-width: 300; -fx-pref-height: 40;"/>
-
-        <TextField fx:id="emailField" promptText="Email"
-                   style="-fx-pref-width: 300; -fx-pref-height: 40;"/>
-
-        <PasswordField fx:id="passwordField" promptText="Password"
-                       style="-fx-pref-width: 300; -fx-pref-height: 40;"/>
-
-        <PasswordField fx:id="reenterPasswordField" promptText="Re-enter Password"
-                       style="-fx-pref-width: 300; -fx-pref-height: 40;"/>
-
-        <Button fx:id="signupButton" text="Sign up" onAction="#handleSignup"
-                style="-fx-background-color: #5AA469; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"
-                prefWidth="375" prefHeight="35"/>
-
-        <HBox spacing="10" alignment="CENTER">
-            <Button fx:id="backButton" text="Back to Login" onAction="#switchToLogin"
-                    style="-fx-background-color: transparent; -fx-text-fill: gray;"/>
-        </HBox>
+    <!-- Header -->
+    <VBox spacing="10" alignment="CENTER" style="-fx-padding: 20;">
+        <Label text="Create Account" style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
     </VBox>
+
+    <!-- Signup Form -->
+    <VBox prefWidth="200" alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 20; -fx-background-color: #FFFFFF; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+        <Label text="Full Name" style="-fx-text-fill: #37474F; -fx-font-size: 14px;"/>
+        <TextField fx:id="nameField" promptText="Full Name"
+                   style="-fx-font-size: 14px; -fx-padding: 10; -fx-border-radius: 8; -fx-background-radius: 8;" />
+        <Label text="Email" style="-fx-text-fill: #37474F; -fx-font-size: 14px;"/>
+        <TextField fx:id="emailField" promptText="Email"
+                   style="-fx-font-size: 14px; -fx-padding: 10; -fx-border-radius: 8; -fx-background-radius: 8;" />
+        <!-- Password Field with Toggle Icon -->
+        <Label text="Password" style="-fx-text-fill: #37474F; -fx-font-size: 14px;"/>
+        <StackPane>
+            <PasswordField fx:id="passwordField" promptText="Password"
+                           style="-fx-font-size: 14px; -fx-padding: 10; -fx-border-radius: 8; -fx-background-radius: 8;" />
+            <TextField fx:id="visiblePasswordField" promptText="Password"
+                       visible="false" managed="false"
+                       style="-fx-font-size: 14px; -fx-padding: 10; -fx-border-radius: 8; -fx-background-radius: 8;" />
+            <Button style="-fx-background-color: transparent" StackPane.alignment="CENTER_RIGHT" onMouseClicked="#togglePasswordVisibility_1">
+                <graphic>
+                    <ImageView fx:id="togglePasswordIcon_1" fitWidth="25" fitHeight="25"
+                               style="-fx-cursor: hand; -fx-padding: 30"/>
+                </graphic>
+            </Button>
+        </StackPane>
+
+        <!-- Confirm Password Field with Toggle Icon -->
+        <Label text="Confirm Password" style="-fx-text-fill: #37474F; -fx-font-size: 14px;"/>
+        <StackPane>
+            <PasswordField fx:id="confirmPasswordField" promptText="Confirm Password"
+                           style="-fx-font-size: 14px; -fx-padding: 10; -fx-border-radius: 8; -fx-background-radius: 8;" />
+            <TextField fx:id="visibleConfirmPasswordField" promptText="Confirm Password"
+                       visible="false" managed="false"
+                       style="-fx-font-size: 14px; -fx-padding: 10; -fx-border-radius: 8; -fx-background-radius: 8;" />
+            <Button style="-fx-background-color: transparent" StackPane.alignment="CENTER_RIGHT" onMouseClicked="#togglePasswordVisibility_2">
+                <graphic>
+                    <ImageView fx:id="togglePasswordIcon_2" fitWidth="25" fitHeight="25"
+                               style="-fx-cursor: hand; -fx-padding: 30"/>
+                </graphic>
+            </Button>
+        </StackPane>
+
+        <Label fx:id="errorLabel" visible="false" style="-fx-text-fill: red; -fx-font-size: 12px;" />
+
+        <!-- Signup Button -->
+        <Button fx:id="signupButton" text="Sign Up"
+                style="-fx-background-color: #5EC401; -fx-text-fill: white; -fx-font-weight: bold; -fx-border-radius: 8; -fx-padding: 10;  -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0); -fx-background-radius: 8;"
+                maxWidth="350"/>
+    </VBox>
+
+
+    <!-- Footer -->
+    <HBox alignment="CENTER" prefWidth="350" style="-fx-padding: 20">
+        <Label text="Already have an account?" style="-fx-font-size: 14px; -fx-text-fill: #757575;" />
+        <Hyperlink text="Log in" style="-fx-font-size: 14px; -fx-text-fill: #5EC401;" fx:id="loginButton"/>
+    </HBox>
 </VBox>

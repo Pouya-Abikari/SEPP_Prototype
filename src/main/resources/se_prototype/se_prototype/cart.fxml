@@ -4,139 +4,349 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.SVGPath?>
 <?import javafx.scene.shape.Circle?>
+<?import javafx.scene.image.ImageView?>
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
 
-<BorderPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="se_prototype.se_prototype.CartController"
-            prefWidth="400"
-            prefHeight="711"
-            style="-fx-background-color: #F5F5F5;">
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="se_prototype.se_prototype.CartController"
+           prefWidth="400"
+           prefHeight="711"
+           style="-fx-background-color: #F5F5F5;  -fx-font-family: Arial">
 
-    <!-- Header -->
-    <top>
-        <VBox alignment="CENTER_LEFT" style="-fx-background-color: transparent; -fx-padding: 2;">
-            <Label text="Cart"
-                   style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #37474F; -fx-padding: 15 0 0 15" />
-        </VBox>
-    </top>
+    <BorderPane fx:id="rootPane" style="-fx-background-color: #F5F5F5;">
+        <!-- Header -->
+        <top>
+            <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 15;">
+                <!-- Cart Label -->
+                <Label text="Cart"
+                       style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
 
-    <!-- Scrollable Center Content -->
-    <center>
-        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" styleClass="custom-scroll-pane">
-            <VBox spacing="15" style="-fx-padding: 10; -fx-background-color: transparent;">
+                <Region HBox.hgrow="ALWAYS" />
 
-                <!-- Product List Header -->
-                <Label text="Products" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F; -fx-padding: 0 0 0 7"/>
+                <!-- Toggle Switch -->
+                <StackPane fx:id="toggleSwitch" onMouseClicked="#handleToggleSwitch"
+                           style="-fx-background-color: #E0E0E0; -fx-background-radius: 20; -fx-cursor: hand;"
+                           prefWidth="100" prefHeight="40">
+                    <!-- Text for Solo and Group -->
+                    <HBox alignment="CENTER_LEFT" spacing="5">
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label fx:id="groupLabel" text="Group" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #5EC401; visibility: hidden;" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label fx:id="soloLabel" text="Solo" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #757575;" />
+                    </HBox>
+                    <!-- Toggle Thumb -->
+                    <Circle fx:id="toggleThumb" radius="15" translateX="-25"
+                            style="-fx-fill: #5EC401; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 0);" />
+                </StackPane>
+            </HBox>
+        </top>
 
-                <!-- Scrollable Product List -->
-                <VBox fx:id="productContainer" spacing="10" alignment="TOP_LEFT"
-                      style="-fx-padding: 10; -fx-spacing: 15;" />
-
-                <!-- Add More Products Button -->
-                <VBox alignment="CENTER" style="-fx-padding: 10;">
-                    <Button text="Add More Product" prefWidth="350" fx:id="addMoreItems"
-                            style="-fx-background-color: #E8F5E9; -fx-text-fill: #5EC401; -fx-font-size: 14px; -fx-font-weight: bold; -fx-border-radius: 8; -fx-padding: 10; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0); -fx-border-color: #5EC401" />
+        <!-- Scrollable Center Content -->
+        <center>
+            <StackPane>
+                <VBox fx:id="empty_cart_label" alignment="CENTER" spacing="10" visible="false">
+                    <ImageView fx:id="empty_cart" fitWidth="250" fitHeight="250" preserveRatio="true" />
+                    <Label text="Your Cart is Empty" style="-fx-font-size: 25px; -fx-font-weight: bold;" />
+                    <Label text="Start adding items to build your order." style="-fx-font-size: 14px;" />
+                    <Button fx:id="addMoreItems_empty" text="Add Products" prefWidth="200" style="-fx-font-size: 14px; -fx-background-color: #5EC401; -fx-text-fill: white;" />
                 </VBox>
 
-                <VBox alignment="TOP_LEFT"
-                      style="-fx-background-color: white; -fx-border-radius: 16; -fx-padding: 20; -fx-border-color: #D9D9D9; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0);"
-                      spacing="10">
-                    <HBox alignment="CENTER_LEFT" spacing="10">
-                        <Label text="Delivery Location" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
-                        <Region />
-                        <Hyperlink text="Change" style="-fx-font-size: 14px; -fx-text-fill: #5EC401;" />
-                    </HBox>
-                    <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 5 0;">
-                        <StackPane alignment="CENTER">
-                            <Circle radius="12" fill="#5EC401" />
-                            <SVGPath content="M12.0505 2C8.18054 2 5.05054 5.13 5.05054 9C5.05054 13.17 9.47054 18.92 11.2905 21.11C11.6905 21.59 12.4205 21.59 12.8205 21.11C14.6305 18.92 19.0505 13.17 19.0505 9C19.0505 5.13 15.9205 2 12.0505 2ZM7.05054 9C7.05054 6.24 9.29054 4 12.0505 4C14.8105 4 17.0505 6.24 17.0505 9C17.0505 11.88 14.1705 16.19 12.0505 18.88C9.97054 16.21 7.05054 11.85 7.05054 9ZM9.55054 9C9.55054 10.38 10.6705 11.5 12.0505 11.5C13.4305 11.5 14.5505 10.38 14.5505 9C14.5505 7.62 13.4305 6.5 12.0505 6.5C10.6705 6.5 9.55054 7.62 9.55054 9Z"
-                                     fill="white" />
-                        </StackPane>
-                        <Label text="Floor 4, Wakil Tower, Ta 131 Gulshan Badda Link Road"
-                               style="-fx-font-size: 14px; -fx-text-fill: #757575;" />
-                    </HBox>
-                </VBox>
+                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="custom-scroll-pane" fx:id="productScrollPane">
+                    <VBox spacing="15" style="-fx-padding: 10; -fx-background-color: transparent;">
 
-                <!-- Delivery Details -->
-                <VBox alignment="TOP_LEFT"
-                      style="-fx-background-color: white; -fx-border-radius: 16; -fx-padding: 20; -fx-border-color: #D9D9D9; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0);"
-                      BorderPane.alignment="CENTER">
-                    <Label text="Delivery Location" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
-                    <HBox alignment="CENTER_LEFT" spacing="10">
-                        <StackPane>
-                            <Circle radius="15" fill="#5EC401" />
-                            <SVGPath content="M12.0505 2C8.18054 2 5.05054 5.13 5.05054 9C5.05054 13.17 9.47054 18.92 11.2905 21.11C11.6905 21.59 12.4205 21.59 12.8205 21.11C14.6305 18.92 19.0505 13.17 19.0505 9C19.0505 5.13 15.9205 2 12.0505 2ZM7.05054 9C7.05054 6.24 9.29054 4 12.0505 4C14.8105 4 17.0505 6.24 17.0505 9C17.0505 11.88 14.1705 16.19 12.0505 18.88C9.97054 16.21 7.05054 11.85 7.05054 9ZM9.55054 9C9.55054 10.38 10.6705 11.5 12.0505 11.5C13.4305 11.5 14.5505 10.38 14.5505 9C14.5505 7.62 13.4305 6.5 12.0505 6.5C10.6705 6.5 9.55054 7.62 9.55054 9Z"
-                                     fill="white" />
-                        </StackPane>
-                        <Region />
-                        <Hyperlink text="Change" style="-fx-font-size: 14px; -fx-text-fill: #5EC401;" />
-                    </HBox>
-                    <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 10 0 15 0;">
-                        <Label text="Floor 4, Wakil Tower, Ta 131 Gulshan Badda Link Road"
-                               style="-fx-font-size: 14px; -fx-text-fill: #757575;" />
-                    </HBox>
+                        <!-- Product List Header -->
+                        <Label text="Products" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F; -fx-padding: 0 0 0 7"/>
 
-                    <Separator />
+                        <!-- Scrollable Product List -->
+                        <VBox fx:id="productContainer" spacing="10"
+                              style="-fx-padding: 10; -fx-spacing: 15;" />
 
-                    <Label fx:id="totalItemsLabel" text="Total Items: 0" style="-fx-font-size: 14px; -fx-text-fill: #37474F;" />
-                    <Label text="Delivery Charge: BDT50" style="-fx-font-size: 14px; -fx-text-fill: #37474F;" />
-                    <Label fx:id="totalPriceLabel" text="Total Price: $0.00" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
-                </VBox>
+                        <!-- Add More Products Button -->
+                        <VBox alignment="CENTER" style="-fx-padding: 10;">
+                            <Button text="Add More Product" prefWidth="350" fx:id="addMoreItems"
+                                    style="-fx-background-color: #E8F5E9; -fx-text-fill: #5EC401; -fx-font-size: 14px; -fx-font-weight: bold; -fx-border-radius: 8; -fx-padding: 10; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0); -fx-border-color: #5EC401" />
+                        </VBox>
 
-                <!-- Payment Method Section -->
-                <VBox spacing="10" alignment="TOP_LEFT"
-                      style="-fx-background-color: white; -fx-border-radius: 16; -fx-padding: 20; -fx-border-color: #D9D9D9; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0);"
-                      BorderPane.alignment="CENTER">
-                    <Label text="Payment Method" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
-                    <HBox alignment="CENTER_LEFT" spacing="10">
-                        <Circle radius="12" fill="#5EC401" />
-                        <Label text="Tap Here to select your Payment Method"
-                               style="-fx-font-size: 14px; -fx-text-fill: #757575;" />
-                        <Region />
-                        <SVGPath content="M10 10L20 15L10 20Z" fill="#757575" />
-                    </HBox>
-                </VBox>
+                        <!-- Delivery Location -->
+                        <VBox style="-fx-background-color: white; -fx-border-radius: 16; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0); -fx-background-radius: 16"
+                              spacing="5">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label text="Delivery Location" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                                <Region prefWidth="100" />
+                                <Hyperlink alignment="CENTER_RIGHT" text="Change" style="-fx-font-size: 14px; -fx-text-fill: #5EC401;" fx:id="change_location"/>
+                            </HBox>
+                            <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 5 0;">
+                                <StackPane>
+                                    <Circle radius="15" fill="#5EC401" />
+                                    <SVGPath content="M12.0505 2C8.18054 2 5.05054 5.13 5.05054 9C5.05054 13.17 9.47054 18.92 11.2905 21.11C11.6905 21.59 12.4205 21.59 12.8205 21.11C14.6305 18.92 19.0505 13.17 19.0505 9C19.0505 5.13 15.9205 2 12.0505 2ZM7.05054 9C7.05054 6.24 9.29054 4 12.0505 4C14.8105 4 17.0505 6.24 17.0505 9C17.0505 11.88 14.1705 16.19 12.0505 18.88C9.97054 16.21 7.05054 11.85 7.05054 9ZM9.55054 9C9.55054 10.38 10.6705 11.5 12.0505 11.5C13.4305 11.5 14.5505 10.38 14.5505 9C14.5505 7.62 13.4305 6.5 12.0505 6.5C10.6705 6.5 9.55054 7.62 9.55054 9Z"
+                                             fill="white" />
+                                </StackPane>
+                                <Label text="Floor 4, Wakil Tower, Ta 131 Gulshan Badda Link Road"
+                                       style="-fx-font-size: 14px; -fx-text-fill: #757575;" />
+                            </HBox>
+                        </VBox>
 
-                <!-- Action Buttons -->
-                <VBox spacing="15" alignment="CENTER" style="-fx-padding: 10;">
-                    <!-- Start Group Order Button -->
-                    <Button text="Start Group Order" prefWidth="375"
-                            style="-fx-background-color: #FFC107;
+                        <!-- Delivery Summary -->
+                        <VBox alignment="CENTER_LEFT"
+                              style="-fx-background-color: white; -fx-border-radius: 16; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0); -fx-background-radius: 16;" spacing="10">
+
+                            <!-- No of Items -->
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label text="No of Items" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="totalItemsLabel" text="BDT0" style="-fx-font-size: 14px; -fx-text-fill: #37474F;" />
+                            </HBox>
+
+                            <!-- Delivery Charge -->
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label text="Delivery Charge" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="deliveryChargeLabel" text="BDT0" style="-fx-font-size: 14px; -fx-text-fill: #37474F;" />
+                            </HBox>
+
+                            <VBox alignment="CENTER_LEFT">
+                                <!-- Total -->
+                                <HBox alignment="CENTER_LEFT" spacing="5">
+                                    <Label text="Total Price" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                                    <Region HBox.hgrow="ALWAYS" />
+                                    <Label fx:id="totalPriceLabel" text="BDT0" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                                </HBox>
+
+                                <!-- Discount -->
+                                <HBox alignment="CENTER_LEFT" spacing="5" fx:id="HBox_discount" visible="false" managed="false">
+                                    <Label text="Discount" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #FF6B6B;" />
+                                    <Region HBox.hgrow="ALWAYS" />
+                                    <Label fx:id="totalSavingsLabel" text="BDT0" style="-fx-font-size: 12px; -fx-text-fill: #FF6B6B;" />
+                                </HBox>
+                            </VBox>
+                        </VBox>
+
+                        <!-- Payment Method -->
+                        <VBox alignment="CENTER_LEFT"
+                              style="-fx-background-color: white; -fx-border-radius: 16; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0); -fx-background-radius: 16;" spacing="10">
+                            <!-- Title -->
+                            <Label text="Payment Method" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+
+                            <!-- Payment Option -->
+                            <HBox alignment="CENTER_LEFT" spacing="10"
+                                  style="-fx-padding: 10; -fx-background-color: #FFFFFF; -fx-border-radius: 16; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 5, 0, 0, 0); -fx-background-radius: 16">
+
+                                <Region HBox.hgrow="ALWAYS" />
+
+                                <!-- Dynamic Payment Icon -->
+                                <StackPane fx:id="paymentIconContainer" style="-fx-alignment: center;">
+                                    <Circle radius="18" fill="#5EC401"/>
+                                    <SVGPath fx:id="paymentIcon" style="-fx-fill: white;" />
+                                </StackPane>
+
+                                <Region HBox.hgrow="ALWAYS" />
+
+                                <!-- ComboBox for Payment Method -->
+                                <ComboBox fx:id="paymentMethodComboBox" promptText="Select Payment Method"
+                                          style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-color: transparent; -fx-border-width: 0; -fx-padding: 5; -fx-text-fill: #37474F; -fx-border-color: transparent; -fx-border-radius: 16; -fx-background-radius: 16">
+                                    <items>
+                                        <FXCollections fx:factory="observableArrayList">
+                                            <String fx:value="Cash" />
+                                            <String fx:value="Card" />
+                                        </FXCollections>
+                                    </items>
+                                </ComboBox>
+                                <Region HBox.hgrow="ALWAYS" />
+                            </HBox>
+
+                            <Label text="Please choose a payment method before proceeding." fx:id="error_payment_method"
+                                   style="-fx-font-size: 12px; -fx-text-fill: red; -fx-padding: 5 0 0 0; -fx-font-weight: bold" wrapText="true" alignment="CENTER"/>
+
+                            <!-- Optional Note -->
+                            <Label text="The amount will be deducted after the order is confirmed."
+                                   style="-fx-font-size: 12px; -fx-text-fill: #B0B0B0; -fx-padding: 5 0 0 0;" wrapText="true"/>
+                        </VBox>
+
+                        <!-- Action Buttons -->
+                        <VBox spacing="15" alignment="CENTER" style="-fx-padding: 10;">
+                            <!-- Start Group Order Button -->
+                            <Button text="Place Solo Order" prefWidth="375" fx:id="solo_order_button"
+                                    style="-fx-background-color: #5EC401;
                    -fx-font-size: 16px;
                    -fx-text-fill: white;
                    -fx-font-weight: bold;
                    -fx-background-radius: 12;
-                   -fx-padding: 15;" />
+                   -fx-padding: 15;" disable="true"/>
+                        </VBox>
 
-                    <!-- Join Group Order Button with Gradient -->
-                    <Button text="Join Group Order" prefWidth="350"
-                            style="-fx-font-size: 16px;
+                        <Label text="By proceeding, you agree to the Terms and Conditions:
+1. Prices are subject to change based on item availability.
+2. The final amount will be deducted only after the order is confirmed.
+3. Orders are subject to availability, and items may be replaced if unavailable.
+4. Delivery fees may vary depending on the location and order size."
+                               style="-fx-font-size: 12px; -fx-text-fill: #B0B0B0; -fx-padding: 0 0 10 20;"
+                               textAlignment="JUSTIFY"
+                               wrapText="true"
+                               prefWidth="350" />
+                    </VBox>
+                </ScrollPane>
+
+                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="custom-scroll-pane" fx:id="group_cart">
+                    <VBox spacing="15" style="-fx-padding: 10; -fx-background-color: transparent;">
+
+                        <!-- Product List Header -->
+                        <Label text="Group Cart" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F; -fx-padding: 0 0 0 7"/>
+
+                        <!-- Scrollable Product List -->
+                        <VBox fx:id="groupUsersContainer" spacing="10"
+                              style="-fx-padding: 10; -fx-spacing: 15;" />
+
+                        <!-- Add More Products Button -->
+                        <VBox alignment="CENTER" style="-fx-padding: 10;">
+                            <Button text="Add More Product" prefWidth="350" fx:id="addMoreItems_group"
+                                    style="-fx-background-color: #E8F5E9; -fx-text-fill: #5EC401; -fx-font-size: 14px; -fx-font-weight: bold; -fx-border-radius: 8; -fx-padding: 10; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0); -fx-border-color: #5EC401" />
+                        </VBox>
+
+                        <!-- Delivery Location -->
+                        <VBox style="-fx-background-color: white; -fx-border-radius: 16; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0); -fx-background-radius: 16"
+                              spacing="5">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label text="Delivery Location" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                                <Region prefWidth="100" />
+                                <Hyperlink alignment="CENTER_RIGHT" text="Change" style="-fx-font-size: 14px; -fx-text-fill: #5EC401;" fx:id="change_location_group"/>
+                            </HBox>
+                            <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 5 0;">
+                                <StackPane>
+                                    <Circle radius="15" fill="#5EC401" />
+                                    <SVGPath content="M12.0505 2C8.18054 2 5.05054 5.13 5.05054 9C5.05054 13.17 9.47054 18.92 11.2905 21.11C11.6905 21.59 12.4205 21.59 12.8205 21.11C14.6305 18.92 19.0505 13.17 19.0505 9C19.0505 5.13 15.9205 2 12.0505 2ZM7.05054 9C7.05054 6.24 9.29054 4 12.0505 4C14.8105 4 17.0505 6.24 17.0505 9C17.0505 11.88 14.1705 16.19 12.0505 18.88C9.97054 16.21 7.05054 11.85 7.05054 9ZM9.55054 9C9.55054 10.38 10.6705 11.5 12.0505 11.5C13.4305 11.5 14.5505 10.38 14.5505 9C14.5505 7.62 13.4305 6.5 12.0505 6.5C10.6705 6.5 9.55054 7.62 9.55054 9Z"
+                                             fill="white" />
+                                </StackPane>
+                                <Label text="Floor 4, Wakil Tower, Ta 131 Gulshan Badda Link Road"
+                                       style="-fx-font-size: 14px; -fx-text-fill: #757575;" />
+                            </HBox>
+                        </VBox>
+
+                        <!-- Delivery Summary -->
+                        <VBox alignment="CENTER_LEFT"
+                              style="-fx-background-color: white; -fx-border-radius: 16; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0); -fx-background-radius: 16;" spacing="10">
+
+                            <!-- No of Items -->
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label text="No of Items" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="totalItemsLabel_group" text="BDT0" style="-fx-font-size: 14px; -fx-text-fill: #37474F;" />
+                            </HBox>
+
+                            <!-- Delivery Charge -->
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label text="Delivery Charge" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="deliveryChargeLabel_group" text="BDT0" style="-fx-font-size: 14px; -fx-text-fill: #37474F;" />
+                            </HBox>
+
+                            <VBox alignment="CENTER_LEFT">
+                                <!-- Total -->
+                                <HBox alignment="CENTER_LEFT" spacing="5">
+                                    <Label text="Total Price" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                                    <Region HBox.hgrow="ALWAYS" />
+                                    <Label fx:id="totalPriceLabel_group" text="BDT0" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                                </HBox>
+
+                                <!-- Discount -->
+                                <HBox alignment="CENTER_LEFT" spacing="5" fx:id="HBox_discount_group" visible="false" managed="false">
+                                    <Label text="Discount" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #FF6B6B;" />
+                                    <Region HBox.hgrow="ALWAYS" />
+                                    <Label fx:id="totalSavingsLabel_group" text="BDT0" style="-fx-font-size: 12px; -fx-text-fill: #FF6B6B;" />
+                                </HBox>
+                            </VBox>
+                        </VBox>
+
+                        <!-- Payment Method -->
+                        <VBox alignment="CENTER_LEFT"
+                              style="-fx-background-color: white; -fx-border-radius: 16; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0); -fx-background-radius: 16;" spacing="10">
+                            <!-- Title -->
+                            <Label text="Payment Method" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+
+                            <!-- Payment Option -->
+                            <HBox alignment="CENTER_LEFT" spacing="10"
+                                  style="-fx-padding: 10; -fx-background-color: #FFFFFF; -fx-border-radius: 16; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 5, 0, 0, 0); -fx-background-radius: 16">
+
+                                <Region HBox.hgrow="ALWAYS" />
+
+                                <!-- Dynamic Payment Icon -->
+                                <StackPane fx:id="paymentIconContainer_group" style="-fx-alignment: center;">
+                                    <Circle radius="18" fill="#5EC401"/>
+                                    <SVGPath fx:id="paymentIcon_group" style="-fx-fill: white;" />
+                                </StackPane>
+
+                                <Region HBox.hgrow="ALWAYS" />
+
+                                <!-- ComboBox for Payment Method -->
+                                <ComboBox fx:id="paymentMethodComboBox_group" promptText="Select Payment Method"
+                                          style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-color: transparent; -fx-border-width: 0; -fx-padding: 5; -fx-text-fill: #37474F; -fx-border-color: transparent; -fx-border-radius: 16; -fx-background-radius: 16">
+                                    <items>
+                                        <FXCollections fx:factory="observableArrayList">
+                                            <String fx:value="Cash" />
+                                            <String fx:value="Card" />
+                                        </FXCollections>
+                                    </items>
+                                </ComboBox>
+                                <Region HBox.hgrow="ALWAYS" />
+                            </HBox>
+
+                            <Label text="Please choose a payment method before proceeding." fx:id="error_payment_method_group"
+                                   style="-fx-font-size: 12px; -fx-text-fill: red; -fx-padding: 5 0 0 0; -fx-font-weight: bold" wrapText="true" alignment="CENTER"/>
+
+                            <!-- Optional Note -->
+                            <Label text="The amount will be deducted after the order is confirmed."
+                                   style="-fx-font-size: 12px; -fx-text-fill: #B0B0B0; -fx-padding: 5 0 0 0;" wrapText="true"/>
+                        </VBox>
+
+                        <!-- Action Buttons -->
+                        <VBox spacing="15" alignment="CENTER" style="-fx-padding: 10;">
+                            <!-- Place Solo Order Button -->
+                            <Button text="Start Group Order" prefWidth="375" fx:id="start_group_order_button"
+                                    style="-fx-background-color: #FFC107;
+                   -fx-font-size: 16px;
+                   -fx-text-fill: white;
+                   -fx-font-weight: bold;
+                   -fx-background-radius: 12;
+                   -fx-padding: 15;" disable="true"/>
+
+                            <!-- Join Group Order Button with Gradient -->
+                            <Button text="Join Group Order" prefWidth="350" fx:id="join_group_order_button"
+                                    style="-fx-font-size: 16px;
                    -fx-font-weight: bold;
                    -fx-text-fill: white;
                    -fx-padding: 15;
                    -fx-background-radius: 12;
-                   -fx-background-color: linear-gradient(to right, #5EC401, #FFC107);" />
+                   -fx-background-color: linear-gradient(to right, #5EC401, #FFC107);" disable="true"/>
+                        </VBox>
 
-                    <!-- Place Solo Order Button -->
-                    <Button text="Place Solo Order" prefWidth="375"
-                            style="-fx-background-color: #5EC401;
-                   -fx-font-size: 16px;
-                   -fx-text-fill: white;
-                   -fx-font-weight: bold;
-                   -fx-background-radius: 12;
-                   -fx-padding: 15;" />
-                </VBox>
-            </VBox>
-        </ScrollPane>
-    </center>
 
-    <!-- Bottom Section -->
-    <bottom>
-        <HBox alignment="CENTER" spacing="70" prefHeight="50" style="-fx-background-color: FFFFFF; -fx-padding: 10;">
-            <Button fx:id="homeButton" style="-fx-background-color: transparent; -fx-padding: 0;"/>
-            <Button fx:id="menuButton" style="-fx-background-color: transparent; -fx-padding: 0;"/>
-            <Button fx:id="cartButton" style="-fx-background-color: transparent; -fx-padding: 0;"/>
-            <Button fx:id="settingsButton" style="-fx-background-color: transparent; -fx-padding: 0;"/>
-        </HBox>
-    </bottom>
-</BorderPane>
+                        <Label text="By proceeding, you agree to the Terms and Conditions:
+1. Prices are subject to change based on item availability.
+2. The final amount will be deducted only after the order is confirmed.
+3. Orders are subject to availability, and items may be replaced if unavailable.
+4. Delivery fees may vary depending on the location and order size."
+                               style="-fx-font-size: 12px; -fx-text-fill: #B0B0B0; -fx-padding: 0 0 10 20;"
+                               textAlignment="JUSTIFY"
+                               wrapText="true"
+                               prefWidth="350" />
+                    </VBox>
+                </ScrollPane>
+            </StackPane>
+        </center>
+
+        <!-- Bottom Section -->
+        <bottom>
+            <HBox alignment="CENTER" spacing="70" prefHeight="50" style="-fx-background-color: FFFFFF; -fx-padding: 10;">
+                <Button fx:id="homeButton" style="-fx-background-color: transparent; -fx-padding: 0;"/>
+                <Button fx:id="menuButton" style="-fx-background-color: transparent; -fx-padding: 0;"/>
+                <Button fx:id="cartButton" style="-fx-background-color: transparent; -fx-padding: 0;"/>
+                <Button fx:id="settingsButton" style="-fx-background-color: transparent; -fx-padding: 0;"/>
+            </HBox>
+        </bottom>
+    </BorderPane>
+
+    <!-- Loading Overlay -->
+    <Pane fx:id="loadingOverlay" style="-fx-background-color: rgba(0, 0, 0, 0.5);" visible="false" prefWidth="400" prefHeight="711" />
+
+</StackPane>

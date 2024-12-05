@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.shape.SVGPath?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="se_prototype.se_prototype.LocationController"
+            prefHeight="711.0" prefWidth="400.0"
+            style="-fx-background-color: #F5F5F5; -fx-font-family: Arial">
+
+    <!-- Header -->
+    <top>
+        <VBox style="-fx-padding: 15; -fx-background-color: white; -fx-border-color: #E0E0E0; -fx-border-width: 0 0 1 0;">
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Button text="←" style="-fx-font-size: 20px; -fx-background-color: transparent; -fx-text-fill: #37474F;" fx:id="backButton"/>
+                <Label text="My Addresses"
+                       style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- Address List -->
+    <center>
+        <VBox spacing="10" style="-fx-padding: 10;">
+            <!-- Address Form -->
+            <VBox fx:id="addressFormContainer" visible="false" managed="false" spacing="10" style="-fx-padding: 10; -fx-background-color: #FFFFFF; -fx-border-radius: 8; -fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 5, 0, 0, 0);">
+                <TextField fx:id="titleField" promptText="Enter Address Title" style="-fx-font-size: 14px;" />
+                <TextField fx:id="detailsField" promptText="Enter Address Details" style="-fx-font-size: 14px;" />
+                <Button fx:id="saveAddressButton" text="Save Address" style="-fx-background-color: #5EC401; -fx-text-fill: white; -fx-font-size: 14px;" />
+            </VBox>
+            <VBox spacing="15" fx:id="addressList" style="-fx-padding: 0 10;">
+                <!-- Individual address nodes will be added dynamically -->
+            </VBox>
+        </VBox>
+    </center>
+
+    <!-- Add New Address Button -->
+    <bottom>
+        <HBox alignment="CENTER" spacing="70" prefHeight="50" style="-fx-padding: 30;">
+            <Button fx:id="addAddressButton" text="Add New Address" prefWidth="350"
+                    style="-fx-background-color: #5EC401; -fx-font-size: 16px; -fx-text-fill: white; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 10;"
+                    alignment="CENTER" onMouseClicked="#addNewAddress">
+                <ImageView fitWidth="15" fitHeight="15" />
+            </Button>
+        </HBox>
+    </bottom>
+
+</BorderPane>

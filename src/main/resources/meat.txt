@@ -1,10 +1,10 @@
-Chicken Breast,Fresh chicken breast from Farm Fresh Meats,4.0,chicken_breast.png,0,1
-Ground Beef,Premium ground beef from Butcher's Best,5.5,ground_beef.png,0,1
+Chicken Breast,Fresh chicken breast from Farm Fresh Meats,4.0,chicken_breast.png,10,1
+Ground Beef,Premium ground beef from Butcher's Best,5.5,ground_beef.png,20,1
 Pork Chops,Juicy pork chops from Butcher's Best,4.75,pork_chops.png,0,1
-Salmon Fillet,Fresh salmon fillet from Ocean's Harvest,10.0,salmon_fillet.png,0,1
+Salmon Fillet,Fresh salmon fillet from Ocean's Harvest,10.0,salmon_fillet.png,50,1
 Shrimp,Delicious shrimp from Ocean's Harvest,12.0,shrimp.png,0,1
 Turkey,Lean turkey from Butcher's Best,6.0,turkey.png,0,1
-Lamb Chops,Tender lamb chops from Farmer's Select,8.0,lamb_chops.png,0,1
+Lamb Chops,Tender lamb chops from Farmer's Select,8.0,lamb_chops.png,30,1
 Tuna,Fresh tuna from Ocean's Harvest,9.0,tuna.png,0,1
 Crab,Juicy crab from Ocean's Harvest,15.0,crab.png,0,1
-Sausages,Savory sausages from Butcher's Delight,3.5,sausages.png,0,1
+Sausages,Savory sausages from Butcher's Delight,3.5,sausages.png,20,1

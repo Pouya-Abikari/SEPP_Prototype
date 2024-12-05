@@ -33,6 +33,11 @@ public class Product {
         return imageUrl;
     }
 
+    public double getDiscount() {
+        return discount;
+    }
+
+
     public String getDiscountPrice(int discount) {
         if (discount < 0 || discount > 100) {
             throw new IllegalArgumentException("Discount must be between 0 and 100");

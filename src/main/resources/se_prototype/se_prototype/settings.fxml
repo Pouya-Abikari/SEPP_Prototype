@@ -1,14 +1,91 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="se_prototype.se_prototype.SettingsController"
-            prefHeight="400.0" prefWidth="600.0">
+<BorderPane xmlns:fx="http://javafx.com/fxml" xmlns="http://javafx.com/javafx/8" fx:controller="se_prototype.se_prototype.SettingsController">
+    <!-- Top Bar -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-background-color: #333333; -fx-padding: 10;">
+            <Label text="Settings" style="-fx-text-fill: #333333; -fx-font-size: 24; -fx-font-weight: bold;"/>
+        </HBox>
+    </top>
 
-</AnchorPane>
+    <!-- Main Content -->
+    <center>
+        <VBox spacing="20" alignment="TOP_CENTER" style="-fx-padding: 20;">
+            <!-- User Info -->
+            <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 10;">
+                <ImageView fx:id="profileImageView" fitWidth="60" fitHeight="60" style="-fx-border-radius: 50%;"/>
+                <VBox alignment="CENTER_LEFT" spacing="5">
+                    <Label text="MrBlueWorking" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+                    <Label text="0503503349" style="-fx-font-size: 14; -fx-text-fill: gray;"/>
+                </VBox>
+                <Button fx:id="editProfileButton" style="-fx-background-color: transparent;">
+                    <ImageView fitWidth="20" fitHeight="20"/>
+                </Button>
+            </HBox>
+
+            <!-- Settings Options -->
+            <VBox spacing="10" alignment="TOP_CENTER" style="-fx-padding: 10;">
+                <Button text="My Address" fx:id="myAddressButton" style="-fx-pref-width: 300; -fx-padding: 15; -fx-background-color: #ffffff; -fx-border-color: gray; -fx-border-radius: 10; -fx-text-fill: #333333;" onAction="#handleMyAddressButton">
+                    <ImageView fitWidth="20" fitHeight="20"/>
+                </Button>
+                <Button text="My Orders" fx:id="myOrdersButton" style="-fx-pref-width: 300; -fx-padding: 15; -fx-background-color: #ffffff; -fx-border-color: gray; -fx-border-radius: 10; -fx-text-fill: #333333;" onAction="#handleMyOrdersButton">
+                    <ImageView fitWidth="20" fitHeight="20"/>
+                </Button>
+                <Button text="My Wishlist" fx:id="myWishlistButton" style="-fx-pref-width: 300; -fx-padding: 15; -fx-background-color: #ffffff; -fx-border-color: gray; -fx-border-radius: 10; -fx-text-fill: #333333;" onAction="#handleMyWishlistButton">
+                    <ImageView fitWidth="20" fitHeight="20"/>
+                </Button>
+                <Button text="Support" fx:id="supportButton" style="-fx-pref-width: 300; -fx-padding: 15; -fx-background-color: #ffffff; -fx-border-color: gray; -fx-border-radius: 10; -fx-text-fill: #333333;">
+                    <ImageView fitWidth="20" fitHeight="20"/>
+                </Button>
+                <Button text="Talk to our Support" fx:id="talkToSupportButton" style="-fx-pref-width: 300; -fx-padding: 15; -fx-background-color: #ffffff; -fx-border-color: gray; -fx-border-radius: 10; -fx-text-fill: #333333;">
+                    <ImageView fitWidth="20" fitHeight="20"/>
+                </Button>
+                <Button text="Mail to us" fx:id="mailButton" style="-fx-pref-width: 300; -fx-padding: 15; -fx-background-color: #ffffff; -fx-border-color: gray; -fx-border-radius: 10; -fx-text-fill: #333333;">
+                    <ImageView fitWidth="20" fitHeight="20"/>
+                </Button>
+                <Button text="Log out" fx:id="logoutButton" style="-fx-pref-width: 300; -fx-padding: 15; -fx-background-color: #ffffff; -fx-border-color: red; -fx-border-radius: 10; -fx-text-fill: red;">
+                    <ImageView fitWidth="20" fitHeight="20"/>
+                </Button>
+            </VBox>
+
+            <!-- Sections for Each Page (Initially Hidden) -->
+            <VBox fx:id="myAddressSection" spacing="15" alignment="TOP_CENTER" style="-fx-padding: 15;" visible="false" managed="false">
+                <Label text="My Address Section" style="-fx-font-size: 18;" />
+                <!-- Add additional controls for My Address Section -->
+            </VBox>
+
+            <VBox fx:id="myOrdersSection" spacing="15" alignment="TOP_CENTER" style="-fx-padding: 15;" visible="false" managed="false">
+                <Label text="My Orders Section" style="-fx-font-size: 18;" />
+                <!-- Add additional controls for My Orders Section -->
+            </VBox>
+
+            <VBox fx:id="myWishlistSection" spacing="15" alignment="TOP_CENTER" style="-fx-padding: 15;" visible="false" managed="false">
+                <Label text="My Wishlist Section" style="-fx-font-size: 18;" />
+                <!-- Add additional controls for My Wishlist Section -->
+            </VBox>
+        </VBox>
+    </center>
+
+    <!-- Bottom Navigation Bar -->
+    <bottom>
+        <HBox alignment="CENTER" spacing="30" style="-fx-background-color: #ffffff; -fx-padding: 10;">
+            <Button style="-fx-background-color: transparent;">
+                <ImageView fitWidth="24" fitHeight="24"/>
+            </Button>
+            <Button style="-fx-background-color: transparent;">
+                <ImageView fitWidth="24" fitHeight="24"/>
+            </Button>
+            <Button style="-fx-background-color: transparent;">
+                <ImageView fitWidth="24" fitHeight="24"/>
+            </Button>
+            <Button style="-fx-background-color: transparent;">
+                <ImageView fitWidth="24" fitHeight="24"/>
+            </Button>
+        </HBox>
+    </bottom>
+</BorderPane>

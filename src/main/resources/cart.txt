@@ -1,25 +1,4 @@
-Tomatoes,Fresh tomatoes from Fresh Farms,1.2,Fruits&Vegetables/tomatoes.png,0,1
-Celery,Crunchy celery from Fresh Farms,0.95,Fruits&Vegetables/celery.png,0,1
-Onion,Organic onions from Green Growers,0.85,Fruits&Vegetables/onion.png,0,1
-Potatoes,Fresh potatoes from Green Growers,0.65,Fruits&Vegetables/potatoes.png,0,1
-Lettuce,Crisp lettuce from Green Growers,1.1,Fruits&Vegetables/lettuce.png,10,1
-Bananas,Sweet bananas from Tropical Harvest,0.7,Fruits&Vegetables/bananas.png,0,1
-Apples,Juicy apples from Tropical Harvest,1.5,Fruits&Vegetables/apples.png,20,1
-Oranges,Fresh oranges from Citrus Direct,1.3,Fruits&Vegetables/oranges.png,0,1
-Grapes,Sweet grapes from Citrus Direct,2.0,Fruits&Vegetables/grapes.png,0,1
-Milk,Fresh milk from Dairyland Supply,1.25,milk.png,0,1
-Cheese,Delicious cheese from Dairyland Supply,2.5,cheese.png,40,1
-Butter,Creamy butter from Dairyland Supply,1.75,butter.png,15,1
-Yogurt,Healthy yogurt from Healthy Creamery,0.8,yogurt.png,0,1
-Eggs,Farm fresh eggs from Healthy Creamery,3.0,eggs.png,60,1
-Chicken Breast,Tender chicken breast from Farm Fresh Meats,4.0,chicken_breast.png,0,1
-Ground Beef,Premium ground beef from Farm Fresh Meats,5.5,ground_beef.png,0,1
-Pork Chops,Juicy pork chops from Butcher's Best,4.75,pork_chops.png,80,1
-Salmon Fillet,Fresh salmon fillet from Ocean's Harvest,10.0,salmon_fillet.png,0,1
-Shrimp,Delicious shrimp from Ocean's Harvest,12.0,shrimp.png,0,1
-Bread,Freshly baked bread from Baker's Delight,2.0,bread.png,0,1
-Croissant,Buttery croissants from Baker's Delight,1.5,croissant.png,0,1
-Cereal,Nutritious cereal from Pantry Provisions,3.25,cereal.png,25,1
-Pasta,High-quality pasta from Pantry Provisions,1.8,pasta.png,30,1
-Olive Oil,Premium olive oil from Gourmet Supplies,6.5,olive_oil.png,0,1
-Coffee Beans,Rich coffee beans from Gourmet Supplies,8.0,coffee_beans.png,0,1
+Pretzels,Salty pretzels from Snacky Treats,2.0,pretzels.png,0.0,4
+Popcorn,Buttery popcorn from Movie Nights,1.8,popcorn.png,0.0,4
+Candy,Sweet candies from Sugar Rush,1.0,candy.png,0.0,3
+Lettuce,Crisp lettuce from Green Growers,1.1,Fruits&Vegetables/lettuce.png,10.0,3
