@@ -12,6 +12,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -70,6 +71,25 @@ public class MessageController {
         initializeParticipants();
         initializeParticipantColors();
         setUpImages();
+
+        HBox.setHgrow(messageField, Priority.ALWAYS);
+
+        // Apply inline styles for rounded corners and padding
+        messageField.setStyle(
+                "-fx-background-radius: 15; " +
+                        "-fx-border-radius: 15; " +
+                        "-fx-padding: 10; " +
+                        "-fx-border-color: #CCCCCC;"
+        );
+
+        sendButton.setStyle(
+                "-fx-background-radius: 15; " +
+                        "-fx-border-radius: 15; " +
+                        "-fx-padding: 10; " +
+                        "-fx-background-color: #5ec401; " +
+                        "-fx-text-fill: white;"
+        );
+
 
         // Set alignment of chatContainer
         chatContainer.setStyle("-fx-padding: 10 10 10 10; -fx-alignment: bottom-left;");

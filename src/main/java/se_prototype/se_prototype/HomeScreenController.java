@@ -50,6 +50,7 @@ public class HomeScreenController {
         menuButton.setOnAction(event -> switchToPage("menu.fxml", "Menu"));
         cartButton.setOnAction(event -> switchToPage("cart.fxml", "Cart"));
         settingsButton.setOnAction(event -> switchToPage("settings.fxml", "Settings"));
+        notificationButton.setOnAction(event -> switchToPage("notifications.fxml", "Notifications"));
     }
 
 
@@ -70,6 +71,7 @@ public class HomeScreenController {
             notificationImgView.setFitWidth(30);
             notificationImgView.setFitHeight(30);
             notificationButton.setGraphic(notificationImgView);
+            notificationButton.setOnMouseClicked(event -> switchToPage("notifications.fxml", "Notifications"));
 
             // Load the main page illustration
             Image mainImg = new Image(this.getClass().getResourceAsStream("/illustrationMainPageV2.png"));
