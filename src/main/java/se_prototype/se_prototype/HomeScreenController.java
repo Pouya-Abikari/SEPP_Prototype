@@ -31,6 +31,9 @@ public class HomeScreenController {
     private ImageView moviePizzaImage;
 
     @FXML
+    private ImageView  errorImage;
+
+    @FXML
     private Button homeButton;
     @FXML
     private Button menuButton;
@@ -97,6 +100,12 @@ public class HomeScreenController {
             moviePizzaImage.setImage(pizzaImg);
             moviePizzaImage.setFitWidth(300.0);
             moviePizzaImage.setPreserveRatio(true);
+
+            // Load the error pizza image
+            Image errorImg = new Image(this.getClass().getResourceAsStream("/siteUnavailable.png"));
+            errorImage.setImage(errorImg);
+            errorImage.setFitWidth(300.0);
+            errorImage.setPreserveRatio(true);
 
             // home page button
             Image homeImg = new Image(getClass().getResourceAsStream("/bottomPartSymbols/homePageButtonClicked.png"));

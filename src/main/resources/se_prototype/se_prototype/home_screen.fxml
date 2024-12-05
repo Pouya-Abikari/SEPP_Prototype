@@ -63,7 +63,7 @@
                     <Label text="Notes: Enjoy an extra 5% off when checking out with our newly added Shared Grocery Ordering System. Use code: MERRY5" wrapText="true" style="-fx-text-fill: #1E1E1E; -fx-font-size: 14;"/>
                 </VBox>
 
-                <!-- Card 2: Movie night -->
+                <!-- Card 3: Movie night -->
                 <VBox spacing="10" style="-fx-background-color: #FFFFFF; -fx-padding: 15; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 4);">
                     <Label text="Student Smart Homes - 2:30pm, Thur Nov 21st" style="-fx-text-fill: #1E1E1E; -fx-font-size: 12;"/>
                     <Label text="Join our annual Pizza and Movie Night" style="-fx-text-fill: #1E1E1E; -fx-font-size: 18; -fx-font-weight: bold;"/>
@@ -73,6 +73,18 @@
                         </center>
                     </BorderPane>
                     <Label text="Notes: Calling all our students! The annual movie night is finally back! Join us at the St. Jeffs cinema on the 26th of November at 5:00pm to enjoy a movie with free pizza. Dont miss out!" wrapText="true" style="-fx-text-fill: #1E1E1E; -fx-font-size: 14;"/>
+                </VBox>
+
+                <!-- Card 4: Movie night -->
+                <VBox spacing="10" style="-fx-background-color: #FFFFFF; -fx-padding: 15; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 4);">
+                    <Label text="Student Smart Homes - 5:09pm, Tue Nov 19th" style="-fx-text-fill: #1E1E1E; -fx-font-size: 12;"/>
+                    <Label text="Messaging Service Unavailabilty" style="-fx-text-fill: #1E1E1E; -fx-font-size: 18; -fx-font-weight: bold;"/>
+                    <BorderPane>
+                        <center>
+                            <ImageView fx:id="errorImage" />
+                        </center>
+                    </BorderPane>
+                    <Label text="Notes: Our in-app messaging service will be temporarily down today from 10:00pm till 10:30pm due to a software update. Our apologies for the inconvenience." wrapText="true" style="-fx-text-fill: #1E1E1E; -fx-font-size: 14;"/>
                 </VBox>
             </VBox>
         </ScrollPane>

@@ -3,6 +3,7 @@ package se_prototype.se_prototype;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -115,6 +116,7 @@ public class MessageController {
         predefinedRepliesWithVariations.put("how are you".toLowerCase(), Arrays.asList("I'm good, thank you!", "Doing great!", "I'm fine, you?"));
         predefinedRepliesWithVariations.put("what is your name".toLowerCase(), Arrays.asList("I'm Cassie.", "Your friendly assistant.", "Cassie here!"));
         predefinedRepliesWithVariations.put("bye".toLowerCase(), Arrays.asList("Goodbye! Have a nice day!", "See you later!", "Take care!"));
+        predefinedRepliesWithVariations.put("should we start a shared group order?".toLowerCase(), Arrays.asList("Yes!", "For sure, lets do it!", "I will join", "Yes! Send the link."));
     }
 
     private void sendMessage() {
@@ -144,29 +146,92 @@ public class MessageController {
                 }).start();
             }
 
+            if (userMessage.equalsIgnoreCase("should we start a shared group order?")) {
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(1000 + (numberOfResponders * 500)); // Wait for all replies
+                        Platform.runLater(() -> addClickableMessage("Click here to start group", "StartGroupOrderController", "start_group_order.fxml"));
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }).start();
+            }
+
             // Clear the message field
             messageField.clear();
         }
     }
 
+    private void addClickableMessage(String message, String controller, String fxmlFile) {
+        // Create a container for the message and name
+        VBox messageContainer = new VBox();
+        messageContainer.setSpacing(0); // Space between message bubble and name
 
+        // Label for the sender's name
+        Label nameLabel = new Label("You");
+        nameLabel.setStyle("-fx-font-size: 10; -fx-text-fill: gray;");
+        nameLabel.setPadding(new Insets(0, 0, 2, 0));
+
+        // Text with a clickable hyperlink
+        Text clickText = new Text("Click here");
+        clickText.setStyle("-fx-font-size: 14; -fx-underline: true; -fx-text-fill: white;"); // Underlined green text
+        clickText.setOnMouseClicked(event -> switchToPage(fxmlFile, "Start Group Order"));
+
+        Text plainText = new Text(" to start group");
+        plainText.setStyle("-fx-font-size: 14;");
+
+        TextFlow textFlow = new TextFlow(clickText, plainText);
+        textFlow.setStyle("-fx-padding: 10; -fx-background-radius: 15; -fx-background-color: #4FC3D0; -fx-text-fill: white;");
+        textFlow.setMaxWidth(250); // Set maximum width for wrapping
+        textFlow.setPrefWidth(Region.USE_COMPUTED_SIZE);
+        textFlow.setMinWidth(Region.USE_PREF_SIZE);
+
+        // Bind the wrapping width of the Text to ensure proper layout
+        clickText.wrappingWidthProperty().bind(textFlow.widthProperty().subtract(10)); // Adjust for padding
+        plainText.wrappingWidthProperty().bind(textFlow.widthProperty().subtract(10));
+
+        // Add the name label and textFlow to the container
+        messageContainer.getChildren().addAll(nameLabel, textFlow);
+
+        // Align the container
+        messageContainer.setAlignment(Pos.TOP_RIGHT);
+
+        // Add to the chat container
+        chatContainer.getChildren().add(messageContainer);
+
+        // Ensure the scroll pane stays scrolled to the bottom
+        scrollPane.layout();
+        scrollPane.setVvalue(1.0);
+    }
 
     private void addMessage(String message, String sender) {
         // Create a container for the message and name
         VBox messageContainer = new VBox();
-        messageContainer.setSpacing(12); // Space between message bubble and name
+        messageContainer.setSpacing(0); // Space between message bubble and name
 
-        // Create the message text and TextFlow
+        Label nameLabel = new Label(sender);
+        nameLabel.setStyle("-fx-font-size: 10; -fx-text-fill: gray;");
+        nameLabel.setPadding(new Insets(0, 0, 2, 0));
+
         Text text = new Text(message);
-        text.setWrappingWidth(0); // Disable wrapping to calculate precise width
         text.setStyle("-fx-font-size: 14;");
+
+        //double maxTextWidth = 250; // Maximum width of the message bubble
+        //text.setWrappingWidth(maxTextWidth);
 
         TextFlow textFlow = new TextFlow(text);
         textFlow.setStyle("-fx-padding: 10; -fx-background-radius: 15; -fx-font-size: 14;");
 
+        double maxBubbleWidth = 250; // Maximum width for the text bubble
+        textFlow.setMaxWidth(maxBubbleWidth);
+        textFlow.setPrefWidth(Region.USE_COMPUTED_SIZE);
+
+        text.wrappingWidthProperty().bind(textFlow.widthProperty().subtract(20)); // Account for padding
+
+
         // Calculate exact text width and adjust the max width
-        double textWidth = text.getBoundsInLocal().getWidth();
-        textFlow.setMaxWidth(textWidth + 30); // Add padding to the bubble
+        //double textWidth = text.getBoundsInLocal().getWidth();
+        //textFlow.setMaxWidth(textWidth + 30); // Add padding to the bubble
 
 
         // Set background color based on sender
@@ -177,18 +242,15 @@ public class MessageController {
             textFlow.setStyle(textFlow.getStyle() + " -fx-background-color: " + color + "; -fx-text-fill: white;");
         }
 
-        // Create a label for the sender's name
-        Label nameLabel = new Label(sender);
-        nameLabel.setStyle("-fx-font-size: 10; -fx-text-fill: gray;");
+        messageContainer.getChildren().addAll(nameLabel, textFlow);
 
-        // Add the message bubble and name label to the messageContainer
-        messageContainer.getChildren().addAll(textFlow, nameLabel);
-
-        // Align the messageContainer based on the sender
+        // Adjust alignment based on sender
         if (sender.equals("You")) {
-            messageContainer.setAlignment(Pos.BASELINE_RIGHT);
+            messageContainer.setAlignment(Pos.TOP_RIGHT);
+            VBox.setMargin(textFlow, new Insets(0, 0, 5, 0)); // Adjust margin for better spacing
         } else {
-            messageContainer.setAlignment(Pos.BASELINE_LEFT);
+            messageContainer.setAlignment(Pos.TOP_LEFT);
+            VBox.setMargin(textFlow, new Insets(0, 0, 5, 0));
         }
 
         // Add the message container to the chat container
