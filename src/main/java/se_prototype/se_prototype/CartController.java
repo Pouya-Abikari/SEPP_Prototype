@@ -18,6 +18,9 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.paint.Color;
@@ -27,6 +30,10 @@ import se_prototype.se_prototype.Model.UserCart;
 
 public class CartController {
 
+    @FXML
+    private Label timerLabel;
+    @FXML
+    private StackPane screen;
     @FXML
     private ScrollPane group_cart;
     @FXML
@@ -91,35 +98,35 @@ public class CartController {
     private Label groupLabel;
 
     private boolean isSoloCart = true;
-
+    private long timeRemaining = 3600; // 1 hour in seconds
     private final String CART_FILE = "src/main/resources/cart.txt";
     private final List<UserCart> userCarts = new ArrayList<>();
     private final String saveFile = "src/main/resources/group_cart_users.txt";
-    private final String allItemsFile = "src/main/resources/search.txt"; // File containing all products
     private final List<Product> allProducts = new ArrayList<>();
-    private UserCart loggedInUserCart;
+    private boolean isGroupCartTimerRunning = false;
+    private static final String TIMER_STATE_FILE = "src/main/resources/timer_state.txt";
+    private ScheduledExecutorService timerService;
 
     @FXML
     public void initialize() {
+        loadTimerState();
         setupImages();
         loadCartFromFile();
         updateCartSummary();
         initializeLoadingOverlay();
         payment_icon_and_method();
         updateGroupCartUI();
-        startRandomUserUpdate();
         loadGroupCart();
         loadAllProducts();
         loadLoggedInUserCart();
         loadUserData();
-        System.out.println("Current userCarts: " + userCarts);
         startRandomUserUpdate();
-        System.out.println("Current userCarts: " + userCarts);
         group_cart.setVisible(false);
         group_cart.setManaged(false);
         soloLabel.setTranslateX(-22.5);
         toggleThumb.setStyle("-fx-fill: #959595;");
         animateToggleThumb(-30);
+        group_cart.setVvalue(0);
 
         paymentMethodComboBox.getSelectionModel().selectedItemProperty().addListener((options, oldValue, newValue) -> {
             if (newValue != null && (newValue.equals("Cash") || newValue.equals("Card"))) {
@@ -148,6 +155,8 @@ public class CartController {
     }
 
     private void loadAllProducts() {
+        // File containing all products
+        String allItemsFile = "src/main/resources/search.txt";
         File file = new File(allItemsFile);
         if (!file.exists()) {
             System.err.println("Product file not found: " + allItemsFile);
@@ -202,36 +211,43 @@ public class CartController {
 
         // Replace or add the "You" cart
         userCarts.removeIf(cart -> cart.getUserName().equals("You"));
-        loggedInUserCart = new UserCart("You", cartItems);
+        UserCart loggedInUserCart = new UserCart("You", cartItems);
         userCarts.add(0, loggedInUserCart);
     }
 
     private void startRandomUserUpdate() {
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                if (userCarts.size() < 4) {
+        Random random = new Random();
+        List<String> addedUsers = new ArrayList<>();
+
+        new Thread(() -> {
+            while (userCarts.size() < 10) {
+                try {
+                    Thread.sleep(15000); // Wait for 15 seconds before adding a new user
                     Platform.runLater(() -> {
-                        addRandomUser();
-                        saveUserData();
-                        updateGroupCartUI();
+                        if (userCarts.size() < 10) {
+                            String userName = "User " + (userCarts.size() + 1);
+                            if (!addedUsers.contains(userName)) {
+                                addRandomUser();
+                                saveUserData();
+                                updateGroupCartUI();
+                                addedUsers.add(userName);
+                            }
+                        } else {
+                            System.out.println("Maximum number of users reached. No new users will be added.");
+                        }
                     });
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
-        }, 0, 120000); // Add a new user every 2 minutes
+        }).start();
     }
 
     private void addRandomUser() {
-        if (allProducts.isEmpty()) return;
-
-        // Check if the number of users exceeds 10
-        if (userCarts.size() >= 10) {
-            System.out.println("Maximum number of users reached. No new users will be added.");
-            return;
-        }
+        if (allProducts.isEmpty() || userCarts.size() >= 10) return;
 
         Random random = new Random();
+        Collections.shuffle(allProducts); // Shuffle to ensure randomness
 
         // Generate random user data
         String userName = "User " + (userCarts.size() + 1);
@@ -240,21 +256,17 @@ public class CartController {
         int numItems = random.nextInt(3) + 1; // Each user has 1-3 items
         for (int i = 0; i < numItems; i++) {
             Product randomProduct = allProducts.get(random.nextInt(allProducts.size()));
-            int quantity = random.nextInt(3) + 1; // 1-3 items per product
-            Product productCopy = new Product(
+            cartItems.add(new Product(
                     randomProduct.getName(),
                     randomProduct.getDescription(),
                     randomProduct.getPrice(),
                     randomProduct.getImageUrl(),
                     randomProduct.getDiscount(),
-                    quantity
-            );
-            cartItems.add(productCopy);
+                    random.nextInt(3) + 1 // Random quantity (1-3)
+            ));
         }
 
         userCarts.add(new UserCart(userName, cartItems));
-        saveUserData(); // Save the updated group cart to file
-        updateGroupCartUI(); // Update the UI
     }
 
     private void updateGroupCartUI() {
@@ -346,6 +358,7 @@ public class CartController {
         isSoloCart = !isSoloCart;
 
         if (isSoloCart) {
+            // Solo Cart View
             soloLabel.setVisible(true);
             toggleThumb.setStyle("-fx-fill: #959595;");
             groupLabel.setVisible(false);
@@ -354,7 +367,9 @@ public class CartController {
             group_cart.setManaged(false);
             productScrollPane.setVisible(true);
             productScrollPane.setManaged(true);
+            group_cart.setVvalue(0);
         } else {
+            // Group Cart View
             soloLabel.setVisible(false);
             groupLabel.setVisible(true);
             toggleThumb.setStyle("-fx-fill: #5EC401;");
@@ -363,8 +378,122 @@ public class CartController {
             group_cart.setManaged(true);
             productScrollPane.setVisible(false);
             productScrollPane.setManaged(false);
+            updateLoggedInUserCartInGroup();
+            startGroupCartTimer();
             group_cart.setVvalue(0);
         }
+    }
+
+    private void updateTimerLabel() {
+        long minutes = timeRemaining / 60;
+        long seconds = timeRemaining % 60;
+        String timeText = String.format("Time Remaining: %02d:%02d", minutes, seconds);
+        Platform.runLater(() -> timerLabel.setText(timeText));
+    }
+
+    private void startGroupCartTimer() {
+        if (isGroupCartTimerRunning) {
+            return; // Timer is already running
+        }
+
+        isGroupCartTimerRunning = true;
+        timerService = Executors.newSingleThreadScheduledExecutor();
+
+        timerService.scheduleAtFixedRate(() -> {
+            timeRemaining--;
+
+            if (timeRemaining <= 0) {
+                Platform.runLater(() -> {
+                    // Handle timer completion (e.g., show a dialog or disable features)
+                    timerLabel.setText("Time Expired");
+                    stopGroupCartTimer(); // Stop the timer once expired
+                });
+            } else {
+                updateTimerLabel(); // Update the timer display
+            }
+
+        }, 0, 1, TimeUnit.SECONDS);
+    }
+
+    private void stopGroupCartTimer() {
+        if (timerService != null) {
+            timerService.shutdown();
+            isGroupCartTimerRunning = false;
+        }
+    }
+
+    private void saveTimerState() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(TIMER_STATE_FILE))) {
+            writer.write(String.valueOf(timeRemaining));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadTimerState() {
+        File file = new File(TIMER_STATE_FILE);
+        if (!file.exists()) {
+            return; // No saved timer state
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            timeRemaining = Long.parseLong(reader.readLine());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void showLoadingOverlay(boolean show) {
+        if (show) {
+            applyBlurredBackgroundEffect(true);
+            loadingOverlay.setVisible(true);
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(200), loadingOverlay);
+            fadeIn.setFromValue(0);
+            fadeIn.setToValue(1);
+            fadeIn.play();
+        } else {
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(200), loadingOverlay);
+            fadeOut.setFromValue(1);
+            fadeOut.setToValue(0);
+            fadeOut.setOnFinished(event -> {
+                loadingOverlay.setVisible(false);
+                applyBlurredBackgroundEffect(false);
+            });
+            fadeOut.play();
+        }
+    }
+
+    private void updateLoggedInUserCartInGroup() {
+        Platform.runLater(() -> {
+            // Load updated "You" cart from `cart.txt`
+            List<Product> updatedCartItems = new ArrayList<>();
+            try (BufferedReader reader = new BufferedReader(new FileReader(CART_FILE))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] parts = line.split(",");
+                    if (parts.length >= 6) {
+                        updatedCartItems.add(new Product(
+                                parts[0],
+                                parts[1],
+                                Double.parseDouble(parts[2]),
+                                parts[3],
+                                Double.parseDouble(parts[4]),
+                                Integer.parseInt(parts[5])
+                        ));
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            // Replace or add the "You" cart in `userCarts`
+            UserCart youCart = new UserCart("You", updatedCartItems);
+            userCarts.removeIf(cart -> cart.getUserName().equals("You"));
+            userCarts.add(0, youCart);
+
+            // Refresh the group cart UI
+            updateGroupCartUI();
+        });
     }
 
     private void overrideYouCart() {
