@@ -195,9 +195,11 @@
                         <!-- Product List Header -->
                         <Label text="Group Cart" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F; -fx-padding: 0 0 0 7"/>
 
-                        <!-- Timer Display -->
-                        <Label fx:id="timerLabel" text="Time Remaining: 60:00"
-                               style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FF6B6B;" />
+                        <VBox alignment="CENTER_RIGHT" style="-fx-padding: 0 7 0 0">
+                            <!-- Timer Display -->
+                            <Label fx:id="timerLabel"
+                                   style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FF6B6B;" />
+                        </VBox>
 
                         <!-- Scrollable Product List -->
                         <VBox fx:id="groupUsersContainer" spacing="10"

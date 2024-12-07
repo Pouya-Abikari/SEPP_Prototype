@@ -21,7 +21,6 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -115,18 +114,22 @@ public class CartController {
         updateCartSummary();
         initializeLoadingOverlay();
         payment_icon_and_method();
-        updateGroupCartUI();
-        loadGroupCart();
         loadAllProducts();
         loadLoggedInUserCart();
         loadUserData();
         startRandomUserUpdate();
+
+        // Initialize UI setup
         group_cart.setVisible(false);
         group_cart.setManaged(false);
         soloLabel.setTranslateX(-22.5);
         toggleThumb.setStyle("-fx-fill: #959595;");
         animateToggleThumb(-30);
         group_cart.setVvalue(0);
+
+        // Update UI to reflect the latest data
+        updateGroupCartUI();
+        loadGroupCart();
 
         paymentMethodComboBox.getSelectionModel().selectedItemProperty().addListener((options, oldValue, newValue) -> {
             if (newValue != null && (newValue.equals("Cash") || newValue.equals("Card"))) {
@@ -273,46 +276,121 @@ public class CartController {
         groupUsersContainer.getChildren().clear();
 
         for (UserCart userCart : userCarts) {
+            // Main container for each user's cart
             VBox userCartBox = new VBox();
-            userCartBox.setStyle("-fx-background-color: white; -fx-border-radius: 8; -fx-padding: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0);");
-            userCartBox.setSpacing(10);
+            userCartBox.setStyle("-fx-background-color: #FFFFFF; " +
+                    "-fx-border-radius: 12; " +
+                    "-fx-padding: 10; " +
+                    "-fx-background-radius: 12;" +
+                    "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 8, 0, 0, 2);" +
+                    "-fx-border-color: transparent;");
+            userCartBox.setSpacing(8);
 
+            // User header section (image + name)
             HBox userHeader = new HBox();
-            userHeader.setSpacing(10);
+            userHeader.setSpacing(8);
+            userHeader.setAlignment(Pos.CENTER_LEFT);
 
+            // User profile image
             ImageView userImage = new ImageView(new Image("current_user_picture.png"));
-            userImage.setFitWidth(40);
+            userImage.setFitWidth(40); // Reduced size for compact design
             userImage.setFitHeight(40);
             userImage.setPreserveRatio(true);
+            userImage.setStyle("-fx-border-radius: 20;"); // Circular profile image
 
+            // User name label
             Label userNameLabel = new Label(userCart.getUserName());
-            userNameLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #5EC401;");
+            userNameLabel.setStyle("-fx-font-size: 14px; " +
+                    "-fx-font-weight: bold; " +
+                    "-fx-text-fill: #5EC401;");
 
             userHeader.getChildren().addAll(userImage, userNameLabel);
 
+            // Container for cart items
             VBox userCartItems = new VBox();
-            userCartItems.setSpacing(5);
+            userCartItems.setSpacing(8);
 
             for (Product item : userCart.getCartItems()) {
+                // Item container
                 HBox itemBox = new HBox();
                 itemBox.setSpacing(10);
+                itemBox.setAlignment(Pos.CENTER_LEFT);
+                itemBox.setPrefHeight(45);
+                itemBox.setStyle("-fx-background-color: #F8F8F8; " +
+                        "-fx-border-radius: 8; " +
+                        "-fx-padding: 8;" +
+                        "-fx-background-radius: 8;");
 
+                // Item image
                 ImageView itemImage = new ImageView(new Image(item.getImageUrl()));
-                itemImage.setFitWidth(30);
-                itemImage.setFitHeight(30);
+                itemImage.setFitWidth(35); // Max width for consistency
+                itemImage.setFitHeight(35); // Ensure consistent height
                 itemImage.setPreserveRatio(true);
+                itemImage.setStyle("-fx-border-radius: 8;");
 
-                Label itemLabel = new Label(item.getName() + " - " + item.getQuantity() + " x " + item.getDiscountPrice((int) item.getDiscount()));
-                itemLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #37474F;");
+                // Container for text to avoid overlapping
+                VBox textContainer = new VBox();
+                textContainer.setSpacing(5);
+                textContainer.setAlignment(Pos.CENTER_LEFT);
+                textContainer.setMaxWidth(180);
 
-                itemBox.getChildren().addAll(itemImage, itemLabel);
+                // Item name
+                Label itemLabel = new Label(item.getName());
+                itemLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #37474F;");
+                itemLabel.setWrapText(true);
+
+                // Add name and discount to text container
+                HBox nameAndDiscountBox = new HBox(5); // 5 is the spacing between name and discount
+                nameAndDiscountBox.setAlignment(Pos.CENTER_LEFT);
+                nameAndDiscountBox.getChildren().add(itemLabel);
 
                 if (item.hasDiscount()) {
                     Label discountLabel = new Label(item.getDiscountBadge());
-                    discountLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #FF6B6B; -fx-font-weight: bold;");
-                    itemBox.getChildren().add(discountLabel);
+                    discountLabel.setStyle("-fx-font-size: 10px; " +
+                            "-fx-text-fill: #FF6B6B; " +
+                            "-fx-font-weight: bold; " +
+                            "-fx-background-color: #FFECEC; " +
+                            "-fx-padding: 2 6; " +
+                            "-fx-border-radius: 4;");
+                    nameAndDiscountBox.getChildren().add(discountLabel);
+                }
+                textContainer.getChildren().add(nameAndDiscountBox);
+
+                int quantity = item.getQuantity();
+                Label quantityLabel = new Label("Quantity: " + quantity);
+                quantityLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #757575;");
+                textContainer.getChildren().add(quantityLabel);
+
+                // Right-aligned price details
+                VBox priceContainer = new VBox();
+                priceContainer.setAlignment(Pos.CENTER_RIGHT);
+                priceContainer.setSpacing(1);
+
+                // Discount badge (if applicable)
+                if (item.hasDiscount()) {
+                    Label oldPriceLabel = new Label("$" + String.format("%.2f", item.getPrice()));
+                    oldPriceLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: #757575; -fx-strikethrough: true;");
+                    priceContainer.getChildren().add(oldPriceLabel);
                 }
 
+                // Discounted Price
+                Label discountedPriceLabel = new Label(item.getDiscountPrice((int) item.getDiscount()));
+                discountedPriceLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #FF6B6B;");
+                priceContainer.getChildren().add(discountedPriceLabel);
+
+                // Total price for the quantity
+                double discountedPricePerItem = item.getPrice() - (item.getPrice() * item.getDiscount() / 100);
+                double totalPriceForItem = discountedPricePerItem * item.getQuantity();
+
+                Label totalPriceLabel = new Label("Total: $" + String.format("%.2f", totalPriceForItem));
+                totalPriceLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #37474F;");
+                priceContainer.getChildren().add(totalPriceLabel);
+
+                // Spacer for alignment
+                Region spacer = new Region();
+                HBox.setHgrow(spacer, Priority.ALWAYS);
+
+                itemBox.getChildren().addAll(itemImage, textContainer, spacer, priceContainer);
                 userCartItems.getChildren().add(itemBox);
             }
 
@@ -357,38 +435,60 @@ public class CartController {
     private void handleToggleSwitch() {
         isSoloCart = !isSoloCart;
 
-        if (isSoloCart) {
-            // Solo Cart View
-            soloLabel.setVisible(true);
-            toggleThumb.setStyle("-fx-fill: #959595;");
-            groupLabel.setVisible(false);
-            animateToggleThumb(-30);
-            group_cart.setVisible(false);
-            group_cart.setManaged(false);
-            productScrollPane.setVisible(true);
-            productScrollPane.setManaged(true);
-            group_cart.setVvalue(0);
-        } else {
-            // Group Cart View
-            soloLabel.setVisible(false);
-            groupLabel.setVisible(true);
-            toggleThumb.setStyle("-fx-fill: #5EC401;");
-            animateToggleThumb(30);
-            group_cart.setVisible(true);
-            group_cart.setManaged(true);
-            productScrollPane.setVisible(false);
-            productScrollPane.setManaged(false);
-            updateLoggedInUserCartInGroup();
-            startGroupCartTimer();
-            group_cart.setVvalue(0);
-        }
-    }
+        // Show the loading overlay and apply blur effect
+        applyBlurredBackgroundEffect(true);
+        loadingOverlay.setVisible(true);
 
-    private void updateTimerLabel() {
-        long minutes = timeRemaining / 60;
-        long seconds = timeRemaining % 60;
-        String timeText = String.format("Time Remaining: %02d:%02d", minutes, seconds);
-        Platform.runLater(() -> timerLabel.setText(timeText));
+        // Capture the state for toggle transition
+        Timeline delay = new Timeline(
+                new javafx.animation.KeyFrame(
+                        Duration.millis(200), // Match the loading overlay duration
+                        ev -> {
+                            if (isSoloCart) {
+                                // Solo Cart View
+                                soloLabel.setVisible(true);
+                                toggleThumb.setStyle("-fx-fill: #959595;");
+                                groupLabel.setVisible(false);
+                                animateToggleThumb(-30);
+                                group_cart.setVisible(false);
+                                group_cart.setManaged(false);
+                                productScrollPane.setVisible(true);
+                                productScrollPane.setManaged(true);
+                            } else {
+                                // Group Cart View
+                                updateLoggedInUserCartInGroup();
+                                soloLabel.setVisible(false);
+                                groupLabel.setVisible(true);
+                                toggleThumb.setStyle("-fx-fill: #5EC401;");
+                                animateToggleThumb(30);
+                                group_cart.setVisible(true);
+                                group_cart.setManaged(true);
+                                productScrollPane.setVisible(false);
+                                productScrollPane.setManaged(false);
+                                startGroupCartTimer(); // Start the timer for group mode
+                                group_cart.setVvalue(0);
+                                screen.requestFocus();
+                            }
+
+                            // Fade out the loading overlay
+                            FadeTransition fadeOut = new FadeTransition(Duration.millis(200), loadingOverlay);
+                            fadeOut.setFromValue(1);
+                            fadeOut.setToValue(0);
+                            fadeOut.setOnFinished(event2 -> {
+                                loadingOverlay.setVisible(false);
+                                applyBlurredBackgroundEffect(false);
+                            });
+                            fadeOut.play();
+                        }
+                )
+        );
+
+        // Start the fade-in animation for the overlay
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(200), loadingOverlay);
+        fadeIn.setFromValue(0);
+        fadeIn.setToValue(1);
+        fadeIn.setOnFinished(ev -> delay.play());
+        fadeIn.play();
     }
 
     private void startGroupCartTimer() {
@@ -405,14 +505,22 @@ public class CartController {
             if (timeRemaining <= 0) {
                 Platform.runLater(() -> {
                     // Handle timer completion (e.g., show a dialog or disable features)
-                    timerLabel.setText("Time Expired");
+                    System.out.println("Timer completed. Group cart session expired.");
                     stopGroupCartTimer(); // Stop the timer once expired
                 });
             } else {
-                updateTimerLabel(); // Update the timer display
+                updateTimerLabel();
             }
 
         }, 0, 1, TimeUnit.SECONDS);
+    }
+
+    private void updateTimerLabel() {
+        long minutes = timeRemaining / 60;
+        long seconds = timeRemaining % 60;
+        String timeText = String.format("Time Remaining: %02d:%02d", minutes, seconds);
+
+        Platform.runLater(() -> timerLabel.setText(timeText)); // Ensure UI updates on the JavaFX thread
     }
 
     private void stopGroupCartTimer() {
@@ -440,26 +548,6 @@ public class CartController {
             timeRemaining = Long.parseLong(reader.readLine());
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    private void showLoadingOverlay(boolean show) {
-        if (show) {
-            applyBlurredBackgroundEffect(true);
-            loadingOverlay.setVisible(true);
-            FadeTransition fadeIn = new FadeTransition(Duration.millis(200), loadingOverlay);
-            fadeIn.setFromValue(0);
-            fadeIn.setToValue(1);
-            fadeIn.play();
-        } else {
-            FadeTransition fadeOut = new FadeTransition(Duration.millis(200), loadingOverlay);
-            fadeOut.setFromValue(1);
-            fadeOut.setToValue(0);
-            fadeOut.setOnFinished(event -> {
-                loadingOverlay.setVisible(false);
-                applyBlurredBackgroundEffect(false);
-            });
-            fadeOut.play();
         }
     }
 
@@ -640,12 +728,16 @@ public class CartController {
             empty_cart_label.setManaged(true);
             productScrollPane.setVisible(false);
             productScrollPane.setManaged(false);
+            toggleSwitch.setVisible(false);
+            toggleSwitch.setManaged(false);
             return;
         } else {
             empty_cart_label.setVisible(false);
             empty_cart_label.setManaged(false);
             productScrollPane.setVisible(true);
             productScrollPane.setManaged(true);
+            toggleSwitch.setVisible(true);
+            toggleSwitch.setManaged(true);
         }
 
         for (String[] productData : products) {
