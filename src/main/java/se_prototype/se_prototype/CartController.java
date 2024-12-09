@@ -32,6 +32,10 @@ import se_prototype.se_prototype.Model.UserCart;
 public class CartController {
 
     @FXML
+    private Label subtotalLabel;
+    @FXML
+    private Label serviceFeeLabel;
+    @FXML
     private Label yourServiceFeeLabel_group;
     @FXML
     private Label yourDeliveryFeeLabel_group;
@@ -201,42 +205,52 @@ public class CartController {
         double totalDiscount = 0;
         double yourSubtotal = 0;
         double yourTotalCost = 0;
+        int noOfUsersInCart = 0;
 
         // Calculate totals from all user carts
         for (UserCart userCart : userCarts) {
-            for (Product item : userCart.getCartItems()) {
-                int quantity = item.getQuantity();
-                double price = item.getPrice();
-                double discountedPrice = price - (price * item.getDiscount() / 100);
+            if (userCart.getCartItems() != null && !userCart.getCartItems().isEmpty()) {
+                for (Product item : userCart.getCartItems()) {
+                    int quantity = item.getQuantity();
+                    double price = item.getPrice();
+                    double discountedPrice = price - (price * item.getDiscount() / 100);
 
-                totalItems += quantity;
-                subtotal += discountedPrice * quantity;
-                totalDiscount += (price - discountedPrice) * quantity;
-            }
+                    totalItems += quantity;
+                    subtotal += discountedPrice * quantity;
+                }
 
+                // If this is the logged-in user, calculate their subtotal
+                if (userCart.getUserName().equals("You")) {
+                    yourSubtotal = userCart.getCartItems().stream()
+                            .mapToDouble(item -> (item.getPrice() - (item.getPrice() * item.getDiscount() / 100)) * item.getQuantity())
+                            .sum();
+                    totalDiscount += userCart.getCartItems().stream()
+                            .mapToDouble(item -> (item.getPrice() * item.getDiscount() / 100) * item.getQuantity())
+                            .sum();
+                }
 
-            if (subtotal > 25 && subtotal <= 50) {
-                deliveryCharge = 10.0; // Adjust delivery charge based on subtotal
-            } else if (subtotal > 50) {
-                deliveryCharge = 20.0; // Adjust delivery charge based on subtotal
-            } else {
-                deliveryCharge = 5.0;
-            }
-
-            if (totalItems > 25) {
-                serviceFee = 5.0;
-            } else {
-                serviceFee = 2.5;
-            }
-
-            // If this is the logged-in user, calculate their subtotal and total cost
-            if (userCart.getUserName().equals("You")) {
-                yourSubtotal = userCart.getCartItems().stream()
-                        .mapToDouble(item -> (item.getPrice() - (item.getPrice() * item.getDiscount() / 100)) * item.getQuantity())
-                        .sum();
-                yourTotalCost = yourSubtotal + deliveryCharge + serviceFee;
+                noOfUsersInCart++;
             }
         }
+
+
+        // Calculate delivery charge and service fee once
+        if (subtotal > 25 && subtotal <= 50) {
+            deliveryCharge = 10.0;
+        } else if (subtotal > 50) {
+            deliveryCharge = 20.0;
+        } else {
+            deliveryCharge = 5.0;
+        }
+
+        serviceFee = totalItems > 25 ? 5.0 : 2.5;
+
+        // Calculate per-user charges
+        double deliveryPerUser = noOfUsersInCart > 0 ? (deliveryCharge / noOfUsersInCart) : 0.0;
+        double serviceFeePerUser = noOfUsersInCart > 0 ? (serviceFee / noOfUsersInCart) : 0.0;
+
+        // Calculate total cost for the logged-in user
+        yourTotalCost = yourSubtotal + deliveryPerUser + serviceFeePerUser;
 
         // Format and set label values
         double finalSubtotal = subtotal;
@@ -256,8 +270,8 @@ public class CartController {
 
             // Your Total Cost Details
             yourSubtotalLabel_group.setText(String.format("$%.2f", finalYourSubtotal));
-            yourDeliveryFeeLabel_group.setText(String.format("$%.2f", finalDeliveryCharge));
-            yourServiceFeeLabel_group.setText(String.format("$%.2f", finalServiceFee));
+            yourDeliveryFeeLabel_group.setText(String.format("$%.2f", deliveryPerUser));
+            yourServiceFeeLabel_group.setText(String.format("$%.2f", serviceFeePerUser));
             yourTotalCostLabel_group.setText(String.format("$%.2f", finalYourTotalCost));
 
             // Show or hide the discount section
@@ -852,9 +866,10 @@ public class CartController {
     private void updateCartSummary() {
         List<String[]> products = readCartFile();
         int totalItems = 0;
-        double totalPrice = 0;
+        double subtotal = 0;
         double totalSavings = 0;
-        double deliveryCharge = 10.0;
+        double deliveryCharge = 0.0; // Default delivery charge
+        double serviceFee = 0.0; // Default service fee
 
         // If the cart is empty, show the empty cart label and hide product list
         if (products.isEmpty()) {
@@ -874,6 +889,7 @@ public class CartController {
             toggleSwitch.setManaged(true);
         }
 
+        // Calculate totals
         for (String[] productData : products) {
             int quantity = Integer.parseInt(productData[5]);
             double price = Double.parseDouble(productData[2]);
@@ -881,18 +897,40 @@ public class CartController {
 
             totalItems += quantity;
             double discountedPrice = price - (price * discount / 100);
-            totalPrice += quantity * discountedPrice;
+            subtotal += quantity * discountedPrice;
             totalSavings += quantity * (price - discountedPrice);
         }
 
-        // Adjust delivery charge dynamically
-        if (totalPrice > 50) {
+        // Adjust delivery charge based on subtotal
+        if (subtotal > 25 && subtotal <= 50) {
+            deliveryCharge = 10.0;
+        } else if (subtotal > 50) {
+            deliveryCharge = 20.0;
+        } else {
             deliveryCharge = 5.0;
         }
+
+        // Adjust service fee based on total items
+        serviceFee = totalItems > 25 ? 5.0 : 2.5;
+
+        // Calculate total price
+        double totalPrice = subtotal + deliveryCharge + serviceFee;
 
         // Update labels
         totalItemsLabel.setText("Total Items: " + totalItems);
         totalPriceLabel.setText("$" + String.format("%.2f", totalPrice));
+        deliveryChargeLabel.setText("$" + String.format("%.2f", deliveryCharge));
+        totalSavingsLabel.setText(totalSavings > 0
+                ? "Total Savings: $" + String.format("%.2f", totalSavings)
+                : "");
+
+        // Update labels
+        subtotalLabel.setText(String.format("$%.2f", subtotal));
+        deliveryChargeLabel.setText(String.format("$%.2f", deliveryCharge));
+        serviceFeeLabel.setText(String.format("$%.2f", serviceFee));
+        totalPriceLabel.setText(String.format("$%.2f", totalPrice));
+        totalItemsLabel.setText("Total Items: " + totalItems);
+
         if (totalSavings > 0) {
             totalSavingsLabel.setText("Total Savings: $" + String.format("%.2f", totalSavings));
             HBox_discount.setVisible(true);
@@ -902,7 +940,6 @@ public class CartController {
             HBox_discount.setVisible(false);
             HBox_discount.setManaged(false);
         }
-        deliveryChargeLabel.setText("$" + String.format("%.2f", deliveryCharge));
     }
 
     private List<String[]> readCartFile() {
