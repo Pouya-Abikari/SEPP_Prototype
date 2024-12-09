@@ -1,10 +1,10 @@
 Baguette,Freshly baked French baguette,3.0,baguette.png,0,1
-Croissant,Flaky and buttery croissants,4.0,croissant.png,0,1
-Sourdough Bread,Artisan sourdough bread,5.0,sourdough_bread.png,0,1
+Croissant,Flaky and buttery croissants,4.0,croissant.png,35,1
+Sourdough Bread,Artisan sourdough bread,5.0,sourdough_bread.png,20,1
 Muffin,Assorted muffins with various flavors,3.5,muffin.png,0,1
 Bagel,Soft and chewy bagels,2.0,bagel.png,0,1
-Brownie,Rich and chocolaty brownies,4.5,brownies.png,0,1
+Brownie,Rich and chocolaty brownies,4.5,brownies.png,40,1
 Cupcakes,Delicious cupcakes with frosting,3.8,cupcake.png,0,1
-Dinner Roll,Soft dinner rolls for any meal,2.5,dinner_rolls.png,0,1
-Pie,Classic pies in various flavors,6.0,pie.png,0,1
+Dinner Roll,Soft dinner rolls for any meal,2.5,dinner_rolls.png,30,1
+Pie,Classic pies in various flavors,6.0,pie.png,20,1
 Cinnamon Roll,Sweet and spiced cinnamon rolls,4.5,cinnamon_rolls.png,0,1

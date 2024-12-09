@@ -1,7 +1,9 @@
 package se_prototype.se_prototype;
 
 import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -29,6 +31,14 @@ import se_prototype.se_prototype.Model.UserCart;
 
 public class CartController {
 
+    @FXML
+    private Label yourServiceFeeLabel_group;
+    @FXML
+    private Label yourDeliveryFeeLabel_group;
+    @FXML
+    private Label yourSubtotalLabel_group;
+    @FXML
+    private Label yourTotalCostLabel_group;
     @FXML
     private Label timerLabel;
     @FXML
@@ -95,6 +105,22 @@ public class CartController {
     private Label soloLabel;
     @FXML
     private Label groupLabel;
+    @FXML
+    private Label subtotalLabel_group;
+    @FXML
+    private Label serviceFeeLabel_group;
+    @FXML
+    private Label estimatedDeliveryTimeLabel_group;
+    @FXML
+    private Label totalItemsLabel_group;
+    @FXML
+    private Label totalPriceLabel_group;
+    @FXML
+    private Label totalSavingsLabel_group;
+    @FXML
+    private Label deliveryChargeLabel_group;
+    @FXML
+    private HBox HBox_discount_group;
 
     private boolean isSoloCart = true;
     private long timeRemaining = 3600; // 1 hour in seconds
@@ -105,9 +131,18 @@ public class CartController {
     private boolean isGroupCartTimerRunning = false;
     private static final String TIMER_STATE_FILE = "src/main/resources/timer_state.txt";
     private ScheduledExecutorService timerService;
+    private static boolean isInitialized = false;
+    private static int totalUsers;
 
     @FXML
     public void initialize() {
+        if (!isInitialized) {
+            clearAppFilesOnInitialization(); // Clear files only once at the start of the app
+            int additionalUsers = new Random().nextInt(9) + 1; // 1-9 range
+            totalUsers = 1 + additionalUsers; // 1 logged-in user + additional random users
+            System.out.println("Total users (including logged-in user): " + totalUsers);
+            isInitialized = true; // Set the flag to true to prevent future runs
+        }
         loadTimerState();
         setupImages();
         loadCartFromFile();
@@ -130,6 +165,7 @@ public class CartController {
         // Update UI to reflect the latest data
         updateGroupCartUI();
         loadGroupCart();
+        updateDeliverySummary();
 
         paymentMethodComboBox.getSelectionModel().selectedItemProperty().addListener((options, oldValue, newValue) -> {
             if (newValue != null && (newValue.equals("Cash") || newValue.equals("Card"))) {
@@ -155,6 +191,87 @@ public class CartController {
         addMoreItems_empty.setOnAction(event -> switchToPage("menu.fxml", "Menu"));
         change_location.setOnAction(event -> switchToPage("location.fxml", "Location"));
         start_group_order_button.setOnAction(event -> switchToPage("start_group_order.fxml", "Start Group Order"));
+    }
+
+    private void updateDeliverySummary() {
+        int totalItems = 0;
+        double subtotal = 0;
+        double deliveryCharge = 0; // Default delivery charge
+        double serviceFee = 0; // Example service fee
+        double totalDiscount = 0;
+        double yourSubtotal = 0;
+        double yourTotalCost = 0;
+
+        // Calculate totals from all user carts
+        for (UserCart userCart : userCarts) {
+            for (Product item : userCart.getCartItems()) {
+                int quantity = item.getQuantity();
+                double price = item.getPrice();
+                double discountedPrice = price - (price * item.getDiscount() / 100);
+
+                totalItems += quantity;
+                subtotal += discountedPrice * quantity;
+                totalDiscount += (price - discountedPrice) * quantity;
+            }
+
+
+            if (subtotal > 25 && subtotal <= 50) {
+                deliveryCharge = 10.0; // Adjust delivery charge based on subtotal
+            } else if (subtotal > 50) {
+                deliveryCharge = 20.0; // Adjust delivery charge based on subtotal
+            } else {
+                deliveryCharge = 5.0;
+            }
+
+            if (totalItems > 25) {
+                serviceFee = 5.0;
+            } else {
+                serviceFee = 2.5;
+            }
+
+            // If this is the logged-in user, calculate their subtotal and total cost
+            if (userCart.getUserName().equals("You")) {
+                yourSubtotal = userCart.getCartItems().stream()
+                        .mapToDouble(item -> (item.getPrice() - (item.getPrice() * item.getDiscount() / 100)) * item.getQuantity())
+                        .sum();
+                yourTotalCost = yourSubtotal + deliveryCharge + serviceFee;
+            }
+        }
+
+        // Format and set label values
+        double finalSubtotal = subtotal;
+        int finalTotalItems = totalItems;
+        double finalTotalDiscount = totalDiscount;
+        double finalYourSubtotal = yourSubtotal;
+        double finalYourTotalCost = yourTotalCost;
+        double finalDeliveryCharge = deliveryCharge;
+        double finalServiceFee = serviceFee;
+        Platform.runLater(() -> {
+            subtotalLabel_group.setText(String.format("$%.2f", finalSubtotal));
+            deliveryChargeLabel_group.setText(String.format("$%.2f", finalDeliveryCharge));
+            serviceFeeLabel_group.setText(String.format("$%.2f", finalServiceFee));
+            totalPriceLabel_group.setText(String.format("$%.2f", finalSubtotal + finalDeliveryCharge + finalServiceFee));
+            totalItemsLabel_group.setText(String.valueOf(finalTotalItems));
+            totalSavingsLabel_group.setText(String.format("-$%.2f", finalTotalDiscount));
+
+            // Your Total Cost Details
+            yourSubtotalLabel_group.setText(String.format("$%.2f", finalYourSubtotal));
+            yourDeliveryFeeLabel_group.setText(String.format("$%.2f", finalDeliveryCharge));
+            yourServiceFeeLabel_group.setText(String.format("$%.2f", finalServiceFee));
+            yourTotalCostLabel_group.setText(String.format("$%.2f", finalYourTotalCost));
+
+            // Show or hide the discount section
+            if (finalTotalDiscount > 0) {
+                HBox_discount_group.setVisible(true);
+                HBox_discount_group.setManaged(true);
+            } else {
+                HBox_discount_group.setVisible(false);
+                HBox_discount_group.setManaged(false);
+            }
+
+            // Set an example delivery time (can be dynamic based on other logic)
+            estimatedDeliveryTimeLabel_group.setText("30-45 min");
+        });
     }
 
     private void loadAllProducts() {
@@ -223,11 +340,11 @@ public class CartController {
         List<String> addedUsers = new ArrayList<>();
 
         new Thread(() -> {
-            while (userCarts.size() < 10) {
+            while (userCarts.size() < totalUsers) {
                 try {
                     Thread.sleep(15000); // Wait for 15 seconds before adding a new user
                     Platform.runLater(() -> {
-                        if (userCarts.size() < 10) {
+                        if (userCarts.size() < totalUsers) {
                             String userName = "User " + (userCarts.size() + 1);
                             if (!addedUsers.contains(userName)) {
                                 addRandomUser();
@@ -304,7 +421,20 @@ public class CartController {
                     "-fx-font-weight: bold; " +
                     "-fx-text-fill: #5EC401;");
 
-            userHeader.getChildren().addAll(userImage, userNameLabel);
+            // Calculate total price for the user's cart
+            double userTotalPrice = userCart.getCartItems().stream()
+                    .mapToDouble(item -> (item.getPrice() - (item.getPrice() * item.getDiscount() / 100)) * item.getQuantity())
+                    .sum();
+
+            // Total cart price label
+            Label totalCartPriceLabel = new Label(String.format("Total: $%.2f", userTotalPrice));
+            totalCartPriceLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #37474F;");
+
+            // Spacer to align total price to the right
+            Region spacer = new Region();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+
+            userHeader.getChildren().addAll(userImage, userNameLabel, spacer, totalCartPriceLabel);
 
             // Container for cart items
             VBox userCartItems = new VBox();
@@ -356,8 +486,7 @@ public class CartController {
                 }
                 textContainer.getChildren().add(nameAndDiscountBox);
 
-                int quantity = item.getQuantity();
-                Label quantityLabel = new Label("Quantity: " + quantity);
+                Label quantityLabel = new Label("Quantity: " + item.getQuantity());
                 quantityLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #757575;");
                 textContainer.getChildren().add(quantityLabel);
 
@@ -387,16 +516,18 @@ public class CartController {
                 priceContainer.getChildren().add(totalPriceLabel);
 
                 // Spacer for alignment
-                Region spacer = new Region();
-                HBox.setHgrow(spacer, Priority.ALWAYS);
+                Region spacer_2 = new Region();
+                HBox.setHgrow(spacer_2, Priority.ALWAYS);
 
-                itemBox.getChildren().addAll(itemImage, textContainer, spacer, priceContainer);
+                itemBox.getChildren().addAll(itemImage, textContainer, spacer_2, priceContainer);
                 userCartItems.getChildren().add(itemBox);
             }
 
             userCartBox.getChildren().addAll(userHeader, userCartItems);
             groupUsersContainer.getChildren().add(userCartBox);
         }
+
+        updateDeliverySummary();
     }
 
     private void saveUserData() {
@@ -441,7 +572,7 @@ public class CartController {
 
         // Capture the state for toggle transition
         Timeline delay = new Timeline(
-                new javafx.animation.KeyFrame(
+                new KeyFrame(
                         Duration.millis(200), // Match the loading overlay duration
                         ev -> {
                             if (isSoloCart) {
@@ -457,6 +588,7 @@ public class CartController {
                             } else {
                                 // Group Cart View
                                 updateLoggedInUserCartInGroup();
+                                updateDeliverySummary();
                                 soloLabel.setVisible(false);
                                 groupLabel.setVisible(true);
                                 toggleThumb.setStyle("-fx-fill: #5EC401;");
@@ -530,24 +662,25 @@ public class CartController {
         }
     }
 
-    private void saveTimerState() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(TIMER_STATE_FILE))) {
-            writer.write(String.valueOf(timeRemaining));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void loadTimerState() {
         File file = new File(TIMER_STATE_FILE);
-        if (!file.exists()) {
-            return; // No saved timer state
+        if (!file.exists() || file.length() == 0) {
+            // If the file doesn't exist or is empty, set a default timer value
+            timeRemaining = 3600; // Default to 1 hour in seconds
+            return;
         }
 
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            timeRemaining = Long.parseLong(reader.readLine());
-        } catch (IOException e) {
-            e.printStackTrace();
+            String line = reader.readLine();
+            if (line != null && !line.isEmpty()) {
+                timeRemaining = Long.parseLong(line);
+            } else {
+                // Handle empty or null content by setting a default value
+                timeRemaining = 3600; // Default to 1 hour in seconds
+            }
+        } catch (IOException | NumberFormatException e) {
+            System.err.println("Error loading timer state, resetting to default: " + e.getMessage());
+            timeRemaining = 3600; // Default to 1 hour in seconds
         }
     }
 
@@ -632,10 +765,10 @@ public class CartController {
     }
 
     private void animateToggleThumb(double toX) {
-        javafx.animation.TranslateTransition transition = new javafx.animation.TranslateTransition();
+        TranslateTransition transition = new TranslateTransition();
         transition.setNode(toggleThumb);
         transition.setToX(toX);
-        transition.setDuration(javafx.util.Duration.millis(200)); // Adjust animation duration
+        transition.setDuration(Duration.millis(200)); // Adjust animation duration
         transition.play();
     }
 
@@ -644,6 +777,7 @@ public class CartController {
         loadUserData(); // Load users from the group_cart_users.txt file
         overrideYouCart(); // Override "You" section with latest data from cart.txt
         updateGroupCartUI(); // Update the UI
+        updateDeliverySummary(); // Update the delivery summary
     }
 
     private void loadCartFromFile() {
@@ -893,7 +1027,7 @@ public class CartController {
             fadeIn.setOnFinished(event -> {
                 // Use a timeline for a delay
                 Timeline delay = new Timeline(
-                        new javafx.animation.KeyFrame(
+                        new KeyFrame(
                                 Duration.millis(200), // 0.5-second delay while the overlay is fully visible
                                 ev -> {
                                     // Restore the scroll position
@@ -937,7 +1071,7 @@ public class CartController {
             fadeIn.setOnFinished(event -> {
                 // Use a timeline for a delay
                 Timeline delay = new Timeline(
-                        new javafx.animation.KeyFrame(
+                        new KeyFrame(
                                 Duration.millis(200), // 0.5-second delay while the overlay is fully visible
                                 ev -> {
 
@@ -977,8 +1111,8 @@ public class CartController {
 
     private Timeline getTimeline(double scrollOffset) {
         Timeline timeline = new Timeline(
-                new javafx.animation.KeyFrame(
-                        javafx.util.Duration.millis(50), // Adjust delay as needed
+                new KeyFrame(
+                        Duration.millis(50), // Adjust delay as needed
                         actionEvent -> {
                             productScrollPane.layout();
                             productScrollPane.setVvalue(scrollOffset);
@@ -1102,6 +1236,29 @@ public class CartController {
 
         // Ensure the overlay is aligned within the StackPane
         StackPane.setAlignment(loadingOverlay, Pos.CENTER);
+    }
+
+    private void clearFile(String filePath) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, false))) {
+            // Write nothing to the file to clear its content
+            writer.write("");
+            System.out.println("File cleared: " + filePath);
+        } catch (IOException e) {
+            System.err.println("Failed to clear file: " + filePath);
+            e.printStackTrace();
+        }
+    }
+
+    private void clearAppFilesOnInitialization() {
+        // List of files to clear on app initialization
+        String[] filesToClear = {
+                "src/main/resources/cart.txt",
+                "src/main/resources/group_cart_users.txt"
+        };
+
+        for (String file : filesToClear) {
+            clearFile(file);
+        }
     }
 
     private void switchToPage(String fxmlFile, String title) {

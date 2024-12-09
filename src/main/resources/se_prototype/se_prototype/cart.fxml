@@ -218,7 +218,7 @@
                                     <SVGPath content="M12.0505 2C8.18054 2 5.05054 5.13 5.05054 9C5.05054 13.17 9.47054 18.92 11.2905 21.11C11.6905 21.59 12.4205 21.59 12.8205 21.11C14.6305 18.92 19.0505 13.17 19.0505 9C19.0505 5.13 15.9205 2 12.0505 2ZM7.05054 9C7.05054 6.24 9.29054 4 12.0505 4C14.8105 4 17.0505 6.24 17.0505 9C17.0505 11.88 14.1705 16.19 12.0505 18.88C9.97054 16.21 7.05054 11.85 7.05054 9ZM9.55054 9C9.55054 10.38 10.6705 11.5 12.0505 11.5C13.4305 11.5 14.5505 10.38 14.5505 9C14.5505 7.62 13.4305 6.5 12.0505 6.5C10.6705 6.5 9.55054 7.62 9.55054 9Z"
                                              fill="white" />
                                 </StackPane>
-                                <Label text="Floor 4, Wakil Tower, Ta 131 Gulshan Badda Link Road"
+                                <Label text="Floor 4, Wakil Tower, Ta 131 Gulshan Badda Link Road" wrapText="true"
                                        style="-fx-font-size: 14px; -fx-text-fill: #757575;" />
                             </HBox>
                         </VBox>
@@ -227,11 +227,18 @@
                         <VBox alignment="CENTER_LEFT"
                               style="-fx-background-color: white; -fx-border-radius: 16; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0); -fx-background-radius: 16;" spacing="10">
 
+                            <!-- Subtotal -->
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label text="Subtotal" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="subtotalLabel_group" text="BDT0" style="-fx-font-size: 14px; -fx-text-fill: #37474F;" />
+                            </HBox>
+
                             <!-- No of Items -->
                             <HBox alignment="CENTER_LEFT" spacing="10">
                                 <Label text="No of Items" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
                                 <Region HBox.hgrow="ALWAYS" />
-                                <Label fx:id="totalItemsLabel_group" text="BDT0" style="-fx-font-size: 14px; -fx-text-fill: #37474F;" />
+                                <Label fx:id="totalItemsLabel_group" text="0" style="-fx-font-size: 14px; -fx-text-fill: #37474F;" />
                             </HBox>
 
                             <!-- Delivery Charge -->
@@ -241,10 +248,24 @@
                                 <Label fx:id="deliveryChargeLabel_group" text="BDT0" style="-fx-font-size: 14px; -fx-text-fill: #37474F;" />
                             </HBox>
 
+                            <!-- Service Fee (Optional) -->
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label text="Service Fee" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="serviceFeeLabel_group" text="BDT0" style="-fx-font-size: 14px; -fx-text-fill: #37474F;" />
+                            </HBox>
+
+                            <!-- Estimated Delivery Time -->
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label text="Delivery Time" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="estimatedDeliveryTimeLabel_group" text="N/A" style="-fx-font-size: 14px; -fx-text-fill: #37474F;" />
+                            </HBox>
+
                             <VBox alignment="CENTER_LEFT">
                                 <!-- Total -->
                                 <HBox alignment="CENTER_LEFT" spacing="5">
-                                    <Label text="Total Price" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                                    <Label text="Total Price" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
                                     <Region HBox.hgrow="ALWAYS" />
                                     <Label fx:id="totalPriceLabel_group" text="BDT0" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
                                 </HBox>
@@ -255,6 +276,38 @@
                                     <Region HBox.hgrow="ALWAYS" />
                                     <Label fx:id="totalSavingsLabel_group" text="BDT0" style="-fx-font-size: 12px; -fx-text-fill: #FF6B6B;" />
                                 </HBox>
+                            </VBox>
+
+                            <!-- Your Total Cost Section -->
+                            <VBox alignment="CENTER_LEFT" spacing="5">
+                                <!-- Main Total Cost Label -->
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <Label text="Your Total Cost" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                                    <Region HBox.hgrow="ALWAYS" />
+                                    <Label fx:id="yourTotalCostLabel_group" text="BDT0" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                                </HBox>
+
+                                <!-- Subtext for details -->
+                                <VBox alignment="CENTER_LEFT" spacing="2">
+                                    <!-- Subtotal -->
+                                    <HBox alignment="CENTER_LEFT" spacing="10">
+                                        <Label text="Subtotal:" style="-fx-font-size: 12px; -fx-text-fill: #757575;" />
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="yourSubtotalLabel_group" text="BDT0" style="-fx-font-size: 12px; -fx-text-fill: #757575;" />
+                                    </HBox>
+                                    <!-- Delivery Fee -->
+                                    <HBox alignment="CENTER_LEFT" spacing="10">
+                                        <Label text="Delivery Fee:" style="-fx-font-size: 12px; -fx-text-fill: #757575;" />
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="yourDeliveryFeeLabel_group" text="BDT0" style="-fx-font-size: 12px; -fx-text-fill: #757575;" />
+                                    </HBox>
+                                    <!-- Service Fee -->
+                                    <HBox alignment="CENTER_LEFT" spacing="10">
+                                        <Label text="Service Fee:" style="-fx-font-size: 12px; -fx-text-fill: #757575;" />
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="yourServiceFeeLabel_group" text="BDT0" style="-fx-font-size: 12px; -fx-text-fill: #757575;" />
+                                    </HBox>
+                                </VBox>
                             </VBox>
                         </VBox>
 

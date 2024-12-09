@@ -1,5 +1,6 @@
 Tomatoes,Fresh tomatoes from Fresh Farms,1.2,Fruits&Vegetables/tomatoes.png,20,1
 Celery,Crunchy celery from Fresh Farms,0.95,Fruits&Vegetables/celery.png,0,1
+Carrots,Sweet carrots from Fresh Farms,0.8,Fruits&Vegetables/carrots.png,0,1
 Onion,Organic onions from Green Growers,0.85,Fruits&Vegetables/onion.png,10,1
 Potatoes,Fresh potatoes from Green Growers,0.65,Fruits&Vegetables/potatoes.png,0,1
 Lettuce,Crisp lettuce from Green Growers,1.1,Fruits&Vegetables/lettuce.png,10,1
