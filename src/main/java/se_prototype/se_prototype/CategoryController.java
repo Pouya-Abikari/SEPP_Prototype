@@ -19,7 +19,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CategoryController {
+public class  CategoryController {
 
     @FXML
     private Label categoryTitle;
@@ -28,11 +28,21 @@ public class CategoryController {
     private GridPane productGrid;
 
     private MenuController menuController;
+    @FXML
+    private Button cartButton;
+
+    @FXML
+    private Label cartItemCountLabel;
+
+    private int cartItemCount = 0;
+
 
     public void initializeCategory(String categoryName, List<Product> products, MenuController menuController) {
         this.menuController = menuController;
         categoryTitle.setText(categoryName);
+        initializeCartCount();
 
+        setup_Images();
         int column = 0;
         int row = 0;
         for (Product product : products) {
@@ -47,7 +57,39 @@ public class CategoryController {
         }
     }
 
-   private VBox createProductCard(Product product) {
+
+    private void initializeCartCount() {
+        List<String[]> cartItems = readCartFile();
+        cartItemCount = cartItems.stream()
+                .mapToInt(cartItem -> Integer.parseInt(cartItem[5])) // Quantity of each item
+                .sum();
+        cartItemCountLabel.setText(String.valueOf(cartItemCount)); // Set the label to show count
+    }
+
+    private void updateCartCount() {
+        List<String[]> cartItems = readCartFile();
+        cartItemCount = cartItems.stream()
+                .mapToInt(cartItem -> Integer.parseInt(cartItem[5]))
+                .sum();
+        cartItemCountLabel.setText(String.valueOf(cartItemCount));
+    }
+    @FXML
+    private void goToCart() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("cart.fxml"));
+            Scene scene = new Scene(loader.load(), 400, 711);
+            scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+            Stage stage = (Stage) cartButton.getScene().getWindow();
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("Failed to load cart.fxml");
+            e.printStackTrace();
+        }
+    }
+
+
+    private VBox createProductCard(Product product) {
        VBox productCard = new VBox();
        productCard.setSpacing(2);
        productCard.setAlignment(javafx.geometry.Pos.CENTER); // Center alignment
@@ -58,7 +100,6 @@ public class CategoryController {
        productCard.setMaxWidth(140);
        productCard.setMaxHeight(140);
 
-       // Image and discount badge
        StackPane imageContainer = new StackPane();
        imageContainer.setPrefSize(80, 80);
 
@@ -78,13 +119,11 @@ public class CategoryController {
            imageContainer.getChildren().add(productImage);
        }
 
-       // Product name
        Label productName = new Label(product.getName());
        productName.setStyle("-fx-font-weight: bold; -fx-font-size: 12px; -fx-text-fill: #37474F;");
        productName.setAlignment(javafx.geometry.Pos.CENTER);
        productName.setWrapText(true);
 
-       // Price labels in an HBox
        HBox priceBox = new HBox();
        priceBox.setSpacing(5);
        priceBox.setAlignment(Pos.CENTER);
@@ -104,13 +143,11 @@ public class CategoryController {
            priceBox.getChildren().add(discountedPrice); // Add only discounted price
        }
 
-       // Add-to-Bag button
        Button addToBagButton = new Button("Add to Bag");
        addToBagButton.setStyle("-fx-background-color: #5EC401; -fx-text-fill: white; -fx-padding: 5 10;");
        addToBagButton.setPrefHeight(30);
        addToBagButton.setOnAction(event -> addToCart(product));
 
-       // Add all elements to product card
        productCard.getChildren().addAll(imageContainer, productName, priceBox, addToBagButton);
 
        return productCard;
@@ -142,6 +179,7 @@ public class CategoryController {
         }
 
         writeCartFile(cartItems);
+        updateCartCount();
         System.out.println("Added to cart: " + product.getName());
     }
 
@@ -169,7 +207,14 @@ public class CategoryController {
         }
     }
 
-
+    @FXML
+    private void setup_Images() {
+        Image homeImg = new Image(getClass().getResourceAsStream("/bottomPartSymbols/cartPageButton.png"));
+        ImageView homeImgView = new ImageView(homeImg);
+        homeImgView.setFitWidth(30);
+        homeImgView.setFitHeight(30);
+        cartButton.setGraphic(homeImgView);
+    }
 
     @FXML
     private void onBackButtonClick() {
