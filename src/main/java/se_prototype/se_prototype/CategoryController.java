@@ -209,7 +209,7 @@ public class  CategoryController {
 
     @FXML
     private void setup_Images() {
-        Image homeImg = new Image(getClass().getResourceAsStream("/bottomPartSymbols/cartPageButton.png"));
+        Image homeImg = new Image(getClass().getResourceAsStream("/finalCart.png"));
         ImageView homeImgView = new ImageView(homeImg);
         homeImgView.setFitWidth(30);
         homeImgView.setFitHeight(30);
