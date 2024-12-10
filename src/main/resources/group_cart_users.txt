@@ -1,6 +1,0 @@
-You;Pretzels,Salty pretzels from Snacky Treats,2.0,pretzels.png,0.0,4;Popcorn,Buttery popcorn from Movie Nights,1.8,popcorn.png,0.0,4;Candy,Sweet candies from Sugar Rush,1.0,candy.png,0.0,3;Lettuce,Crisp lettuce from Green Growers,1.1,Fruits&Vegetables/lettuce.png,10.0,3;
-User 2;Yogurt,Healthy yogurt from Dairyland Supply,0.8,yogurt.png,0.0,1;Pork Chops,Juicy pork chops from Butcher's Best,4.75,pork_chops.png,0.0,3;Toothpaste,Whitening and cavity protection toothpaste,2.5,toothpaste.png,0.0,1;
-User 3;Frozen Pastries,Assorted pastries for baking at home,6.5,frozen_pastry.png,0.0,1;
-User 2;Yogurt,Healthy yogurt from Dairyland Supply,0.8,yogurt.png,0.0,1;Pork Chops,Juicy pork chops from Butcher's Best,4.75,pork_chops.png,0.0,3;Toothpaste,Whitening and cavity protection toothpaste,2.5,toothpaste.png,0.0,1;
-User 3;Frozen Pastries,Assorted pastries for baking at home,6.5,frozen_pastry.png,0.0,1;
-User 6;Cleaning Spray,Multipurpose spray from Tidy Homes,5.5,cleaning_spray.png,10.0,1;

@@ -41,6 +41,7 @@ public class LocationController {
     @FXML
     private Button saveAddressButton;
     private String previousPage;
+    private String userFile;
 
     @FXML
     public void initialize() {
@@ -213,12 +214,27 @@ public class LocationController {
 
     }
 
+    public void setUserFile(String userFile) {
+        this.userFile = userFile;
+        System.out.println("User file set to: " + userFile);
+    }
+
     private void switchToPage(String fxmlFile, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Scene scene = new Scene(loader.load(), 400, 711);
             scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
             Stage stage = (Stage) backButton.getScene().getWindow();
+            switch (fxmlFile) {
+                case "cart.fxml":
+                    CartController cartController = loader.getController();
+                    cartController.setUserFile(userFile);
+                    break;
+                case "menu.fxml":
+                    MenuController menuController = loader.getController();
+                    menuController.setUserFile(userFile);
+                    break;
+            }
             stage.setScene(scene);
             stage.setTitle(title);
             stage.show();

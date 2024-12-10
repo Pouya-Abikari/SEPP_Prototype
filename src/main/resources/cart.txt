@@ -1,4 +1,2 @@
-Pretzels,Salty pretzels from Snacky Treats,2.0,pretzels.png,0.0,4
-Popcorn,Buttery popcorn from Movie Nights,1.8,popcorn.png,0.0,4
-Candy,Sweet candies from Sugar Rush,1.0,candy.png,0.0,3
-Lettuce,Crisp lettuce from Green Growers,1.1,Fruits&Vegetables/lettuce.png,10.0,3
+Celery,Crunchy celery from Fresh Farms,0.95,Fruits&Vegetables/celery.png,0.0,1
+Tomatoes,Fresh tomatoes from Fresh Farms,1.2,Fruits&Vegetables/tomatoes.png,20.0,1

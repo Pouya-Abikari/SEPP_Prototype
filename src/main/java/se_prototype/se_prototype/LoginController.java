@@ -31,12 +31,14 @@ public class LoginController {
 
     private boolean isPasswordVisible = false;
     private String userFile;
-    private final String USER_FILE = "src/main/resources/users.txt";
 
     @FXML
     public void initialize() {
         setupPasswordToggle();
         setupLogo();
+
+        // Clear the user file when the application starts
+        emptyCurrentUserFile();
 
         // Determine the user file for this session
         userFile = determineUserFile();
@@ -54,9 +56,6 @@ public class LoginController {
                 e.printStackTrace();
             }
         }));
-
-        // Clear the user file when the application starts
-        emptyCurrentUserFile();
 
         // Hide the error label initially
         errorLabel.setManaged(false);
@@ -80,53 +79,54 @@ public class LoginController {
     }
 
     private void emptyCurrentUserFile() {
-        if (userFile == null) {
-            throw new IllegalStateException("User file not initialized");
+        if (userFile == null || userFile.isEmpty()) {
+            System.err.println("User file is not initialized or is invalid.");
+            return; // Safely exit without throwing an exception
         }
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(userFile, false))) {
+        File file = new File(userFile);
+        if (!file.exists()) {
+            System.out.println("User file does not exist. Nothing to clear.");
+            return;
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, false))) {
             writer.write(""); // Clear the content of the user file
+            System.out.println("Successfully cleared user file: " + userFile);
         } catch (IOException e) {
             e.printStackTrace();
-            showErrorAlert("Failed to clear the user file.");
+            showErrorAlert("Failed to clear the user file: " + userFile);
         }
-
-        // Remove the associated lock file
-        File lockFile = new File(userFile.replace(".txt", "_lock.txt"));
-        removeLockFile(lockFile);
     }
 
     private String determineUserFile() {
-        File userFile1 = new File("src/main/resources/current_user_1.txt");
-        File userFile2 = new File("src/main/resources/current_user_2.txt");
-        File lockFile1 = new File("src/main/resources/lock_1.txt");
-        File lockFile2 = new File("src/main/resources/lock_2.txt");
+        String[] userFiles = {"src/main/resources/current_user_1.txt", "src/main/resources/current_user_2.txt"};
 
-        // Check lock and empty status for userFile1
-        if (!lockFile1.exists() && isFileEmpty(userFile1)) {
-            createFileIfNotExists(userFile1); // Ensure the user file exists
-            createLockFile(lockFile1);
-            return userFile1.getAbsolutePath();
-        }
-
-        // Check lock and empty status for userFile2
-        if (!lockFile2.exists() && isFileEmpty(userFile2)) {
-            createFileIfNotExists(userFile2); // Ensure the user file exists
-            createLockFile(lockFile2);
-            return userFile2.getAbsolutePath();
-        }
-
-        return null; // Both files are in use
-    }
-
-    private void createFileIfNotExists(File file) {
         try {
-            if (!file.exists()) {
-                file.createNewFile(); // Create the file if it doesn't exist
+            for (String userFilePath : userFiles) {
+                File userFile = new File(userFilePath);
+
+                if (isFileEmpty(userFile)) {
+                    createFileIfNotExists(userFile);
+                    writeFile(userFile, "1"); // Write "1" to mark it as in use
+                    System.out.println("User file set to: " + userFilePath); // Log relative path
+                    return userFilePath; // Return relative path instead of absolute path
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
-            throw new RuntimeException("Failed to create file: " + file.getAbsolutePath());
+            System.err.println("Error determining user file: " + e.getMessage());
+        }
+
+        // Both files are in use
+        System.err.println("Both user files are already in use.");
+        showErrorAndExit("Both user files are in use. Please try again later.");
+        return null;
+    }
+
+    private void createFileIfNotExists(File file) throws IOException {
+        if (!file.exists()) {
+            file.createNewFile();
         }
     }
 
@@ -134,24 +134,23 @@ public class LoginController {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             return reader.readLine() == null;
         } catch (IOException e) {
-            e.printStackTrace();
+            return true; // Treat as empty if unreadable
         }
-        return true; // Treat as empty if the file cannot be read
     }
 
-    private void createLockFile(File lockFile) {
-        try {
-            if (!lockFile.exists()) {
-                lockFile.createNewFile(); // Create lock file to indicate this file is in use
-            }
+    private void writeFile(File file, String content) throws IOException {
+        if (!file.exists()) {
+            System.out.println("File does not exist. Creating file: " + file.getAbsolutePath());
+            file.createNewFile();
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, false))) {
+            writer.write(content);
+            writer.flush(); // Ensure the content is written immediately
+            System.out.println("Successfully wrote to file: " + file.getAbsolutePath());
         } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void removeLockFile(File lockFile) {
-        if (lockFile.exists()) {
-            lockFile.delete(); // Remove lock file when no longer in use
+            System.err.println("Failed to write to file: " + file.getAbsolutePath());
+            throw e;
         }
     }
 
@@ -164,9 +163,10 @@ public class LoginController {
             alert.showAndWait();
             Platform.exit();
         });
-        }
+    }
 
     private User authenticateUser(String email, String password) {
+        String USER_FILE = "src/main/resources/users.txt";
         try (BufferedReader reader = new BufferedReader(new FileReader(USER_FILE))) {
             String line;
             while ((line = reader.readLine()) != null) {

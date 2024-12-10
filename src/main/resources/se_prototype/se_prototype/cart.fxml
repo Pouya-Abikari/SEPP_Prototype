@@ -47,7 +47,7 @@
         <!-- Scrollable Center Content -->
         <center>
             <StackPane>
-                <VBox fx:id="empty_cart_label" alignment="CENTER" spacing="10" visible="false">
+                <VBox fx:id="empty_cart_label" alignment="CENTER" spacing="10" visible="false" managed="false">
                     <ImageView fx:id="empty_cart" fitWidth="250" fitHeight="250" preserveRatio="true" />
                     <Label text="Your Cart is Empty" style="-fx-font-size: 25px; -fx-font-weight: bold;" />
                     <Label text="Start adding items to build your order." style="-fx-font-size: 14px;" />
