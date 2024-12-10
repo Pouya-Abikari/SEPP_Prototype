@@ -76,10 +76,10 @@ public class MenuController {
 
         setupImages();
 
-        homeButton.setOnAction(event -> switchToPage("home_screen.fxml", "Home"));
-        menuButton.setOnAction(event -> switchToPage("menu.fxml", "Menu"));
-        settingsButton.setOnAction(event -> switchToPage("settings.fxml", "Settings"));
-        cartButton.setOnAction(event -> switchToPage("cart.fxml", "Cart"));
+        homeButton.setOnAction(event -> switchToPage("home_screen.fxml", "Home" , null));
+        menuButton.setOnAction(event -> switchToPage("menu.fxml", "Menu", null));
+        settingsButton.setOnAction(event -> switchToPage("settings.fxml", "Settings", null));
+        cartButton.setOnAction(event -> switchToPage("cart.fxml", "Cart", null));
         searchField.textProperty().addListener((observable, oldValue, newValue) -> filterProducts(newValue));
 
     }
@@ -343,10 +343,16 @@ public class MenuController {
         }
     }
 
-    private void switchToPage(String fxmlFile, String title) {
+    private void switchToPage(String fxmlFile, String title, String previousPage) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Scene scene = new Scene(loader.load(), 400, 711);
+            if ("location.fxml".equals(fxmlFile)) {
+                LocationController controller = loader.getController();
+                if (controller != null) {
+                    controller.setPreviousPage(previousPage);
+                }
+            }
             scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
             Stage stage = (Stage) homeButton.getScene().getWindow(); // Get the current stage
             stage.setScene(scene);
@@ -357,24 +363,6 @@ public class MenuController {
             e.printStackTrace();
         }
     }
-
-    private void populateMenu(List<Product> products) {
-        int column = 0;
-        int row = 0;
-
-        for (Product product : products) {
-            VBox productCard = createProductCard(product);
-            productCard.setOnMouseClicked(event -> navigateToCategory(product.getName()));
-            menuGrid.add(productCard, column, row);
-            column++;
-            if (column == 2) {
-                column = 0;
-                row++;
-            }
-        }
-        menuGrid.setAlignment(javafx.geometry.Pos.CENTER);
-    }
-
 
     private StackPane createSvgIcon() {
         SVGPath svgPath = new SVGPath();
@@ -389,8 +377,7 @@ public class MenuController {
 
     @FXML
     private void onLocationBoxClick(MouseEvent event) {
-        System.out.println("Location box clicked!");
-    }
+        switchToPage("location.fxml", "Location", "Menu");    }
 
     private void navigateToCategory(String categoryName) {
         try {
@@ -413,6 +400,7 @@ public class MenuController {
             e.printStackTrace();
         }
     }
+
 
     private List<Product> fetchProductsForCategory(String categoryName) {
         List<Product> products = new ArrayList<>();
@@ -479,4 +467,3 @@ public class MenuController {
 
 
 }
-

@@ -188,13 +188,13 @@ public class CartController {
         });
 
         // Set up button actions
-        homeButton.setOnAction(event -> switchToPage("home_screen.fxml", "Home"));
-        menuButton.setOnAction(event -> switchToPage("menu.fxml", "Menu"));
-        settingsButton.setOnAction(event -> switchToPage("settings.fxml", "Settings"));
-        addMoreItems.setOnAction(event -> switchToPage("menu.fxml", "Menu"));
-        addMoreItems_empty.setOnAction(event -> switchToPage("menu.fxml", "Menu"));
-        change_location.setOnAction(event -> switchToPage("location.fxml", "Location"));
-        start_group_order_button.setOnAction(event -> switchToPage("start_group_order.fxml", "Start Group Order"));
+        homeButton.setOnAction(event -> switchToPage("home_screen.fxml", "Home", null));
+        menuButton.setOnAction(event -> switchToPage("menu.fxml", "Menu", null));
+        settingsButton.setOnAction(event -> switchToPage("settings.fxml", "Settings", null));
+        addMoreItems.setOnAction(event -> switchToPage("menu.fxml", "Menu", null));
+        addMoreItems_empty.setOnAction(event -> switchToPage("menu.fxml", "Menu", null));
+        change_location.setOnAction(event -> switchToPage("location.fxml", "Location", "Cart"));
+        start_group_order_button.setOnAction(event -> switchToPage("start_group_order.fxml", "Start Group Order", null));
     }
 
     private void updateDeliverySummary() {
@@ -1298,10 +1298,16 @@ public class CartController {
         }
     }
 
-    private void switchToPage(String fxmlFile, String title) {
+    private void switchToPage(String fxmlFile, String title, String previousPage) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Scene scene = new Scene(loader.load(), 400, 711);
+            if ("location.fxml".equals(fxmlFile)) {
+                LocationController controller = loader.getController();
+                if (controller != null) {
+                    controller.setPreviousPage(previousPage);
+                }
+            }
             scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
             Stage stage = (Stage) homeButton.getScene().getWindow(); // Get the current stage
             stage.setScene(scene);

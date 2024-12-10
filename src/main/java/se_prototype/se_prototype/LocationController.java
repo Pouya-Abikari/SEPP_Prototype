@@ -40,15 +40,26 @@ public class LocationController {
 
     @FXML
     private Button saveAddressButton;
+    private String previousPage;
 
     @FXML
     public void initialize() {
         addressFormContainer.setVisible(false);
         addressFormContainer.setManaged(false);
         getAddresses().forEach(address -> addAddressNode(address[0], address[1]));
-        backButton.setOnAction(event -> switchToPage("cart.fxml", "Cart"));
-        addAddressButton.setOnAction(event -> toggleAddressForm());
+        backButton.setOnAction(event -> {
+            if ("Cart".equals(previousPage)) {
+                switchToPage("cart.fxml", "Cart");
+            } else if ("Menu".equals(previousPage)) {
+                switchToPage("menu.fxml", "Menu");
+            } else {
+                System.err.println("Previous page not set!");
+            }
+        });        addAddressButton.setOnAction(event -> toggleAddressForm());
         saveAddressButton.setOnAction(event -> saveNewAddress());
+    }
+    public void setPreviousPage(String previousPage) {
+        this.previousPage = previousPage;
     }
 
     private void toggleAddressForm() {
