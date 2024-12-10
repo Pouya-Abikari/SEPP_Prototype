@@ -3,13 +3,13 @@ package se_prototype.se_prototype.Model;
 public class Order {
     private int orderID;
     private String orderDate;
-    private String orderTime;
+    private String orderTimer;
     private String orderStatus;
 
     public Order(int orderID, String orderDate, String orderTime, String orderStatus) {
         this.orderID = orderID;
         this.orderDate = orderDate;
-        this.orderTime = orderTime;
+        this.orderTimer = orderTime;
         this.orderStatus = orderStatus;
     }
 
@@ -29,12 +29,12 @@ public class Order {
         this.orderDate = orderDate;
     }
 
-    public String getOrderTime() {
-        return orderTime;
+    public String getOrderTimer() {
+        return orderTimer;
     }
 
-    public void setOrderTime(String orderTime) {
-        this.orderTime = orderTime;
+    public void setOrderTimer(String orderTimer) {
+        this.orderTimer = orderTimer;
     }
 
     public String getOrderStatus() {
@@ -50,7 +50,7 @@ public class Order {
         return "Order{" +
                 "orderID=" + orderID +
                 ", orderDate='" + orderDate + '\'' +
-                ", orderTime='" + orderTime + '\'' +
+                ", orderTime='" + orderTimer + '\'' +
                 ", orderStatus='" + orderStatus + '\'' +
                 '}';
     }

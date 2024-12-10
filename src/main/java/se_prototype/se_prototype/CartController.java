@@ -27,10 +27,17 @@ import javafx.scene.effect.GaussianBlur;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import se_prototype.se_prototype.Model.Product;
+import se_prototype.se_prototype.Model.User;
 import se_prototype.se_prototype.Model.UserCart;
 
 public class CartController {
 
+    @FXML
+    private ImageView group_order_start_pic;
+    @FXML
+    private VBox group_cart_choice;
+    @FXML
+    private ScrollPane group_cart_choose;
     @FXML
     private Label subtotalLabel;
     @FXML
@@ -98,8 +105,6 @@ public class CartController {
     @FXML
     private ComboBox<String> paymentMethodComboBox;
     @FXML
-    private SVGPath paymentIcon;
-    @FXML
     private StackPane paymentIconContainer;
     @FXML
     private StackPane toggleSwitch;
@@ -125,6 +130,18 @@ public class CartController {
     private Label deliveryChargeLabel_group;
     @FXML
     private HBox HBox_discount_group;
+    @FXML
+    private Button startGroupOrderButton;
+    @FXML
+    private ImageView timerIcon;
+    @FXML
+    private ImageView peopleIcon;
+    @FXML
+    private ImageView notificationIcon;
+    @FXML
+    private ImageView cartIcon;
+    @FXML
+    private ImageView itemsIcon;
 
     private boolean isSoloCart = true;
     private long timeRemaining = 3600; // 1 hour in seconds
@@ -137,16 +154,18 @@ public class CartController {
     private ScheduledExecutorService timerService;
     private static boolean isInitialized = false;
     private static int totalUsers;
+    private static final String filePath = "src/main/resources/users.txt";
 
     @FXML
     public void initialize() {
         if (!isInitialized) {
-            clearAppFilesOnInitialization(); // Clear files only once at the start of the app
+            //clearAppFilesOnInitialization(); // Clear files only once at the start of the app
             int additionalUsers = new Random().nextInt(9) + 1; // 1-9 range
             totalUsers = 1 + additionalUsers; // 1 logged-in user + additional random users
             System.out.println("Total users (including logged-in user): " + totalUsers);
             isInitialized = true; // Set the flag to true to prevent future runs
         }
+
         loadTimerState();
         setupImages();
         loadCartFromFile();
@@ -173,14 +192,10 @@ public class CartController {
 
         paymentMethodComboBox.getSelectionModel().selectedItemProperty().addListener((options, oldValue, newValue) -> {
             if (newValue != null && (newValue.equals("Cash") || newValue.equals("Card"))) {
-                start_group_order_button.setDisable(false);
-                join_group_order_button.setDisable(false);
                 solo_order_button.setDisable(false);
                 error_payment_method.setVisible(false);
                 error_payment_method.setManaged(false);
             } else {
-                start_group_order_button.setDisable(true);
-                join_group_order_button.setDisable(true);
                 solo_order_button.setDisable(true);
                 error_payment_method.setVisible(true);
                 error_payment_method.setManaged(true);
@@ -188,13 +203,103 @@ public class CartController {
         });
 
         // Set up button actions
-        homeButton.setOnAction(event -> switchToPage("home_screen.fxml", "Home", null));
-        menuButton.setOnAction(event -> switchToPage("menu.fxml", "Menu", null));
-        settingsButton.setOnAction(event -> switchToPage("settings.fxml", "Settings", null));
-        addMoreItems.setOnAction(event -> switchToPage("menu.fxml", "Menu", null));
-        addMoreItems_empty.setOnAction(event -> switchToPage("menu.fxml", "Menu", null));
-        change_location.setOnAction(event -> switchToPage("location.fxml", "Location", "Cart"));
-        start_group_order_button.setOnAction(event -> switchToPage("start_group_order.fxml", "Start Group Order", null));
+        homeButton.setOnAction(event -> switchToPage("home_screen.fxml", "Home"));
+        menuButton.setOnAction(event -> switchToPage("menu.fxml", "Menu"));
+        settingsButton.setOnAction(event -> switchToPage("settings.fxml", "Settings"));
+        addMoreItems.setOnAction(event -> switchToPage("menu.fxml", "Menu"));
+        addMoreItems_empty.setOnAction(event -> switchToPage("menu.fxml", "Menu"));
+        change_location.setOnAction(event -> switchToPage("location.fxml", "Location"));
+        start_group_order_button.setOnAction(event -> switchToPage("start_group_order.fxml", "Start Group Order"));
+        join_group_order_button.setOnAction(event -> handleJoinGroupCart());
+
+
+
+        timerIcon.setImage(new Image(getClass().getResourceAsStream("/icons/timer.png")));
+        peopleIcon.setImage(new Image(getClass().getResourceAsStream("/icons/people.png")));
+        notificationIcon.setImage(new Image(getClass().getResourceAsStream("/icons/notification.png")));
+        cartIcon.setImage(new Image(getClass().getResourceAsStream("/icons/cart.png")));
+        itemsIcon.setImage(new Image(getClass().getResourceAsStream("/icons/items.png")));
+        startGroupOrderButton.setOnAction(event -> handleCreateGroupCart());
+    }
+
+    private void showGroupCartChoice() {
+        Platform.runLater(() -> {
+            // Show the group_cart_choice VBox
+            group_cart_choice.setVisible(true);
+            group_cart_choice.setManaged(true);
+
+            // Ensure the ScrollPane (group_cart_choose) is also visible
+            group_cart_choose.setVisible(true);
+            group_cart_choose.setManaged(true);
+
+            // Hide the main group_cart screen
+            group_cart.setVisible(false);
+            group_cart.setManaged(false);
+        });
+    }
+
+    private void showGroupCart() {
+        // Show the group_cart screen
+        Platform.runLater(() -> {
+            group_cart_choice.setVisible(false);
+            group_cart_choice.setManaged(false);
+            group_cart.setVisible(true);
+            group_cart.setManaged(true);
+        });
+    }
+
+    private void createNewGroupCart() {
+        // Clear any existing data in the group cart file
+        clearFile(saveFile);
+
+        // Initialize "You" as the first user in the group cart
+        overrideYouCart();
+
+        // Save the current group cart data
+        saveUserData();
+
+        System.out.println("New group cart created successfully.");
+    }
+
+    private void handleJoinGroupCart() {
+        // Logic for joining an existing group cart
+        System.out.println("Joining an existing group cart...");
+
+        // Simulate checking if a group cart exists
+        boolean groupCartExists = checkForExistingGroupCart();
+        if (groupCartExists) {
+            loadGroupCart(); // Load existing group cart data
+            showGroupCart(); // Switch to the group cart screen
+        } else {
+            // Show an error dialog if no group cart exists
+            showErrorDialog("No group cart found", "Please ask someone to create a group cart or create one yourself.");
+        }
+    }
+
+    private void showErrorDialog(String title, String message) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.showAndWait();
+        });
+    }
+
+    private void handleCreateGroupCart() {
+        // Logic for creating a new group cart
+        System.out.println("Creating a new group cart...");
+
+        // Initialize group cart for the first time
+        createNewGroupCart();
+
+        // Show the group cart screen after creation
+        showGroupCart();
+    }
+
+    private boolean checkForExistingGroupCart() {
+        File file = new File(saveFile); // The file that stores group cart data
+        return file.exists() && file.length() > 0; // Check if the file exists and is not empty
     }
 
     private void updateDeliverySummary() {
@@ -587,7 +692,7 @@ public class CartController {
         // Capture the state for toggle transition
         Timeline delay = new Timeline(
                 new KeyFrame(
-                        Duration.millis(200), // Match the loading overlay duration
+                        Duration.millis(175), // Match the loading overlay duration
                         ev -> {
                             if (isSoloCart) {
                                 // Solo Cart View
@@ -597,6 +702,8 @@ public class CartController {
                                 animateToggleThumb(-30);
                                 group_cart.setVisible(false);
                                 group_cart.setManaged(false);
+                                group_cart_choose.setVisible(false);
+                                group_cart_choose.setManaged(false);
                                 productScrollPane.setVisible(true);
                                 productScrollPane.setManaged(true);
                             } else {
@@ -607,13 +714,26 @@ public class CartController {
                                 groupLabel.setVisible(true);
                                 toggleThumb.setStyle("-fx-fill: #5EC401;");
                                 animateToggleThumb(30);
-                                group_cart.setVisible(true);
-                                group_cart.setManaged(true);
-                                productScrollPane.setVisible(false);
-                                productScrollPane.setManaged(false);
-                                startGroupCartTimer(); // Start the timer for group mode
-                                group_cart.setVvalue(0);
-                                screen.requestFocus();
+                                // Check if there is an active group order
+                                if (isUserInActiveGroupOrder()) {
+                                    group_cart.setVisible(true);
+                                    group_cart.setManaged(true);
+                                    group_cart_choose.setVisible(false);
+                                    group_cart_choose.setManaged(false);
+                                    productScrollPane.setVisible(false);
+                                    productScrollPane.setManaged(false);
+                                    startGroupCartTimer(); // Start the timer for group mode
+                                    group_cart.setVvalue(0);
+                                    screen.requestFocus();
+                                } else {
+                                    // Show the choice to join or create a group order
+                                    group_cart_choose.setVisible(true);
+                                    group_cart_choose.setManaged(true);
+                                    group_cart.setVisible(false);
+                                    group_cart.setManaged(false);
+                                    productScrollPane.setVisible(false);
+                                    productScrollPane.setManaged(false);
+                                }
                             }
 
                             // Fade out the loading overlay
@@ -635,6 +755,12 @@ public class CartController {
         fadeIn.setToValue(1);
         fadeIn.setOnFinished(ev -> delay.play());
         fadeIn.play();
+    }
+
+    private boolean isUserInActiveGroupOrder() {
+        // Example logic to check if the user has an active group order
+        User currentUser = getCurrentUser(); // Replace with your method to get the current user
+        return currentUser != null && currentUser.getCurrentOrderID() > 0;
     }
 
     private void startGroupCartTimer() {
@@ -1197,6 +1323,8 @@ public class CartController {
             emptyCartImgView.setFitHeight(200);
             empty_cart.setImage(emptyCartImg);
 
+            group_order_start_pic.setImage(new Image(getClass().getResourceAsStream("/group_cart_start.png")));
+
         } catch (Exception e) {
             System.err.println("Error loading images: " + e.getMessage());
             e.printStackTrace();
@@ -1298,16 +1426,85 @@ public class CartController {
         }
     }
 
-    private void switchToPage(String fxmlFile, String title, String previousPage) {
+    private User getCurrentUser() {
+        String currentUserFilePath = "src/main/resources/current_user.txt"; // Path to the current_user.txt file
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(currentUserFilePath))) {
+            String line = reader.readLine(); // Read the single line containing the current user's info
+            if (line != null) {
+                // Parse the CSV line properly
+                List<String> parts = parseCSVLine(line);
+                if (parts.size() >= 8) { // Ensure all fields are available
+                    String name = parts.get(0).trim();
+                    String email = parts.get(1).trim();
+                    String password = parts.get(2).trim();
+
+                    // Parse addresses field
+                    String[] addresses = Arrays.stream(parts.get(3).replace("\"", "").split(";"))
+                            .map(String::trim)
+                            .toArray(String[]::new);
+
+                    // Parse currentAddress field
+                    String currentAddress = parts.get(4).replace("\"", "").trim();
+
+                    // Parse orderIDs field
+                    int[] orderIDs = Arrays.stream(parts.get(5).split(";"))
+                            .map(String::trim) // Trim each part
+                            .mapToInt(Integer::parseInt) // Convert to integer
+                            .toArray();
+
+                    // Parse other integer fields
+                    int currentOrderID = Integer.parseInt(parts.get(6).trim());
+                    int errorCase = Integer.parseInt(parts.get(7).trim());
+
+                    return new User(name, email, password, addresses, currentAddress, orderIDs, currentOrderID, errorCase);
+                } else {
+                    System.err.println("Error: Insufficient data in the current_user.txt file.");
+                }
+            } else {
+                System.err.println("Error: current_user.txt file is empty.");
+            }
+        } catch (IOException | NumberFormatException e) {
+            e.printStackTrace();
+        }
+
+        return null; // Return null if no user information is found or an error occurs
+    }
+
+    /**
+     * Parses a CSV line into fields, handling quoted fields with commas.
+     *
+     * @param line The input CSV line.
+     * @return A list of parsed fields.
+     */
+    private List<String> parseCSVLine(String line) {
+        List<String> result = new ArrayList<>();
+        StringBuilder currentField = new StringBuilder();
+        boolean inQuotes = false;
+
+        for (char c : line.toCharArray()) {
+            if (c == '"' && (currentField.isEmpty() || currentField.charAt(currentField.length() - 1) != '\\')) {
+                // Toggle inQuotes state when encountering unescaped quotes
+                inQuotes = !inQuotes;
+            } else if (c == ',' && !inQuotes) {
+                // Add field to result if we encounter a comma outside quotes
+                result.add(currentField.toString());
+                currentField.setLength(0); // Clear the current field
+            } else {
+                // Append character to current field
+                currentField.append(c);
+            }
+        }
+        // Add the last field
+        result.add(currentField.toString());
+
+        return result;
+    }
+
+    private void switchToPage(String fxmlFile, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Scene scene = new Scene(loader.load(), 400, 711);
-            if ("location.fxml".equals(fxmlFile)) {
-                LocationController controller = loader.getController();
-                if (controller != null) {
-                    controller.setPreviousPage(previousPage);
-                }
-            }
             scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
             Stage stage = (Stage) homeButton.getScene().getWindow(); // Get the current stage
             stage.setScene(scene);

@@ -1,5 +1,7 @@
 package se_prototype.se_prototype.Model;
 
+import java.util.Arrays;
+
 public class User {
     String name;
     String email;
@@ -83,5 +85,28 @@ public class User {
 
     public void setErrorCase(int errorCase) {
         this.errorCase = errorCase;
+    }
+
+    @Override
+    public String toString() {
+        return name + "," + email + "," + password + "," +
+                String.join(";", addresses) + "," +
+                currentAddress + "," +
+                Arrays.toString(orderID).replaceAll("[\\[\\] ]", "") + "," +
+                currentOrderID + "," + errorCase;
+    }
+
+    public static User fromString(String userData) {
+        String[] parts = userData.split(",");
+        String[] addresses = parts[3].split(";");
+        int[] orderIDs = Arrays.stream(parts[5].split(";"))
+                .mapToInt(Integer::parseInt)
+                .toArray();
+
+        return new User(
+                parts[0], parts[1], parts[2], addresses,
+                parts[4], orderIDs, Integer.parseInt(parts[6]),
+                Integer.parseInt(parts[7])
+        );
     }
 }
