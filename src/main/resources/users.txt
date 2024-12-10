@@ -1,2 +1,5 @@
 John Doe,john.doe@example.com,password123,"123 Elm Street, Apartment 5B, Cityville;456 Cookie Street, Villa 10, Dubai","456 Cookie Street, Villa 10, Dubai","101;102;103",102,0
 Jane Smith,jane.smith@example.com,securePass456,"789 Maple Street, Unit 3, Gotham;101 Park Avenue, Apt 12, Metropolis","101 Park Avenue, Apt 12, Metropolis","201;202;203",201,1
+KatiaTest1,katia@gmail.com,Katia1234567890,"","","",0,0
+Katia1,katia1@gmail.com,1234567890,"","","",0,0
+kat,katiaa1@gmail.com,123123,"","","",0,0

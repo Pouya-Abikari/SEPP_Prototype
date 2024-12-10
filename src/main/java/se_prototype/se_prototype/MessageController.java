@@ -114,7 +114,7 @@ public class MessageController {
         predefinedRepliesWithVariations.put("hi".toLowerCase(), Arrays.asList("Hi!", "Hello!", "Hey there!"));
         predefinedRepliesWithVariations.put("hello".toLowerCase(), Arrays.asList("Hello!", "Hi!", "Greetings!"));
         predefinedRepliesWithVariations.put("how are you".toLowerCase(), Arrays.asList("I'm good, thank you!", "Doing great!", "I'm fine, you?"));
-        predefinedRepliesWithVariations.put("what is your name".toLowerCase(), Arrays.asList("I'm Cassie.", "Your friendly assistant.", "Cassie here!"));
+        predefinedRepliesWithVariations.put("what is your name?".toLowerCase(), Arrays.asList("I'm Cassie", "Your house mate here!", "Josh!"));
         predefinedRepliesWithVariations.put("bye".toLowerCase(), Arrays.asList("Goodbye! Have a nice day!", "See you later!", "Take care!"));
         predefinedRepliesWithVariations.put("should we start a shared group order?".toLowerCase(), Arrays.asList("Yes!", "For sure, lets do it!", "I will join", "Yes! Send the link."));
     }

@@ -33,8 +33,10 @@
                             <ImageView fx:id="mainPageImage" />
                         </center>
                     </BorderPane>
-                    <Label text="Welcome" style="-fx-font-size: 20; -fx-text-fill: #5EC401; -fx-font-weight: bold;"/>
-                    <Label text="JohnDoe" style="-fx-font-size: 40; -fx-text-fill: #1E1E1E; -fx-font-weight: bold;" />
+                    <Label fx:id="welcomeLabel" text="Welcome"
+                           style="-fx-font-size: 20; -fx-text-fill: #5EC401; -fx-font-weight: bold;"/>
+                    <Label fx:id="nameLabel" text="JohnDoe"
+                           style="-fx-font-size: 40; -fx-text-fill: #1E1E1E; -fx-font-weight: bold;"/>
                 </VBox>
 
                 <!-- News Section -->
