@@ -1,5 +1,6 @@
 package se_prototype.se_prototype;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -29,16 +30,39 @@ public class LoginController {
     private Label errorLabel;
 
     private boolean isPasswordVisible = false;
-
+    private String userFile;
     private final String USER_FILE = "src/main/resources/users.txt";
 
     @FXML
     public void initialize() {
         setupPasswordToggle();
-        emptyCurrentUser();
         setupLogo();
+
+        // Determine the user file for this session
+        userFile = determineUserFile();
+        if (userFile == null) {
+            showErrorAndExit("Both user files are already in use. Please try again later.");
+        }
+
+        // Register a shutdown hook to clear the file
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                clearFile(userFile);
+                System.out.println("File cleared on shutdown: " + userFile);
+            } catch (IOException e) {
+                System.err.println("Failed to clear file on shutdown: " + userFile);
+                e.printStackTrace();
+            }
+        }));
+
+        // Clear the user file when the application starts
+        emptyCurrentUserFile();
+
+        // Hide the error label initially
         errorLabel.setManaged(false);
-        errorLabel.setVisible(false); // Hide the error label initially
+        errorLabel.setVisible(false);
+
+        // Set login button action
         loginButton.setOnAction(event -> handleLogin());
     }
 
@@ -55,14 +79,92 @@ public class LoginController {
         }
     }
 
-    private void emptyCurrentUser() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("src/main/resources/current_user.txt", false))) {
-            writer.write("");
+    private void emptyCurrentUserFile() {
+        if (userFile == null) {
+            throw new IllegalStateException("User file not initialized");
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(userFile, false))) {
+            writer.write(""); // Clear the content of the user file
         } catch (IOException e) {
             e.printStackTrace();
-            showErrorAlert("Failed to empty the current user.");
+            showErrorAlert("Failed to clear the user file.");
+        }
+
+        // Remove the associated lock file
+        File lockFile = new File(userFile.replace(".txt", "_lock.txt"));
+        removeLockFile(lockFile);
+    }
+
+    private String determineUserFile() {
+        File userFile1 = new File("src/main/resources/current_user_1.txt");
+        File userFile2 = new File("src/main/resources/current_user_2.txt");
+        File lockFile1 = new File("src/main/resources/lock_1.txt");
+        File lockFile2 = new File("src/main/resources/lock_2.txt");
+
+        // Check lock and empty status for userFile1
+        if (!lockFile1.exists() && isFileEmpty(userFile1)) {
+            createFileIfNotExists(userFile1); // Ensure the user file exists
+            createLockFile(lockFile1);
+            return userFile1.getAbsolutePath();
+        }
+
+        // Check lock and empty status for userFile2
+        if (!lockFile2.exists() && isFileEmpty(userFile2)) {
+            createFileIfNotExists(userFile2); // Ensure the user file exists
+            createLockFile(lockFile2);
+            return userFile2.getAbsolutePath();
+        }
+
+        return null; // Both files are in use
+    }
+
+    private void createFileIfNotExists(File file) {
+        try {
+            if (!file.exists()) {
+                file.createNewFile(); // Create the file if it doesn't exist
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to create file: " + file.getAbsolutePath());
         }
     }
+
+    private boolean isFileEmpty(File file) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            return reader.readLine() == null;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return true; // Treat as empty if the file cannot be read
+    }
+
+    private void createLockFile(File lockFile) {
+        try {
+            if (!lockFile.exists()) {
+                lockFile.createNewFile(); // Create lock file to indicate this file is in use
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void removeLockFile(File lockFile) {
+        if (lockFile.exists()) {
+            lockFile.delete(); // Remove lock file when no longer in use
+        }
+    }
+
+    private void showErrorAndExit(String message) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.showAndWait();
+            Platform.exit();
+        });
+        }
 
     private User authenticateUser(String email, String password) {
         try (BufferedReader reader = new BufferedReader(new FileReader(USER_FILE))) {
@@ -159,8 +261,7 @@ public class LoginController {
     }
 
     private void saveCurrentUser(User user) {
-        String currentUserFile = "src/main/resources/current_user.txt";
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(currentUserFile, false))) { // Overwrite file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(userFile, false))) { // Overwrite file
             writer.write(user.getName() + "," +
                     user.getEmail() + "," +
                     user.getPassword() + "," +
@@ -189,6 +290,8 @@ public class LoginController {
             Scene homeScene = new Scene(loader.load(), 400, 711);
             homeScene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
             Stage stage = (Stage) usernameField.getScene().getWindow();
+            HomeScreenController homeScreenController = loader.getController();
+            homeScreenController.setUserFile(userFile);
             stage.setScene(homeScene);
             stage.show();
         } catch (IOException e) {
@@ -250,6 +353,12 @@ public class LoginController {
         } catch (IOException e) {
             e.printStackTrace();
             showErrorAlert("Failed to load the forgot password screen.");
+        }
+    }
+
+    private void clearFile(String filePath) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, false))) {
+            writer.write(""); // Write nothing to empty the file
         }
     }
 

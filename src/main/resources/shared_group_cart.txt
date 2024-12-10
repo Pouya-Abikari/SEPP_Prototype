@@ -1,0 +1,9 @@
+You;Scrambled Eggs,Fresh scrambled eggs with a hint of butter,3.0,scrambled_eggs.png,0.0,1;Salmon Fillet,Fresh salmon fillet from Ocean's Harvest,10.0,salmon_fillet.png,50.0,3;Ground Beef,Premium ground beef from Butcher's Best,5.5,ground_beef.png,20.0,2;Shrimp,Delicious shrimp from Ocean's Harvest,12.0,shrimp.png,0.0,1;
+User 2;Tomatoes,Fresh tomatoes from Fresh Farms,1.2,Fruits&Vegetables/tomatoes.png,20.0,1;Bacon,Crispy smoked bacon strips,4.0,bacon.png,10.0,1;Muffin,Chocolate chip muffin from the bakery,2.5,muffin.png,0.0,1;
+User 3;Tea Bags,Premium tea from Tea Leaves Co.,4.0,tea_bag.png,50.0,2;Laundry Detergent,Effective detergent from Clean & Fresh,12.0,laundry.png,20.0,1;
+User 4;Milk,Fresh milk from Dairyland Supply,1.25,milk.png,0.0,1;Onion,Organic onions from Green Growers,0.85,Fruits&Vegetables/onion.png,10.0,3;
+User 5;Bacon,Crispy smoked bacon strips,4.0,bacon.png,10.0,2;Shampoo,Refreshing shampoo for healthy hair,6.0,shampoo.png,30.0,3;
+User 6;Avocado Toast,Whole grain toast topped with smashed avocado,6.0,avocado_toast.png,50.0,3;Tomatoes,Fresh tomatoes from Fresh Farms,1.2,Fruits&Vegetables/tomatoes.png,20.0,3;Lamb Chops,Tender lamb chops from Farmer's Select,8.0,lamb_chops.png,30.0,2;
+User 7;Popcorn,Buttery popcorn from Movie Nights,1.8,popcorn.png,10.0,2;
+User 8;Paper Towels,Absorbent paper towels from Quick Clean,6.0,paper_towel.png,20.0,1;Iced Coffee,Chilled iced coffee from Coffee Corner,3.5,iced_coffee.png,0.0,1;Sausages,Savory sausages from Butcher's Delight,3.5,sausages.png,20.0,3;
+User 9;Chicken Breast,Fresh chicken breast from Farm Fresh Meats,4.0,chicken_breast.png,10.0,3;Iced Coffee,Chilled iced coffee from Coffee Corner,3.5,iced_coffee.png,0.0,2;Hand Soap,Gentle hand soap for clean hands,3.0,hand_soap.png,0.0,3;

@@ -155,6 +155,8 @@ public class CartController {
     private static boolean isInitialized = false;
     private static int totalUsers;
     private static final String filePath = "src/main/resources/users.txt";
+    private final String SHARED_GROUP_CART_FILE = "src/main/resources/shared_group_cart.txt";
+    private ScheduledExecutorService fileWatcherService;
 
     @FXML
     public void initialize() {
@@ -173,6 +175,7 @@ public class CartController {
         loadLoggedInUserCart();
         loadUserData();
         startRandomUserUpdate();
+        startFileWatcher();
 
         // Initialize UI setup
         group_cart.setVisible(false);
@@ -525,6 +528,7 @@ public class CartController {
         }
 
         userCarts.add(new UserCart(userName, cartItems));
+        saveUserData();
     }
 
     private void updateGroupCartUI() {
@@ -669,7 +673,7 @@ public class CartController {
     }
 
     private void saveUserData() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(saveFile))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(SHARED_GROUP_CART_FILE))) {
             for (UserCart userCart : userCarts) {
                 writer.write(userCart.toString());
                 writer.newLine();
@@ -921,6 +925,7 @@ public class CartController {
 
         saveUserData(); // Save the updated group cart to file
         updateGroupCartUI(); // Update the UI
+        saveUserData(); // Save the updated group cart to file
     }
 
     private void animateToggleThumb(double toX) {
@@ -933,8 +938,17 @@ public class CartController {
 
     private void loadGroupCart() {
         userCarts.clear(); // Clear existing group cart
-        loadUserData(); // Load users from the group_cart_users.txt file
-        overrideYouCart(); // Override "You" section with latest data from cart.txt
+        try (BufferedReader reader = new BufferedReader(new FileReader(SHARED_GROUP_CART_FILE))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                UserCart userCart = UserCart.fromString(line);
+                userCarts.add(userCart);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //loadUserData(); // Load users from the group_cart_users.txt file
+        //overrideYouCart(); // Override "You" section with latest data from cart.txt
         updateGroupCartUI(); // Update the UI
         updateDeliverySummary(); // Update the delivery summary
     }
@@ -1518,6 +1532,19 @@ public class CartController {
         result.add(currentField.toString());
 
         return result;
+    }
+
+    private void startFileWatcher() {
+        fileWatcherService = Executors.newSingleThreadScheduledExecutor();
+        fileWatcherService.scheduleAtFixedRate(() -> {
+            Platform.runLater(this::loadCartFromFile);
+        }, 0, 5, TimeUnit.SECONDS);
+    }
+
+    private void stopFileWatcher() {
+        if (fileWatcherService != null) {
+            fileWatcherService.shutdown();
+        }
     }
 
     private void switchToPage(String fxmlFile, String title) {

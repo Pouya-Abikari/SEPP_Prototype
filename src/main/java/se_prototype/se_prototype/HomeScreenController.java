@@ -14,25 +14,18 @@ public class HomeScreenController {
 
     @FXML
     private Button messageButton;
-
     @FXML
     private Button notificationButton;
-
     @FXML
     private ImageView mainPageImage;
-
     @FXML
     private ImageView tutorialImage;
-
     @FXML
     private ImageView  christmasImage;
-
     @FXML
     private ImageView moviePizzaImage;
-
     @FXML
     private ImageView  errorImage;
-
     @FXML
     private Button homeButton;
     @FXML
@@ -41,7 +34,7 @@ public class HomeScreenController {
     private Button cartButton;
     @FXML
     private Button settingsButton;
-
+    private String userFile;
 
 
     @FXML
@@ -141,6 +134,11 @@ public class HomeScreenController {
             System.err.println("Error loading images: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    public void setUserFile(String userFile) {
+        this.userFile = userFile;
+        System.out.println("User file set to: " + userFile);
     }
 
     private void switchToPage(String fxmlFile, String title) {
