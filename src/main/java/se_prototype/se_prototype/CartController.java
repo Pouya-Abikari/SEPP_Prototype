@@ -159,17 +159,14 @@ public class CartController {
     @FXML
     public void initialize() {
         if (!isInitialized) {
-            //clearAppFilesOnInitialization(); // Clear files only once at the start of the app
+            clearAppFilesOnInitialization(); // Clear files only once at the start of the app
             int additionalUsers = new Random().nextInt(9) + 1; // 1-9 range
             totalUsers = 1 + additionalUsers; // 1 logged-in user + additional random users
             System.out.println("Total users (including logged-in user): " + totalUsers);
             isInitialized = true; // Set the flag to true to prevent future runs
         }
 
-        loadTimerState();
         setupImages();
-        loadCartFromFile();
-        updateCartSummary();
         initializeLoadingOverlay();
         payment_icon_and_method();
         loadAllProducts();
@@ -241,8 +238,8 @@ public class CartController {
     private void showGroupCart() {
         // Show the group_cart screen
         Platform.runLater(() -> {
-            group_cart_choice.setVisible(false);
-            group_cart_choice.setManaged(false);
+            group_cart_choose.setVisible(false);
+            group_cart_choose.setManaged(false);
             group_cart.setVisible(true);
             group_cart.setManaged(true);
         });
@@ -290,11 +287,33 @@ public class CartController {
         // Logic for creating a new group cart
         System.out.println("Creating a new group cart...");
 
-        // Initialize group cart for the first time
-        createNewGroupCart();
+        if (checkForExistingGroupCart()) {
+            // Show a confirmation dialog to override the existing group cart
+            showConfirmationDialog("Override Group Cart", "Are you sure you want to create a new group cart?");
+        } else {
+            // Create a new group cart if none exists
+            createNewGroupCart();
+            showGroupCart();
+        }
+    }
 
-        // Show the group cart screen after creation
-        showGroupCart();
+    private void showConfirmationDialog(String overrideGroupCart, String s) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle(overrideGroupCart);
+            alert.setHeaderText(null);
+            alert.setContentText(s);
+
+            ButtonType buttonTypeYes = new ButtonType("Yes");
+            ButtonType buttonTypeNo = new ButtonType("No", ButtonBar.ButtonData.CANCEL_CLOSE);
+            alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == buttonTypeYes) {
+                createNewGroupCart();
+                showGroupCart();
+            }
+        });
     }
 
     private boolean checkForExistingGroupCart() {
