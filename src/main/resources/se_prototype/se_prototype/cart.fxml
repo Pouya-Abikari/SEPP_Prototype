@@ -47,7 +47,7 @@
         <!-- Scrollable Center Content -->
         <center>
             <StackPane>
-                <VBox fx:id="empty_cart_label" alignment="CENTER" spacing="10" visible="false">
+                <VBox fx:id="empty_cart_label" alignment="CENTER" spacing="10" visible="false" managed="false">
                     <ImageView fx:id="empty_cart" fitWidth="250" fitHeight="250" preserveRatio="true" />
                     <Label text="Your Cart is Empty" style="-fx-font-size: 25px; -fx-font-weight: bold;" />
                     <Label text="Start adding items to build your order." style="-fx-font-size: 14px;" />
@@ -93,33 +93,59 @@
                         <VBox alignment="CENTER_LEFT"
                               style="-fx-background-color: white; -fx-border-radius: 16; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0); -fx-background-radius: 16;" spacing="10">
 
+                            <!-- Subtotal -->
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label text="Subtotal"
+                                       style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="subtotalLabel"
+                                       style="-fx-font-size: 14px; -fx-text-fill: #37474F;" />
+                            </HBox>
+
                             <!-- No of Items -->
                             <HBox alignment="CENTER_LEFT" spacing="10">
-                                <Label text="No of Items" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                                <Label text="No of Items"
+                                       style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
                                 <Region HBox.hgrow="ALWAYS" />
-                                <Label fx:id="totalItemsLabel" text="BDT0" style="-fx-font-size: 14px; -fx-text-fill: #37474F;" />
+                                <Label fx:id="totalItemsLabel" text="0"
+                                       style="-fx-font-size: 14px; -fx-text-fill: #37474F;" />
                             </HBox>
 
                             <!-- Delivery Charge -->
                             <HBox alignment="CENTER_LEFT" spacing="10">
-                                <Label text="Delivery Charge" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                                <Label text="Delivery Charge"
+                                       style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
                                 <Region HBox.hgrow="ALWAYS" />
-                                <Label fx:id="deliveryChargeLabel" text="BDT0" style="-fx-font-size: 14px; -fx-text-fill: #37474F;" />
+                                <Label fx:id="deliveryChargeLabel"
+                                       style="-fx-font-size: 14px; -fx-text-fill: #37474F;" />
                             </HBox>
 
-                            <VBox alignment="CENTER_LEFT">
-                                <!-- Total -->
+                            <!-- Service Fee -->
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label text="Service Fee"
+                                       style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="serviceFeeLabel"
+                                       style="-fx-font-size: 14px; -fx-text-fill: #37474F;" />
+                            </HBox>
+
+                            <!-- Total -->
+                            <VBox alignment="CENTER_LEFT" spacing="5">
                                 <HBox alignment="CENTER_LEFT" spacing="5">
-                                    <Label text="Total Price" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                                    <Label text="Total Price"
+                                           style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
                                     <Region HBox.hgrow="ALWAYS" />
-                                    <Label fx:id="totalPriceLabel" text="BDT0" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                                    <Label fx:id="totalPriceLabel"
+                                           style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
                                 </HBox>
 
                                 <!-- Discount -->
                                 <HBox alignment="CENTER_LEFT" spacing="5" fx:id="HBox_discount" visible="false" managed="false">
-                                    <Label text="Discount" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #FF6B6B;" />
+                                    <Label text="Discount"
+                                           style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #FF6B6B;" />
                                     <Region HBox.hgrow="ALWAYS" />
-                                    <Label fx:id="totalSavingsLabel" text="BDT0" style="-fx-font-size: 12px; -fx-text-fill: #FF6B6B;" />
+                                    <Label fx:id="totalSavingsLabel" text="-$0.00"
+                                           style="-fx-font-size: 12px; -fx-text-fill: #FF6B6B;" />
                                 </HBox>
                             </VBox>
                         </VBox>
@@ -227,18 +253,18 @@
                         <VBox alignment="CENTER_LEFT"
                               style="-fx-background-color: white; -fx-border-radius: 16; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0); -fx-background-radius: 16;" spacing="10">
 
-                            <!-- Subtotal -->
-                            <HBox alignment="CENTER_LEFT" spacing="10">
-                                <Label text="Subtotal" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
-                                <Region HBox.hgrow="ALWAYS" />
-                                <Label fx:id="subtotalLabel_group" text="BDT0" style="-fx-font-size: 14px; -fx-text-fill: #37474F;" />
-                            </HBox>
-
                             <!-- No of Items -->
                             <HBox alignment="CENTER_LEFT" spacing="10">
                                 <Label text="No of Items" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
                                 <Region HBox.hgrow="ALWAYS" />
                                 <Label fx:id="totalItemsLabel_group" text="0" style="-fx-font-size: 14px; -fx-text-fill: #37474F;" />
+                            </HBox>
+
+                            <!-- Subtotal -->
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label text="Subtotal" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="subtotalLabel_group" text="BDT0" style="-fx-font-size: 14px; -fx-text-fill: #37474F;" />
                             </HBox>
 
                             <!-- Delivery Charge -->
@@ -255,6 +281,13 @@
                                 <Label fx:id="serviceFeeLabel_group" text="BDT0" style="-fx-font-size: 14px; -fx-text-fill: #37474F;" />
                             </HBox>
 
+                            <!-- Total -->
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label text="Total Price" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="totalPriceLabel_group" style="-fx-font-size: 14px; -fx-text-fill: #37474F;" />
+                            </HBox>
+
                             <!-- Estimated Delivery Time -->
                             <HBox alignment="CENTER_LEFT" spacing="10">
                                 <Label text="Delivery Time" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
@@ -262,30 +295,22 @@
                                 <Label fx:id="estimatedDeliveryTimeLabel_group" text="N/A" style="-fx-font-size: 14px; -fx-text-fill: #37474F;" />
                             </HBox>
 
-                            <VBox alignment="CENTER_LEFT">
-                                <!-- Total -->
-                                <HBox alignment="CENTER_LEFT" spacing="5">
-                                    <Label text="Total Price" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
-                                    <Region HBox.hgrow="ALWAYS" />
-                                    <Label fx:id="totalPriceLabel_group" text="BDT0" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
-                                </HBox>
-
-                                <!-- Discount -->
-                                <HBox alignment="CENTER_LEFT" spacing="5" fx:id="HBox_discount_group" visible="false" managed="false">
-                                    <Label text="Discount" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #FF6B6B;" />
-                                    <Region HBox.hgrow="ALWAYS" />
-                                    <Label fx:id="totalSavingsLabel_group" text="BDT0" style="-fx-font-size: 12px; -fx-text-fill: #FF6B6B;" />
-                                </HBox>
-                            </VBox>
-
                             <!-- Your Total Cost Section -->
                             <VBox alignment="CENTER_LEFT" spacing="5">
                                 <!-- Main Total Cost Label -->
-                                <HBox alignment="CENTER_LEFT" spacing="10">
-                                    <Label text="Your Total Cost" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
-                                    <Region HBox.hgrow="ALWAYS" />
-                                    <Label fx:id="yourTotalCostLabel_group" text="BDT0" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
-                                </HBox>
+                                <VBox alignment="CENTER_RIGHT">
+                                    <HBox alignment="CENTER_LEFT" spacing="10">
+                                        <Label text="Your Total Amount" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="yourTotalCostLabel_group" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
+                                    </HBox>
+                                    <!-- Discount -->
+                                    <HBox alignment="CENTER_LEFT" spacing="5" fx:id="HBox_discount_group" visible="false" managed="false">
+                                        <Label text="Discount" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #FF6B6B;" />
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="totalSavingsLabel_group" style="-fx-font-size: 12px; -fx-text-fill: #FF6B6B;" />
+                                    </HBox>
+                                </VBox>
 
                                 <!-- Subtext for details -->
                                 <VBox alignment="CENTER_LEFT" spacing="2">
@@ -352,28 +377,6 @@
                                    style="-fx-font-size: 12px; -fx-text-fill: #B0B0B0; -fx-padding: 5 0 0 0;" wrapText="true"/>
                         </VBox>
 
-                        <!-- Action Buttons -->
-                        <VBox spacing="15" alignment="CENTER" style="-fx-padding: 10;">
-                            <!-- Place Solo Order Button -->
-                            <Button text="Start Group Order" prefWidth="375" fx:id="start_group_order_button"
-                                    style="-fx-background-color: #FFC107;
-                   -fx-font-size: 16px;
-                   -fx-text-fill: white;
-                   -fx-font-weight: bold;
-                   -fx-background-radius: 12;
-                   -fx-padding: 15;" disable="true"/>
-
-                            <!-- Join Group Order Button with Gradient -->
-                            <Button text="Join Group Order" prefWidth="350" fx:id="join_group_order_button"
-                                    style="-fx-font-size: 16px;
-                   -fx-font-weight: bold;
-                   -fx-text-fill: white;
-                   -fx-padding: 15;
-                   -fx-background-radius: 12;
-                   -fx-background-color: linear-gradient(to right, #5EC401, #FFC107);" disable="true"/>
-                        </VBox>
-
-
                         <Label text="By proceeding, you agree to the Terms and Conditions:
 1. Prices are subject to change based on item availability.
 2. The final amount will be deducted only after the order is confirmed.
@@ -383,6 +386,72 @@
                                textAlignment="JUSTIFY"
                                wrapText="true"
                                prefWidth="350" />
+                    </VBox>
+                </ScrollPane>
+
+                <ScrollPane styleClass="custom-scroll-pane" fx:id="group_cart_choose" visible="false" managed="false" prefHeight="711" prefWidth="375">
+                    <VBox spacing="15" alignment="CENTER" style="-fx-padding: 10;" visible="false" managed="false" fx:id="group_cart_choice">
+                        <ImageView fx:id="group_order_start_pic" fitWidth="250" fitHeight="250" preserveRatio="true"/>
+                        <!-- Place Solo Order Button -->
+                        <Button text="Start Group Order" prefWidth="350" fx:id="start_group_order_button" alignment="CENTER"
+                                style="-fx-background-color: #FFC107;
+                   -fx-font-size: 16px;
+                   -fx-text-fill: white;
+                   -fx-font-weight: bold;
+                   -fx-background-radius: 12;
+                   -fx-padding: 15;"/>
+
+                        <!-- Join Group Order Button with Gradient -->
+                        <Button text="Join Group Order" prefWidth="350" fx:id="join_group_order_button" alignment="CENTER"
+                                style="-fx-font-size: 16px;
+                   -fx-font-weight: bold;
+                   -fx-text-fill: white;
+                   -fx-padding: 15;
+                   -fx-background-radius: 12;
+                   -fx-background-color: linear-gradient(to right, #5EC401, #FFC107);"/>
+                    </VBox>
+                    <VBox spacing="15" alignment="CENTER" style="-fx-padding: 10;" prefWidth="395" prefHeight="500">
+                        <!-- Content -->
+                        <VBox spacing="20" style="-fx-padding: 25; -fx-font-family: Arial" alignment="TOP_LEFT">
+                            <!-- Timer -->
+                            <HBox spacing="20" alignment="CENTER_LEFT">
+                                <ImageView fx:id="timerIcon" fitWidth="25" fitHeight="25" />
+                                <Label text="1 hour timer" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #37474F;" wrapText="true" prefWidth="300" />
+                            </HBox>
+
+                            <!-- Min People -->
+                            <HBox spacing="20" alignment="CENTER_LEFT">
+                                <ImageView fx:id="peopleIcon" fitWidth="25" fitHeight="25" />
+                                <Label text="Min of 2 people to start an order" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #37474F;" wrapText="true" prefWidth="300" />
+                            </HBox>
+
+                            <!-- Notifications -->
+                            <HBox spacing="20" alignment="CENTER_LEFT">
+                                <ImageView fx:id="notificationIcon" fitWidth="25" fitHeight="25" />
+                                <Label text="Notification will notify housemates" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #37474F;" wrapText="true" prefWidth="300" />
+                            </HBox>
+
+                            <!-- Price Reduction -->
+                            <HBox spacing="20" alignment="CENTER_LEFT">
+                                <ImageView fx:id="cartIcon" fitWidth="25" fitHeight="25" />
+                                <Label text="Price will be reduced automatically from your account" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #37474F;" wrapText="true" prefWidth="300" />
+                            </HBox>
+
+                            <!-- Items Added -->
+                            <HBox spacing="20" alignment="CENTER_LEFT">
+                                <ImageView fx:id="itemsIcon" fitWidth="25" fitHeight="25" />
+                                <Label text="Items will be added to the group cart" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #37474F;" wrapText="true" prefWidth="300" />
+                            </HBox>
+                        </VBox>
+
+                        <!-- Start Button -->
+                        <VBox alignment="CENTER" spacing="20" style="-fx-padding: 20;">
+                            <Button fx:id="startGroupOrderButton" text="Start the Group Order"
+                                    style="-fx-background-color: #5EC401; -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 10;"
+                                    prefWidth="380" />
+                            <Label text="The delivery cost will be split between the attendees. By clicking, you agree to Terms and Conditions."
+                                   style="-fx-font-size: 14px; -fx-text-fill: #B0B0B0;" textAlignment="CENTER" wrapText="true"/>
+                        </VBox>
                     </VBox>
                 </ScrollPane>
             </StackPane>

@@ -159,33 +159,16 @@ public class LoginController {
     }
 
     private void saveCurrentUser(User user) {
-        String CURRENT_USER_FILE = "src/main/resources/current_user.txt";
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(CURRENT_USER_FILE, false))) { // Overwrite file
-            // Format the user information into the specified format
-            String formattedAddresses = (user.getAddresses() != null && user.getAddresses().length > 0)
-                    ? String.join(";", user.getAddresses())
-                    : "";  // If no addresses, leave it empty
-
-            String currentAddress = (user.getCurrentAddress() != null) ? user.getCurrentAddress() : "";  // If null, set empty
-
-            String formattedOrderIDs = (user.getOrderID() != null && user.getOrderID().length > 0)
-                    ? String.join(";", intArrayToStringArray(user.getOrderID()))
-                    : "";  // If no orders, leave it empty
-
-            String userString = String.format(
-                    "%s,%s,%s,\"%s\",\"%s\",\"%s\",%d,%d",
-                    user.getName(),
-                    user.getEmail(),
-                    user.getPassword(),
-                    formattedAddresses,
-                    currentAddress,
-                    formattedOrderIDs,
-                    user.getCurrentOrderID(),
-                    user.getErrorCase()
-            );
-
-            // Write the formatted string to the file
-            writer.write(userString);
+        String currentUserFile = "src/main/resources/current_user.txt";
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(currentUserFile, false))) { // Overwrite file
+            writer.write(user.getName() + "," +
+                    user.getEmail() + "," +
+                    user.getPassword() + "," +
+                    "[\"" + String.join("\",\"", user.getAddresses()) + "\"]," + // Serialize addresses
+                    "\"" + user.getCurrentAddress() + "\"," + // Serialize current address
+                    "[" + String.join(",", intArrayToStringArray(user.getOrderID())) + "]," +
+                    user.getCurrentOrderID() + "," +
+                    user.getErrorCase());
             writer.newLine();
         } catch (IOException e) {
             e.printStackTrace();

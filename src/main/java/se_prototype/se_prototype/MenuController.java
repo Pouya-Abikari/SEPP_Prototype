@@ -1,6 +1,8 @@
 package se_prototype.se_prototype;
 
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -16,9 +18,7 @@ import javafx.scene.shape.SVGPath;
 import javafx.scene.image.Image;
 import se_prototype.se_prototype.Model.Product;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.fxml.FXMLLoader;
@@ -50,6 +50,9 @@ public class MenuController {
 
     @FXML
     private HBox locationContainer;
+    private List<Product> originalProducts;
+    private List<Product> allProducts;
+    private String userFile;
 
     public void initialize() {
         StackPane svgIcon = createSvgIcon();
@@ -67,16 +70,238 @@ public class MenuController {
                 new Product("Household Supplies", "Everyday essentials", 12.0, "household_supplies.png",0,1),
                 new Product("Personal Care", "Care for yourself", 8.0, "personal_care.png",0,1)
         );
+        this.originalProducts = products;
+        this.allProducts = fetchAllProducts();
 
-        populateMenu(products);
+        populateCategories(products);
 
         setupImages();
 
-        // Set up button actions
-        homeButton.setOnAction(event -> switchToPage("home_screen.fxml", "Home"));
-        menuButton.setOnAction(event -> switchToPage("menu.fxml", "Menu"));
-        settingsButton.setOnAction(event -> switchToPage("settings.fxml", "Settings"));
-        cartButton.setOnAction(event -> switchToPage("cart.fxml", "Cart"));
+        homeButton.setOnAction(event -> switchToPage("home_screen.fxml", "Home" , null));
+        menuButton.setOnAction(event -> switchToPage("menu.fxml", "Menu", null));
+        settingsButton.setOnAction(event -> switchToPage("settings.fxml", "Settings", null));
+        cartButton.setOnAction(event -> switchToPage("cart.fxml", "Cart", null));
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> filterProducts(newValue));
+
+    }
+    private List<Product> fetchAllProducts() {
+        List<Product> products = new ArrayList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/search.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length >= 4) {
+                    String name = parts[0];
+                    String description = parts[1];
+                    double price = Double.parseDouble(parts[2]);
+                    String imageUrl = parts[3];
+                    double discount = parts.length > 4 ? Double.parseDouble(parts[4]) : 0;
+                    int quantity = parts.length > 5 ? Integer.parseInt(parts[5]) : 1;
+
+                    products.add(new Product(name, description, price, imageUrl, discount, quantity));
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading product file: " + e.getMessage());
+        }
+
+        return products;
+    }
+
+
+    @FXML
+    private void filterProducts(String query) {
+        menuGrid.getChildren().clear();
+
+        if (query == null || query.isEmpty()) {
+            populateCategories(originalProducts);
+            return;
+        }
+
+        List<Product> filteredProducts = new ArrayList<>();
+        for (Product product : allProducts) {
+            if (product.getName().toLowerCase().startsWith(query.toLowerCase())) {
+                filteredProducts.add(product);
+            }
+        }
+        int column = 0;
+        int row = 0;
+        for (Product product : filteredProducts) {
+            VBox productCard = createProductCard(product);
+            menuGrid.add(productCard, column, row);
+            column++;
+            if (column == 2) {
+                column = 0;
+                row++;
+            }
+        }
+        if (filteredProducts.isEmpty()) {
+            Label noResultsLabel = new Label("No results found.");
+            noResultsLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: gray;");
+            menuGrid.add(noResultsLabel, 0, 0);
+        }
+    }
+    private void populateCategories(List<Product> categories) {
+        menuGrid.getChildren().clear();
+
+        int column = 0;
+        int row = 0;
+
+        for (Product category : categories) {
+            VBox categoryCard = createCategoryCard(category);
+            categoryCard.setOnMouseClicked(event -> navigateToCategory(category.getName()));
+            menuGrid.add(categoryCard, column, row);
+            column++;
+            if (column == 2) {
+                column = 0;
+                row++;
+            }
+        }
+        menuGrid.setAlignment(Pos.CENTER);
+    }
+
+
+    private VBox createCategoryCard(Product product) {
+        VBox categoryCard = new VBox();
+        categoryCard.setSpacing(2);
+        categoryCard.setAlignment(Pos.CENTER); // Center alignment
+        categoryCard.setStyle("-fx-background-color: white; -fx-padding: 8; -fx-border-radius: 8; -fx-background-radius: 8; -fx-border-color: #D9D9D9; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0);");
+
+        categoryCard.setPrefWidth(140);
+        categoryCard.setPrefHeight(140);
+        categoryCard.setMaxWidth(140);
+        categoryCard.setMaxHeight(140);
+
+        ImageView productImage = new ImageView(new Image(product.getImageUrl()));
+        productImage.setFitHeight(80);
+        productImage.setFitWidth(80);
+        productImage.setPreserveRatio(true);
+
+        Label productName = new Label(product.getName());
+        productName.setStyle("-fx-font-weight: bold; -fx-font-size: 12px; -fx-text-fill: #37474F;");
+        productName.setWrapText(true);
+        productName.setAlignment(Pos.CENTER);
+
+        categoryCard.getChildren().addAll(productImage, productName);
+
+        return categoryCard;
+    }
+
+    private VBox createProductCard(Product product) {
+        VBox productCard = new VBox();
+        productCard.setSpacing(2);
+        productCard.setAlignment(javafx.geometry.Pos.CENTER); // Center alignment
+        productCard.setStyle("-fx-background-color: white; -fx-padding: 8; -fx-border-radius: 8; -fx-background-radius: 8; -fx-border-color: #D9D9D9; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0);");
+
+        productCard.setPrefWidth(140);
+        productCard.setPrefHeight(140);
+        productCard.setMaxWidth(140);
+        productCard.setMaxHeight(140);
+
+        StackPane imageContainer = new StackPane();
+        imageContainer.setPrefSize(80, 80);
+
+        ImageView productImage = new ImageView(new Image(product.getImageUrl()));
+        productImage.setFitHeight(80);
+        productImage.setFitWidth(80);
+        productImage.setPreserveRatio(true);
+        productImage.setStyle("-fx-border-radius: 8;");
+
+        if (product.getDiscount() > 0) {
+            Label badge = new Label((int) product.getDiscount() + "% OFF");
+            badge.setStyle("-fx-background-color: #FF6B6B; -fx-text-fill: white; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 4; -fx-border-radius: 50;");
+            StackPane.setAlignment(badge, Pos.TOP_LEFT);
+            StackPane.setMargin(badge, new Insets(5, 0, 0, 5));
+            imageContainer.getChildren().addAll(productImage, badge);
+        } else {
+            imageContainer.getChildren().add(productImage);
+        }
+
+        Label productName = new Label(product.getName());
+        productName.setStyle("-fx-font-weight: bold; -fx-font-size: 12px; -fx-text-fill: #37474F;");
+        productName.setAlignment(javafx.geometry.Pos.CENTER);
+        productName.setWrapText(true);
+
+        HBox priceBox = new HBox();
+        priceBox.setSpacing(5);
+        priceBox.setAlignment(Pos.CENTER);
+
+        Label oldPrice = null;
+        if (product.getDiscount() > 0) {
+            oldPrice = new Label("$" + String.format("%.2f", product.getPrice()));
+            oldPrice.setStyle("-fx-font-size: 10px; -fx-text-fill: #757575; -fx-strikethrough: true;");
+        }
+
+        Label discountedPrice = new Label("$" + String.format("%.2f", product.getPrice() - (product.getPrice() * product.getDiscount() / 100)));
+        discountedPrice.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #FF5722;");
+
+        if (product.getDiscount() > 0) {
+            priceBox.getChildren().addAll(oldPrice, discountedPrice); // Add both prices
+        } else {
+            priceBox.getChildren().add(discountedPrice); // Add only discounted price
+        }
+
+        Button addToBagButton = new Button("Add to Bag");
+        addToBagButton.setStyle("-fx-background-color: #5EC401; -fx-text-fill: white; -fx-padding: 5 10;");
+        addToBagButton.setPrefHeight(30);
+        addToBagButton.setOnAction(event -> addToCart(product));
+
+        productCard.getChildren().addAll(imageContainer, productName, priceBox, addToBagButton);
+
+        return productCard;
+    }
+
+    private void addToCart(Product product) {
+        List<String[]> cartItems = readCartFile();
+        boolean productExists = false;
+
+        for (String[] cartItem : cartItems) {
+            if (cartItem[0].equals(product.getName())) {
+                int currentQuantity = Integer.parseInt(cartItem[5]);
+                cartItem[5] = String.valueOf(currentQuantity + 1);
+                productExists = true;
+                break;
+            }
+        }
+
+        if (!productExists) {
+            cartItems.add(new String[]{
+                    product.getName(),
+                    product.getDescription(),
+                    String.valueOf(product.getPrice()),
+                    product.getImageUrl(),
+                    String.valueOf(product.getDiscount()),
+                    String.valueOf(1)
+            });
+        }
+
+        writeCartFile(cartItems);
+        //updateCartCount();
+        System.out.println("Added to cart: " + product.getName());
+    }
+    private List<String[]> readCartFile() {
+        List<String[]> cartItems = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/cart.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                cartItems.add(line.split(","));
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading cart file: " + e.getMessage());
+        }
+        return cartItems;
+    }
+
+    private void writeCartFile(List<String[]> cartItems) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("src/main/resources/cart.txt"))) {
+            for (String[] cartItem : cartItems) {
+                writer.write(String.join(",", cartItem));
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            System.err.println("Error writing to cart file: " + e.getMessage());
+        }
     }
 
     private void setupImages() {
@@ -117,12 +342,31 @@ public class MenuController {
         }
     }
 
-    private void switchToPage(String fxmlFile, String title) {
+    private void switchToPage(String fxmlFile, String title, String previousPage) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Scene scene = new Scene(loader.load(), 400, 711);
             scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
             Stage stage = (Stage) homeButton.getScene().getWindow(); // Get the current stage
+            switch (fxmlFile) {
+                case "home_screen.fxml":
+                    HomeScreenController homeScreenController = loader.getController();
+                    homeScreenController.setUserFile(userFile);
+                    break;
+                case "cart.fxml":
+                    CartController cartController = loader.getController();
+                    cartController.setUserFile(userFile);
+                    break;
+                case "settings.fxml":
+                    SettingsController settingsController = loader.getController();
+                    settingsController.setUserFile(userFile);
+                    break;
+                case "location.fxml":
+                    LocationController locationController = loader.getController();
+                    locationController.setPreviousPage(previousPage);
+                    locationController.setUserFile(userFile);
+                    break;
+            }
             stage.setScene(scene);
             stage.setTitle(title);
             stage.show();
@@ -130,45 +374,6 @@ public class MenuController {
             System.err.println("Failed to load " + fxmlFile + ": " + e.getMessage());
             e.printStackTrace();
         }
-    }
-
-    private void populateMenu(List<Product> products) {
-        int column = 0;
-        int row = 0;
-
-        for (Product product : products) {
-            VBox productCard = createProductCard(product);
-            productCard.setOnMouseClicked(event -> navigateToCategory(product.getName()));
-            menuGrid.add(productCard, column, row);
-            column++;
-            if (column == 2) {
-                column = 0;
-                row++;
-            }
-        }
-        menuGrid.setAlignment(javafx.geometry.Pos.CENTER);
-    }
-
-    private VBox createProductCard(Product product) {
-        VBox productCard = new VBox();
-        productCard.setSpacing(5);
-        productCard.setStyle("-fx-background-color: white; -fx-padding: 8; -fx-border-radius: 8; -fx-background-radius: 8; -fx-border-color: #D9D9D9; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0);");
-        productCard.setAlignment(javafx.geometry.Pos.CENTER);
-
-        productCard.setPrefWidth(140);
-        productCard.setPrefHeight(140);
-
-        ImageView productImage = new ImageView(new Image(product.getImageUrl()));
-        productImage.setFitHeight(80);
-        productImage.setFitWidth(80);
-        productImage.setPreserveRatio(true);
-
-        Label productName = new Label(product.getName());
-        productName.setStyle("-fx-font-weight: bold; -fx-font-size: 12px; -fx-text-fill: #37474F;");
-
-        productCard.getChildren().addAll(productImage, productName);
-
-        return productCard;
     }
 
     private StackPane createSvgIcon() {
@@ -184,20 +389,20 @@ public class MenuController {
 
     @FXML
     private void onLocationBoxClick(MouseEvent event) {
-        System.out.println("Location box clicked!");
+        switchToPage("location.fxml", "Location", "Menu");
     }
 
     private void navigateToCategory(String categoryName) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("category.fxml"));
             Parent categoryPage = loader.load();
-
             CategoryController controller = loader.getController();
+            controller.setUserFile(userFile);
             List<Product> products = fetchProductsForCategory(categoryName); // Fetch products for this category
             controller.initializeCategory(categoryName, products, this);
 
             Scene scene = new Scene(categoryPage, 400, 711);
-            scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+           scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
 
             Stage stage = (Stage) menuGrid.getScene().getWindow();
             stage.setScene(scene);
@@ -207,6 +412,11 @@ public class MenuController {
             System.err.println("Failed to load category.fxml");
             e.printStackTrace();
         }
+    }
+
+    public void setUserFile(String userFile) {
+        this.userFile = userFile;
+        System.out.println("User file set to: " + userFile);
     }
 
     private List<Product> fetchProductsForCategory(String categoryName) {
@@ -274,4 +484,3 @@ public class MenuController {
 
 
 }
-

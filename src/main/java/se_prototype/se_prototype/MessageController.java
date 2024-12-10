@@ -53,6 +53,7 @@ public class MessageController {
     private List<String> participants;
     private Map<String, String> participantColors;
     private Map<String, List<String>> predefinedRepliesWithVariations;
+    private String userFile;
 
     private void initializeParticipants() {
         participants = Arrays.asList("Katia", "Pouya", "Nazanin", "Amir");
@@ -310,11 +311,18 @@ public class MessageController {
 
     }
 
+    public void setUserFile(String userFile) {
+        this.userFile = userFile;
+        System.out.println("User file set to: " + userFile);
+    }
+
     private void switchToPage(String fxmlFile, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Scene scene = new Scene(loader.load());
             Stage stage = (Stage) homeButton.getScene().getWindow(); // Get the current stage
+            HomeScreenController controller = loader.getController();
+            controller.setUserFile(userFile);
             stage.setScene(scene);
             stage.setTitle(title);
             stage.show();
@@ -330,6 +338,8 @@ public class MessageController {
             Scene scene = new Scene(loader.load(), 400, 711);
             scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
             Stage stage = (Stage) backButton.getScene().getWindow(); // Get the current stage
+            HomeScreenController controller = loader.getController();
+            controller.setUserFile(userFile);
             stage.setScene(scene);
             stage.setTitle("Home");
             stage.show();

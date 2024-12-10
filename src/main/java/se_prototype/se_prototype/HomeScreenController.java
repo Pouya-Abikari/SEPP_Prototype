@@ -3,14 +3,11 @@ package se_prototype.se_prototype;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 
 public class HomeScreenController {
@@ -45,17 +42,11 @@ public class HomeScreenController {
     @FXML
     private Button settingsButton;
 
-    @FXML
-    private Label welcomeLabel; // This will display "Welcome <Name>"
-    @FXML
-    private Label nameLabel;
-
 
 
     @FXML
     public void initialize() {
 
-        setupWelcomeMessage();
         setupImages();
 
         // Set up button actions
@@ -64,28 +55,6 @@ public class HomeScreenController {
         settingsButton.setOnAction(event -> switchToPage("settings.fxml", "Settings"));
         notificationButton.setOnAction(event -> switchToPage("notifications.fxml", "Notifications"));
     }
-
-    private void setupWelcomeMessage() {
-        String currentUserFile = "src/main/resources/current_user.txt";
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(currentUserFile))) {
-            String line = reader.readLine();
-            if (line != null) {
-                String[] userData = line.split(",");
-                String userName = userData[0]; // Assuming the first field is the user's name
-                welcomeLabel.setText("Welcome");
-                nameLabel.setText(userName);
-            } else {
-                welcomeLabel.setText("Welcome");
-                nameLabel.setText("Guest"); // Default fallback
-            }
-        } catch (IOException e) {
-            System.err.println("Failed to load current user: " + e.getMessage());
-            welcomeLabel.setText("Welcome");
-            nameLabel.setText("Guest"); // Default fallback
-        }
-    }
-
 
 
     private void setupImages() {

@@ -27,10 +27,21 @@ import javafx.scene.effect.GaussianBlur;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import se_prototype.se_prototype.Model.Product;
+import se_prototype.se_prototype.Model.User;
 import se_prototype.se_prototype.Model.UserCart;
 
 public class CartController {
 
+    @FXML
+    private ImageView group_order_start_pic;
+    @FXML
+    private VBox group_cart_choice;
+    @FXML
+    private ScrollPane group_cart_choose;
+    @FXML
+    private Label subtotalLabel;
+    @FXML
+    private Label serviceFeeLabel;
     @FXML
     private Label yourServiceFeeLabel_group;
     @FXML
@@ -94,8 +105,6 @@ public class CartController {
     @FXML
     private ComboBox<String> paymentMethodComboBox;
     @FXML
-    private SVGPath paymentIcon;
-    @FXML
     private StackPane paymentIconContainer;
     @FXML
     private StackPane toggleSwitch;
@@ -121,6 +130,18 @@ public class CartController {
     private Label deliveryChargeLabel_group;
     @FXML
     private HBox HBox_discount_group;
+    @FXML
+    private Button startGroupOrderButton;
+    @FXML
+    private ImageView timerIcon;
+    @FXML
+    private ImageView peopleIcon;
+    @FXML
+    private ImageView notificationIcon;
+    @FXML
+    private ImageView cartIcon;
+    @FXML
+    private ImageView itemsIcon;
 
     private boolean isSoloCart = true;
     private long timeRemaining = 3600; // 1 hour in seconds
@@ -133,6 +154,11 @@ public class CartController {
     private ScheduledExecutorService timerService;
     private static boolean isInitialized = false;
     private static int totalUsers;
+    private static final String filePath = "src/main/resources/users.txt";
+    private final String SHARED_GROUP_CART_FILE = "src/main/resources/shared_group_cart.txt";
+    private ScheduledExecutorService fileWatcherService;
+    private static boolean isGroupCartActive = false;
+    private String userFile;
 
     @FXML
     public void initialize() {
@@ -143,16 +169,17 @@ public class CartController {
             System.out.println("Total users (including logged-in user): " + totalUsers);
             isInitialized = true; // Set the flag to true to prevent future runs
         }
-        loadTimerState();
+
         setupImages();
-        loadCartFromFile();
-        updateCartSummary();
         initializeLoadingOverlay();
         payment_icon_and_method();
         loadAllProducts();
         loadLoggedInUserCart();
         loadUserData();
         startRandomUserUpdate();
+        startFileWatcher();
+        loadTimerState();
+        updateCartSummary();
 
         // Initialize UI setup
         group_cart.setVisible(false);
@@ -169,14 +196,10 @@ public class CartController {
 
         paymentMethodComboBox.getSelectionModel().selectedItemProperty().addListener((options, oldValue, newValue) -> {
             if (newValue != null && (newValue.equals("Cash") || newValue.equals("Card"))) {
-                start_group_order_button.setDisable(false);
-                join_group_order_button.setDisable(false);
                 solo_order_button.setDisable(false);
                 error_payment_method.setVisible(false);
                 error_payment_method.setManaged(false);
             } else {
-                start_group_order_button.setDisable(true);
-                join_group_order_button.setDisable(true);
                 solo_order_button.setDisable(true);
                 error_payment_method.setVisible(true);
                 error_payment_method.setManaged(true);
@@ -191,6 +214,182 @@ public class CartController {
         addMoreItems_empty.setOnAction(event -> switchToPage("menu.fxml", "Menu"));
         change_location.setOnAction(event -> switchToPage("location.fxml", "Location"));
         start_group_order_button.setOnAction(event -> switchToPage("start_group_order.fxml", "Start Group Order"));
+        join_group_order_button.setOnAction(event -> handleJoinGroupCart());
+        timerIcon.setImage(new Image(getClass().getResourceAsStream("/icons/timer.png")));
+        peopleIcon.setImage(new Image(getClass().getResourceAsStream("/icons/people.png")));
+        notificationIcon.setImage(new Image(getClass().getResourceAsStream("/icons/notification.png")));
+        cartIcon.setImage(new Image(getClass().getResourceAsStream("/icons/cart.png")));
+        itemsIcon.setImage(new Image(getClass().getResourceAsStream("/icons/items.png")));
+        startGroupOrderButton.setOnAction(event -> handleCreateGroupCart());
+    }
+
+    private void showGroupCartChoice() {
+        Platform.runLater(() -> {
+            // Show the group_cart_choice VBox
+            group_cart_choice.setVisible(true);
+            group_cart_choice.setManaged(true);
+
+            // Ensure the ScrollPane (group_cart_choose) is also visible
+            group_cart_choose.setVisible(true);
+            group_cart_choose.setManaged(true);
+
+            // Hide the main group_cart screen
+            group_cart.setVisible(false);
+            group_cart.setManaged(false);
+        });
+    }
+
+    private void showGroupCart() {
+        // Show the group_cart screen
+        Platform.runLater(() -> {
+            group_cart_choose.setVisible(false);
+            group_cart_choose.setManaged(false);
+            group_cart.setVisible(true);
+            group_cart.setManaged(true);
+        });
+    }
+
+    private void createNewGroupCart() {
+        // Clear any existing data in the group cart file
+        clearFile(saveFile);
+
+        // Initialize "You" as the first user in the group cart
+        overrideYouCart();
+
+        // Save the current group cart data
+        saveUserData();
+
+        // Update the order ID in current_user.txt
+        updateLoggedInUserOrderID(generateNewOrderID());
+
+        System.out.println("New group cart created successfully.");
+    }
+
+    private int generateNewOrderID() {
+        // For simplicity, generate a random order ID (can be replaced with a more robust system)
+        Random random = new Random();
+        return random.nextInt(10000) + 1; // Order ID range: 1 to 10000
+    }
+
+    private void updateLoggedInUserOrderID(int orderID) {
+        String currentUserFilePath = "src/main/resources/current_user.txt";
+        File file = new File(currentUserFilePath);
+
+        if (!file.exists()) {
+            System.err.println("current_user.txt file not found.");
+            return;
+        }
+
+        try {
+            // Read the current user data
+            List<String> lines = new ArrayList<>();
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    lines.add(line);
+                }
+            }
+
+            // Modify the current order ID
+            if (!lines.isEmpty()) {
+                String firstLine = lines.get(0);
+                List<String> parts = parseCSVLine(firstLine); // Use the custom CSV parser
+
+                if (parts.size() > 6) { // Ensure there's enough data to modify
+                    parts.set(6, String.valueOf(orderID)); // Update the order ID (index 6)
+
+                    // Reconstruct the line
+                    StringBuilder updatedLine = new StringBuilder();
+                    for (int i = 0; i < parts.size(); i++) {
+                        String part = parts.get(i);
+                        if (part.contains(",") || part.contains("\"")) {
+                            // Ensure proper quoting for fields with commas or quotes
+                            part = "\"" + part.replace("\"", "\"\"") + "\"";
+                        }
+                        updatedLine.append(part);
+                        if (i < parts.size() - 1) {
+                            updatedLine.append(",");
+                        }
+                    }
+
+                    lines.set(0, updatedLine.toString());
+                }
+            }
+
+            // Write the updated data back to the file
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+                for (String line : lines) {
+                    writer.write(line);
+                    writer.newLine();
+                }
+            }
+
+            System.out.println("Updated current_user.txt with new order ID: " + orderID);
+
+        } catch (IOException e) {
+            System.err.println("Error updating current_user.txt: " + e.getMessage());
+        }
+    }
+
+    private void handleJoinGroupCart() {
+        // Logic for joining an existing group cart
+        System.out.println("Joining an existing group cart...");
+
+        // Simulate checking if a group cart exists
+        boolean groupCartExists = checkForExistingGroupCart();
+        if (groupCartExists) {
+            loadGroupCart(); // Load existing group cart data
+            showGroupCart(); // Switch to the group cart screen
+        } else {
+            // Show an error dialog if no group cart exists
+            showErrorDialog("No group cart found", "Please ask someone to create a group cart or create one yourself.");
+        }
+    }
+
+    private void showErrorDialog(String title, String message) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.showAndWait();
+        });
+    }
+
+    private void handleCreateGroupCart() {
+        if (isGroupCartActive) {
+            showErrorDialog("Group Cart Already Active", "There is already an active group cart. Please join the existing group cart.");
+            return;
+        }
+
+        // If no active group cart exists, create a new one
+        isGroupCartActive = true;
+        createNewGroupCart();
+        showGroupCart();
+    }
+
+    private void showConfirmationDialog(String overrideGroupCart, String s) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle(overrideGroupCart);
+            alert.setHeaderText(null);
+            alert.setContentText(s);
+
+            ButtonType buttonTypeYes = new ButtonType("Yes");
+            ButtonType buttonTypeNo = new ButtonType("No", ButtonBar.ButtonData.CANCEL_CLOSE);
+            alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == buttonTypeYes) {
+                createNewGroupCart();
+                showGroupCart();
+            }
+        });
+    }
+
+    private boolean checkForExistingGroupCart() {
+        File file = new File(saveFile); // The file that stores group cart data
+        return file.exists() && file.length() > 0; // Check if the file exists and is not empty
     }
 
     private void updateDeliverySummary() {
@@ -201,42 +400,52 @@ public class CartController {
         double totalDiscount = 0;
         double yourSubtotal = 0;
         double yourTotalCost = 0;
+        int noOfUsersInCart = 0;
 
         // Calculate totals from all user carts
         for (UserCart userCart : userCarts) {
-            for (Product item : userCart.getCartItems()) {
-                int quantity = item.getQuantity();
-                double price = item.getPrice();
-                double discountedPrice = price - (price * item.getDiscount() / 100);
+            if (userCart.getCartItems() != null && !userCart.getCartItems().isEmpty()) {
+                for (Product item : userCart.getCartItems()) {
+                    int quantity = item.getQuantity();
+                    double price = item.getPrice();
+                    double discountedPrice = price - (price * item.getDiscount() / 100);
 
-                totalItems += quantity;
-                subtotal += discountedPrice * quantity;
-                totalDiscount += (price - discountedPrice) * quantity;
-            }
+                    totalItems += quantity;
+                    subtotal += discountedPrice * quantity;
+                }
 
+                // If this is the logged-in user, calculate their subtotal
+                if (userCart.getUserName().equals("You")) {
+                    yourSubtotal = userCart.getCartItems().stream()
+                            .mapToDouble(item -> (item.getPrice() - (item.getPrice() * item.getDiscount() / 100)) * item.getQuantity())
+                            .sum();
+                    totalDiscount += userCart.getCartItems().stream()
+                            .mapToDouble(item -> (item.getPrice() * item.getDiscount() / 100) * item.getQuantity())
+                            .sum();
+                }
 
-            if (subtotal > 25 && subtotal <= 50) {
-                deliveryCharge = 10.0; // Adjust delivery charge based on subtotal
-            } else if (subtotal > 50) {
-                deliveryCharge = 20.0; // Adjust delivery charge based on subtotal
-            } else {
-                deliveryCharge = 5.0;
-            }
-
-            if (totalItems > 25) {
-                serviceFee = 5.0;
-            } else {
-                serviceFee = 2.5;
-            }
-
-            // If this is the logged-in user, calculate their subtotal and total cost
-            if (userCart.getUserName().equals("You")) {
-                yourSubtotal = userCart.getCartItems().stream()
-                        .mapToDouble(item -> (item.getPrice() - (item.getPrice() * item.getDiscount() / 100)) * item.getQuantity())
-                        .sum();
-                yourTotalCost = yourSubtotal + deliveryCharge + serviceFee;
+                noOfUsersInCart++;
             }
         }
+
+
+        // Calculate delivery charge and service fee once
+        if (subtotal > 25 && subtotal <= 50) {
+            deliveryCharge = 10.0;
+        } else if (subtotal > 50) {
+            deliveryCharge = 20.0;
+        } else {
+            deliveryCharge = 5.0;
+        }
+
+        serviceFee = totalItems > 25 ? 5.0 : 2.5;
+
+        // Calculate per-user charges
+        double deliveryPerUser = noOfUsersInCart > 0 ? (deliveryCharge / noOfUsersInCart) : 0.0;
+        double serviceFeePerUser = noOfUsersInCart > 0 ? (serviceFee / noOfUsersInCart) : 0.0;
+
+        // Calculate total cost for the logged-in user
+        yourTotalCost = yourSubtotal + deliveryPerUser + serviceFeePerUser;
 
         // Format and set label values
         double finalSubtotal = subtotal;
@@ -256,8 +465,8 @@ public class CartController {
 
             // Your Total Cost Details
             yourSubtotalLabel_group.setText(String.format("$%.2f", finalYourSubtotal));
-            yourDeliveryFeeLabel_group.setText(String.format("$%.2f", finalDeliveryCharge));
-            yourServiceFeeLabel_group.setText(String.format("$%.2f", finalServiceFee));
+            yourDeliveryFeeLabel_group.setText(String.format("$%.2f", deliveryPerUser));
+            yourServiceFeeLabel_group.setText(String.format("$%.2f", serviceFeePerUser));
             yourTotalCostLabel_group.setText(String.format("$%.2f", finalYourTotalCost));
 
             // Show or hide the discount section
@@ -369,10 +578,14 @@ public class CartController {
         Random random = new Random();
         Collections.shuffle(allProducts); // Shuffle to ensure randomness
 
-        // Generate random user data
-        String userName = "User " + (userCarts.size() + 1);
-        List<Product> cartItems = new ArrayList<>();
+        // Generate unique user name
+        String userName = "";
+        String finalUserName = userName;
+        do {
+            userName = "User " + (userCarts.size() + 1);
+        } while (userCarts.stream().anyMatch(cart -> cart.getUserName().equals(finalUserName)));
 
+        List<Product> cartItems = new ArrayList<>();
         int numItems = random.nextInt(3) + 1; // Each user has 1-3 items
         for (int i = 0; i < numItems; i++) {
             Product randomProduct = allProducts.get(random.nextInt(allProducts.size()));
@@ -387,6 +600,7 @@ public class CartController {
         }
 
         userCarts.add(new UserCart(userName, cartItems));
+        saveUserData();
     }
 
     private void updateGroupCartUI() {
@@ -403,6 +617,11 @@ public class CartController {
                     "-fx-border-color: transparent;");
             userCartBox.setSpacing(8);
 
+
+            // User name label
+            Label userNameLabel = new Label(userCart.getUserName());
+            userNameLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #5EC401;");
+
             // User header section (image + name)
             HBox userHeader = new HBox();
             userHeader.setSpacing(8);
@@ -414,12 +633,6 @@ public class CartController {
             userImage.setFitHeight(40);
             userImage.setPreserveRatio(true);
             userImage.setStyle("-fx-border-radius: 20;"); // Circular profile image
-
-            // User name label
-            Label userNameLabel = new Label(userCart.getUserName());
-            userNameLabel.setStyle("-fx-font-size: 14px; " +
-                    "-fx-font-weight: bold; " +
-                    "-fx-text-fill: #5EC401;");
 
             // Calculate total price for the user's cart
             double userTotalPrice = userCart.getCartItems().stream()
@@ -531,7 +744,7 @@ public class CartController {
     }
 
     private void saveUserData() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(saveFile))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(SHARED_GROUP_CART_FILE))) {
             for (UserCart userCart : userCarts) {
                 writer.write(userCart.toString());
                 writer.newLine();
@@ -551,11 +764,9 @@ public class CartController {
                 UserCart userCart = UserCart.fromString(line);
 
                 // Skip adding "You" since it's already added
-                if (userCart.getUserName().equals("You")) {
-                    continue;
+                if (!userCart.getUserName().equals("You")) {
+                    userCarts.add(userCart);
                 }
-
-                userCarts.add(userCart);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -573,7 +784,7 @@ public class CartController {
         // Capture the state for toggle transition
         Timeline delay = new Timeline(
                 new KeyFrame(
-                        Duration.millis(200), // Match the loading overlay duration
+                        Duration.millis(175), // Match the loading overlay duration
                         ev -> {
                             if (isSoloCart) {
                                 // Solo Cart View
@@ -583,6 +794,8 @@ public class CartController {
                                 animateToggleThumb(-30);
                                 group_cart.setVisible(false);
                                 group_cart.setManaged(false);
+                                group_cart_choose.setVisible(false);
+                                group_cart_choose.setManaged(false);
                                 productScrollPane.setVisible(true);
                                 productScrollPane.setManaged(true);
                             } else {
@@ -593,13 +806,26 @@ public class CartController {
                                 groupLabel.setVisible(true);
                                 toggleThumb.setStyle("-fx-fill: #5EC401;");
                                 animateToggleThumb(30);
-                                group_cart.setVisible(true);
-                                group_cart.setManaged(true);
-                                productScrollPane.setVisible(false);
-                                productScrollPane.setManaged(false);
-                                startGroupCartTimer(); // Start the timer for group mode
-                                group_cart.setVvalue(0);
-                                screen.requestFocus();
+                                // Check if there is an active group order
+                                if (isUserInActiveGroupOrder()) {
+                                    group_cart.setVisible(true);
+                                    group_cart.setManaged(true);
+                                    group_cart_choose.setVisible(false);
+                                    group_cart_choose.setManaged(false);
+                                    productScrollPane.setVisible(false);
+                                    productScrollPane.setManaged(false);
+                                    startGroupCartTimer(); // Start the timer for group mode
+                                    group_cart.setVvalue(0);
+                                    screen.requestFocus();
+                                } else {
+                                    // Show the choice to join or create a group order
+                                    group_cart_choose.setVisible(true);
+                                    group_cart_choose.setManaged(true);
+                                    group_cart.setVisible(false);
+                                    group_cart.setManaged(false);
+                                    productScrollPane.setVisible(false);
+                                    productScrollPane.setManaged(false);
+                                }
                             }
 
                             // Fade out the loading overlay
@@ -623,6 +849,12 @@ public class CartController {
         fadeIn.play();
     }
 
+    private boolean isUserInActiveGroupOrder() {
+        // Example logic to check if the user has an active group order
+        User currentUser = User.fromString(Objects.requireNonNull(getCurrentUser()));
+        return currentUser.getCurrentOrderID() > 0;
+    }
+
     private void startGroupCartTimer() {
         if (isGroupCartTimerRunning) {
             return; // Timer is already running
@@ -633,18 +865,22 @@ public class CartController {
 
         timerService.scheduleAtFixedRate(() -> {
             timeRemaining--;
-
             if (timeRemaining <= 0) {
                 Platform.runLater(() -> {
-                    // Handle timer completion (e.g., show a dialog or disable features)
-                    System.out.println("Timer completed. Group cart session expired.");
-                    stopGroupCartTimer(); // Stop the timer once expired
+                    stopGroupCartTimer();
+                    showErrorDialog("Time Expired", "The group cart session has expired.");
                 });
             } else {
                 updateTimerLabel();
             }
-
         }, 0, 1, TimeUnit.SECONDS);
+    }
+
+    private void stopGroupCartTimer() {
+        if (timerService != null && !timerService.isShutdown()) {
+            timerService.shutdownNow();
+        }
+        isGroupCartTimerRunning = false;
     }
 
     private void updateTimerLabel() {
@@ -652,14 +888,10 @@ public class CartController {
         long seconds = timeRemaining % 60;
         String timeText = String.format("Time Remaining: %02d:%02d", minutes, seconds);
 
-        Platform.runLater(() -> timerLabel.setText(timeText)); // Ensure UI updates on the JavaFX thread
-    }
-
-    private void stopGroupCartTimer() {
-        if (timerService != null) {
-            timerService.shutdown();
-            isGroupCartTimerRunning = false;
-        }
+        Platform.runLater(() -> {
+            timerLabel.setText(timeText); // Ensure UI updates on the JavaFX thread
+            timerIcon.setVisible(true);   // Ensure the timer icon is displayed
+        });
     }
 
     private void loadTimerState() {
@@ -718,6 +950,14 @@ public class CartController {
     }
 
     private void overrideYouCart() {
+        User currentUser = User.fromString(Objects.requireNonNull(getCurrentUser()));
+        if (currentUser == null) {
+            System.err.println("Logged-in user not found.");
+            return;
+        }
+
+        String userName = currentUser.getName(); // Get the logged-in user's name
+
         // Read the logged-in user's solo cart from CART_FILE
         File file = new File(CART_FILE);
         if (!file.exists()) {
@@ -744,20 +984,20 @@ public class CartController {
             e.printStackTrace();
         }
 
-        // Create or update the "You" cart in userCarts
-        UserCart youCart = new UserCart("You", cartItems);
-        boolean youExists = false;
+        // Create or update the logged-in user's cart
+        UserCart userCart = new UserCart(userName, cartItems);
+        boolean userExists = false;
 
         for (int i = 0; i < userCarts.size(); i++) {
-            if (userCarts.get(i).getUserName().equals("You")) {
-                userCarts.set(i, youCart); // Replace the existing "You" cart
-                youExists = true;
+            if (userCarts.get(i).getUserName().equals(userName)) {
+                userCarts.set(i, userCart); // Replace the existing user's cart
+                userExists = true;
                 break;
             }
         }
 
-        if (!youExists) {
-            userCarts.add(0, youCart); // Add "You" as the first entry if it doesn't exist
+        if (!userExists) {
+            userCarts.add(0, userCart); // Add the user cart as the first entry if it doesn't exist
         }
 
         saveUserData(); // Save the updated group cart to file
@@ -774,8 +1014,17 @@ public class CartController {
 
     private void loadGroupCart() {
         userCarts.clear(); // Clear existing group cart
-        loadUserData(); // Load users from the group_cart_users.txt file
-        overrideYouCart(); // Override "You" section with latest data from cart.txt
+        try (BufferedReader reader = new BufferedReader(new FileReader(SHARED_GROUP_CART_FILE))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                UserCart userCart = UserCart.fromString(line);
+                userCarts.add(userCart);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // Ensure "You" cart is added from the solo cart
+        overrideYouCart();
         updateGroupCartUI(); // Update the UI
         updateDeliverySummary(); // Update the delivery summary
     }
@@ -852,28 +1101,34 @@ public class CartController {
     private void updateCartSummary() {
         List<String[]> products = readCartFile();
         int totalItems = 0;
-        double totalPrice = 0;
+        double subtotal = 0;
         double totalSavings = 0;
-        double deliveryCharge = 10.0;
+        double deliveryCharge = 0.0; // Default delivery charge
+        double serviceFee = 0.0; // Default service fee
 
         // If the cart is empty, show the empty cart label and hide product list
         if (products.isEmpty()) {
-            empty_cart_label.setVisible(true);
-            empty_cart_label.setManaged(true);
-            productScrollPane.setVisible(false);
-            productScrollPane.setManaged(false);
-            toggleSwitch.setVisible(false);
-            toggleSwitch.setManaged(false);
+            Platform.runLater(() -> {
+                empty_cart_label.setVisible(true);
+                empty_cart_label.setManaged(true);
+                productScrollPane.setVisible(false);
+                productScrollPane.setManaged(false);
+                toggleSwitch.setVisible(false);
+                toggleSwitch.setManaged(false);
+            });
             return;
         } else {
-            empty_cart_label.setVisible(false);
-            empty_cart_label.setManaged(false);
-            productScrollPane.setVisible(true);
-            productScrollPane.setManaged(true);
-            toggleSwitch.setVisible(true);
-            toggleSwitch.setManaged(true);
+            Platform.runLater(() -> {
+                empty_cart_label.setVisible(false);
+                empty_cart_label.setManaged(false);
+                productScrollPane.setVisible(true);
+                productScrollPane.setManaged(true);
+                toggleSwitch.setVisible(true);
+                toggleSwitch.setManaged(true);
+            });
         }
 
+        // Calculate totals
         for (String[] productData : products) {
             int quantity = Integer.parseInt(productData[5]);
             double price = Double.parseDouble(productData[2]);
@@ -881,18 +1136,65 @@ public class CartController {
 
             totalItems += quantity;
             double discountedPrice = price - (price * discount / 100);
-            totalPrice += quantity * discountedPrice;
+            subtotal += quantity * discountedPrice;
             totalSavings += quantity * (price - discountedPrice);
         }
 
-        // Adjust delivery charge dynamically
-        if (totalPrice > 50) {
+        // Adjust delivery charge based on subtotal
+        if (subtotal > 25 && subtotal <= 50) {
+            deliveryCharge = 10.0;
+        } else if (subtotal > 50) {
+            deliveryCharge = 20.0;
+        } else {
             deliveryCharge = 5.0;
         }
 
+        // Adjust service fee based on total items
+        serviceFee = totalItems > 25 ? 5.0 : 2.5;
+
+        // Calculate total price
+        double totalPrice = subtotal + deliveryCharge + serviceFee;
+
         // Update labels
-        totalItemsLabel.setText("Total Items: " + totalItems);
+        double finalSubtotal = subtotal;
+        double finalTotalPrice = totalPrice;
+        int finalTotalItems = totalItems;
+        double finalTotalSavings = totalSavings;
+        double finalDeliveryCharge = deliveryCharge;
+        double finalServiceFee = serviceFee;
+
+        Platform.runLater(() -> {
+            subtotalLabel.setText(String.format("$%.2f", finalSubtotal));
+            totalPriceLabel.setText(String.format("$%.2f", finalTotalPrice));
+            totalItemsLabel.setText("Total Items: " + finalTotalItems);
+            deliveryChargeLabel.setText(String.format("$%.2f", finalDeliveryCharge));
+            serviceFeeLabel.setText(String.format("$%.2f", finalServiceFee));
+
+            if (finalTotalSavings > 0) {
+                totalSavingsLabel.setText("Total Savings: $" + String.format("%.2f", finalTotalSavings));
+                HBox_discount.setVisible(true);
+                HBox_discount.setManaged(true);
+            } else {
+                totalSavingsLabel.setText("");
+                HBox_discount.setVisible(false);
+                HBox_discount.setManaged(false);
+            }
+        });
+
+/*        totalItemsLabel.setText("Total Items: " + totalItems);
         totalPriceLabel.setText("$" + String.format("%.2f", totalPrice));
+        deliveryChargeLabel.setText("$" + String.format("%.2f", deliveryCharge));
+        totalSavingsLabel.setText(totalSavings > 0
+                ? "Total Savings: $" + String.format("%.2f", totalSavings)
+                : "");
+
+        // Update labels
+        subtotalLabel.setText(String.format("$%.2f", subtotal));
+        deliveryChargeLabel.setText(String.format("$%.2f", deliveryCharge));
+        serviceFeeLabel.setText(String.format("$%.2f", serviceFee));
+        totalPriceLabel.setText(String.format("$%.2f", totalPrice));
+        totalItemsLabel.setText("Total Items: " + totalItems);
+
         if (totalSavings > 0) {
             totalSavingsLabel.setText("Total Savings: $" + String.format("%.2f", totalSavings));
             HBox_discount.setVisible(true);
@@ -901,8 +1203,7 @@ public class CartController {
             totalSavingsLabel.setText("");
             HBox_discount.setVisible(false);
             HBox_discount.setManaged(false);
-        }
-        deliveryChargeLabel.setText("$" + String.format("%.2f", deliveryCharge));
+        }*/
     }
 
     private List<String[]> readCartFile() {
@@ -1160,6 +1461,8 @@ public class CartController {
             emptyCartImgView.setFitHeight(200);
             empty_cart.setImage(emptyCartImg);
 
+            group_order_start_pic.setImage(new Image(getClass().getResourceAsStream("/group_cart_start.png")));
+
         } catch (Exception e) {
             System.err.println("Error loading images: " + e.getMessage());
             e.printStackTrace();
@@ -1261,12 +1564,105 @@ public class CartController {
         }
     }
 
+    private String getCurrentUser() {
+        String userFilePath = "src/main/resources/current_user_1.txt"; // Adjust path as needed
+        File userFile = new File(userFilePath);
+
+        if (!userFile.exists() || userFile.length() == 0) {
+            System.err.println("User file is missing or empty: " + userFilePath);
+            return null; // Or provide a default user
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(userFile))) {
+            String currentUser = reader.readLine();
+            System.out.println("Current user: " + currentUser);
+            return currentUser;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Parses a CSV line into fields, handling quoted fields with commas.
+     *
+     * @param line The input CSV line.
+     * @return A list of parsed fields.
+     */
+    private List<String> parseCSVLine(String line) {
+        List<String> result = new ArrayList<>();
+        StringBuilder currentField = new StringBuilder();
+        boolean inQuotes = false;
+
+        for (char c : line.toCharArray()) {
+            if (c == '"' && (currentField.isEmpty() || currentField.charAt(currentField.length() - 1) != '\\')) {
+                // Toggle inQuotes state when encountering unescaped quotes
+                inQuotes = !inQuotes;
+            } else if (c == ',' && !inQuotes) {
+                // Add field to result if we encounter a comma outside quotes
+                result.add(currentField.toString());
+                currentField.setLength(0); // Clear the current field
+            } else {
+                // Append character to current field
+                currentField.append(c);
+            }
+        }
+        // Add the last field
+        result.add(currentField.toString());
+
+        return result;
+    }
+
+    private void startFileWatcher() {
+        fileWatcherService = Executors.newSingleThreadScheduledExecutor();
+        fileWatcherService.scheduleAtFixedRate(() -> {
+            Platform.runLater(this::loadCartFromFile);
+        }, 0, 5, TimeUnit.SECONDS);
+    }
+
+    private void stopFileWatcher() {
+        if (fileWatcherService != null) {
+            fileWatcherService.shutdown();
+        }
+    }
+
+    public void setUserFile(String userFile) {
+        this.userFile = userFile;
+        System.out.println("User file set to: " + userFile);
+    }
+
     private void switchToPage(String fxmlFile, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Scene scene = new Scene(loader.load(), 400, 711);
             scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
             Stage stage = (Stage) homeButton.getScene().getWindow(); // Get the current stage
+            switch (fxmlFile) {
+                case "home_screen.fxml":
+                    HomeScreenController homeController = loader.getController();
+                    homeController.setUserFile(userFile);
+                    break;
+                case "menu.fxml":
+                    MenuController menuController = loader.getController();
+                    menuController.setUserFile(userFile);
+                    break;
+                case "cart.fxml":
+                    CartController cartController = loader.getController();
+                    cartController.setUserFile(userFile);
+                    break;
+                case "settings.fxml":
+                    SettingsController settingsController = loader.getController();
+                    settingsController.setUserFile(userFile);
+                    break;
+                case "location.fxml":
+                    LocationController locationController = loader.getController();
+                    locationController.setUserFile(userFile);
+                    break;
+                case "start_group_order.fxml":
+                    StartGroupOrderController startGroupOrderController = loader.getController();
+                    startGroupOrderController.setUserFile(userFile);
+                    break;
+            }
             stage.setScene(scene);
             stage.setTitle(title);
             stage.show();
