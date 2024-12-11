@@ -80,7 +80,6 @@ public class LoginController {
 
     private void emptyCurrentUserFile() {
         if (userFile == null || userFile.isEmpty()) {
-            System.err.println("User file is not initialized or is invalid.");
             return; // Safely exit without throwing an exception
         }
 
@@ -262,12 +261,14 @@ public class LoginController {
 
     private void saveCurrentUser(User user) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(userFile, false))) { // Overwrite file
+            String addresses = String.join(";", user.getAddresses());
+            String orderIDs = String.join(";", intArrayToStringArray(user.getOrderID()));
             writer.write(user.getName() + "," +
                     user.getEmail() + "," +
                     user.getPassword() + "," +
-                    "[\"" + String.join("\",\"", user.getAddresses()) + "\"]," + // Serialize addresses
-                    "\"" + user.getCurrentAddress() + "\"," + // Serialize current address
-                    "[" + String.join(",", intArrayToStringArray(user.getOrderID())) + "]," +
+                    "\"" + addresses + "\"," + // Addresses enclosed in quotes
+                    "\"" + user.getCurrentAddress() + "\"," + // Current address enclosed in quotes
+                    "\"" + orderIDs + "\"," + // Order IDs as a semicolon-separated string
                     user.getCurrentOrderID() + "," +
                     user.getErrorCase());
             writer.newLine();

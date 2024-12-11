@@ -1565,7 +1565,7 @@ public class CartController {
     }
 
     private String getCurrentUser() {
-        String userFilePath = "src/main/resources/current_user_1.txt"; // Adjust path as needed
+        String userFilePath = userFile;
         File userFile = new File(userFilePath);
 
         if (!userFile.exists() || userFile.length() == 0) {

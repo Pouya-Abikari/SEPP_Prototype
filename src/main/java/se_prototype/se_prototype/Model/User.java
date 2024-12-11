@@ -1,6 +1,8 @@
 package se_prototype.se_prototype.Model;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class User {
     String name;
@@ -97,16 +99,57 @@ public class User {
     }
 
     public static User fromString(String userData) {
-        String[] parts = userData.split(",");
-        String[] addresses = parts[3].split(";");
-        int[] orderIDs = Arrays.stream(parts[5].split(";"))
+        // Parse the line using a CSV parser to handle quoted fields
+        List<String> parts = parseCSVLine(userData);
+
+        // Extract and split addresses
+        String[] addresses = parts.get(3).replace("\"", "").split(";");
+
+        // Parse order IDs
+        int[] orderIDs = Arrays.stream(parts.get(5).replace("\"", "").split(";"))
                 .mapToInt(Integer::parseInt)
                 .toArray();
 
+        // Return the User object
         return new User(
-                parts[0], parts[1], parts[2], addresses,
-                parts[4], orderIDs, Integer.parseInt(parts[6]),
-                Integer.parseInt(parts[7])
+                parts.get(0), // name
+                parts.get(1), // email
+                parts.get(2), // password
+                addresses,    // addresses
+                parts.get(4), // current address
+                orderIDs,     // order IDs
+                Integer.parseInt(parts.get(6)), // current order ID
+                Integer.parseInt(parts.get(7))  // error case
         );
+    }
+
+    /**
+     * Parses a CSV line into fields, handling quoted fields with commas.
+     *
+     * @param line The input CSV line.
+     * @return A list of parsed fields.
+     */
+    private static List<String> parseCSVLine(String line) {
+        List<String> result = new ArrayList<>();
+        StringBuilder currentField = new StringBuilder();
+        boolean inQuotes = false;
+
+        for (char c : line.toCharArray()) {
+            if (c == '"' && (currentField.isEmpty() || currentField.charAt(currentField.length() - 1) != '\\')) {
+                // Toggle inQuotes state when encountering unescaped quotes
+                inQuotes = !inQuotes;
+            } else if (c == ',' && !inQuotes) {
+                // Add field to result if we encounter a comma outside quotes
+                result.add(currentField.toString().trim());
+                currentField.setLength(0); // Clear the current field
+            } else {
+                // Append character to current field
+                currentField.append(c);
+            }
+        }
+        // Add the last field
+        result.add(currentField.toString().trim());
+
+        return result;
     }
 }
