@@ -10,6 +10,9 @@ import javafx.stage.Stage;
 import se_prototype.se_prototype.Model.User;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class LoginController {
 
@@ -41,6 +44,12 @@ public class LoginController {
         errorLabel.setManaged(false);
         errorLabel.setVisible(false); // Hide the error label initially
         loginButton.setOnAction(event -> handleLogin());
+
+        //on close, change the user's currentOrderID to 0
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            resetCurrentOrderID();
+            System.out.println("Application closed. User's currentOrderID reset to 0.");
+        }));
     }
 
     private void setupLogo() {
@@ -241,6 +250,116 @@ public class LoginController {
             e.printStackTrace();
             showErrorAlert("Failed to load the sign-up screen.");
         }
+    }
+
+    private String formatUserLine(User user) {
+        StringBuilder userLine = new StringBuilder();
+
+        userLine.append(user.getName()).append(","); // Name
+        userLine.append(user.getEmail()).append(","); // Email
+        userLine.append(user.getPassword()).append(","); // Password
+
+        // Format addresses with quotes
+        userLine.append("\"").append(String.join(";", user.getAddresses())).append("\"").append(",");
+
+        // Format current address with quotes
+        userLine.append("\"").append(user.getCurrentAddress()).append("\"").append(",");
+
+        // Format order IDs with quotes
+        userLine.append("\"").append(Arrays.stream(user.getOrderIDs())
+                .mapToObj(String::valueOf)
+                .reduce((a, b) -> a + ";" + b)
+                .orElse("")).append("\"").append(",");
+
+        // Append current order ID and error case
+        userLine.append(user.getCurrentOrderID()).append(",");
+        userLine.append(user.getErrorCase());
+
+        return userLine.toString();
+    }
+
+    private void resetCurrentOrderID() {
+        String usersFilePath = "src/main/resources/users.txt";
+        List<String> updatedLines = new ArrayList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(usersFilePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                List<String> parts = parseCSVLine(line);
+                if (parts.size() >= 8 && parts.get(1).equals(id)) { // Check if it's the logged-in user
+                    // Create a User object to modify the `currentOrderID`
+                    User user = new User(
+                            parts.get(0), // Name
+                            parts.get(1), // Email
+                            parts.get(2), // Password
+                            parts.get(3).replace("\"", "").split(";"), // Addresses
+                            parts.get(4).replace("\"", ""), // Current Address
+                            Arrays.stream(parts.get(5).replace("\"", "").split(";"))
+                                    .mapToInt(Integer::parseInt)
+                                    .toArray(), // Order IDs
+                            0, // Set `currentOrderID` to 0
+                            Integer.parseInt(parts.get(7)) // Error Case
+                    );
+
+                    updatedLines.add(formatUserLine(user)); // Use helper to format
+                } else {
+                    updatedLines.add(line); // Keep other users unchanged
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading user data: " + e.getMessage());
+        }
+
+        // Write the updated lines back to the file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(usersFilePath))) {
+            for (String updatedLine : updatedLines) {
+                writer.write(updatedLine);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            System.err.println("Error updating user data: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Parses a CSV line into fields, handling quoted fields with commas.
+     *
+     * @param line The input CSV line.
+     * @return A list of parsed fields.
+     */
+    private List<String> parseCSVLine(String line) {
+        List<String> result = new ArrayList<>();
+        StringBuilder currentField = new StringBuilder();
+        boolean inQuotes = false;
+
+        for (int i = 0; i < line.length(); i++) {
+            char c = line.charAt(i);
+
+            if (c == '"' && (i == 0 || line.charAt(i - 1) != '\\')) {
+                // Toggle the inQuotes state when encountering an unescaped quote
+                inQuotes = !inQuotes;
+            } else if (c == ',' && !inQuotes) {
+                // If we encounter a comma outside quotes, finalize the current field
+                result.add(currentField.toString().trim());
+                currentField.setLength(0); // Clear the buffer for the next field
+            } else {
+                // Add the character to the current field
+                currentField.append(c);
+            }
+        }
+
+        // Add the last field
+        result.add(currentField.toString().trim());
+
+        // Remove surrounding quotes from fields where applicable
+        for (int i = 0; i < result.size(); i++) {
+            String field = result.get(i);
+            if (field.startsWith("\"") && field.endsWith("\"")) {
+                result.set(i, field.substring(1, field.length() - 1).replace("\\\"", "\""));
+            }
+        }
+
+        return result;
     }
 
     @FXML

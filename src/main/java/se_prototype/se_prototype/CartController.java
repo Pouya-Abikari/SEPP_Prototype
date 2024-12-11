@@ -171,8 +171,9 @@ public class CartController {
         payment_icon_and_method();
         loadAllProducts();
         //loadLoggedInUserCart(id);
+        watchCartFile();
         loadUserData();
-        startRandomUserUpdate();
+        //startRandomUserUpdate();
         loadCartFromFile();
 
         // Initialize UI setup
@@ -234,6 +235,29 @@ public class CartController {
             group_cart.setVisible(false);
             group_cart.setManaged(false);
         });
+    }
+
+    private void watchCartFile() {
+        Thread watcherThread = new Thread(() -> {
+            File cartFile = new File(CART_FILE);
+            long lastModified = cartFile.lastModified();
+
+            while (true) {
+                if (cartFile.lastModified() > lastModified) {
+                    lastModified = cartFile.lastModified();
+                    Platform.runLater(this::loadGroupCart); // Update the group cart on the UI thread
+                }
+                try {
+                    Thread.sleep(1000); // Check every second
+                } catch (InterruptedException e) {
+                    System.err.println("Cart file watcher interrupted: " + e.getMessage());
+                    break;
+                }
+            }
+        });
+
+        watcherThread.setDaemon(true);
+        watcherThread.start();
     }
 
     private void showGroupCart() {
@@ -902,14 +926,14 @@ public class CartController {
     private void overrideYouCart() {
         List<UserCart> loadedCarts = loadCartsFromFile();
 
-        // Replace or add "You" cart
+        // Replace or add the logged-in user's cart
         UserCart youCart = loadedCarts.stream()
                 .filter(cart -> cart.getEmail().equals(id))
                 .findFirst()
                 .orElse(new UserCart(id, new ArrayList<>()));
 
-        userCarts.removeIf(cart -> cart.getEmail().equals(id));
-        userCarts.add(0, youCart);
+        userCarts.removeIf(cart -> cart.getEmail().equals(id)); // Remove if already present
+        userCarts.add(0, youCart); // Add the logged-in user's cart to the top
 
         updateGroupCartUI(); // Refresh UI
     }
@@ -923,10 +947,10 @@ public class CartController {
     }
 
     private void loadGroupCart() {
-        userCarts.clear(); // Clear existing group cart
-        loadUserData(); // Load users from the group_cart_users.txt file
-        overrideYouCart(); // Override "You" section with latest data from cart.txt
-        updateGroupCartUI(); // Update the UI
+        userCarts.clear(); // Clear the existing group cart
+        loadUserData(); // Load users from `cart.txt`
+        overrideYouCart(); // Ensure the logged-in user's cart is at the top
+        updateGroupCartUI(); // Refresh the group cart UI
         updateDeliverySummary(); // Update the delivery summary
     }
 

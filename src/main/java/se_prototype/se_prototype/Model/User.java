@@ -56,6 +56,10 @@ public class User {
         return errorCase;
     }
 
+    public int[] getOrderIDs() {
+        return orderID;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
