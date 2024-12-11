@@ -153,19 +153,19 @@ public class CartController {
     private ScheduledExecutorService timerService;
     private static boolean isInitialized = false;
     private static int totalUsers;
-    private static final String filePath = "src/main/resources/users.txt";
     private String id = "john.doe@example.com";
 
     @FXML
     public void initialize() {
         if (!isInitialized) {
             //clearAppFilesOnInitialization(); // Clear files only once at the start of the app
-            int additionalUsers = new Random().nextInt(6) + 1; // 1-9 range
+            int additionalUsers = new Random().nextInt(5) + 1; // 1-9 range
             totalUsers = 1 + additionalUsers; // 1 logged-in user + additional random users
             System.out.println("Total users (including logged-in user): " + totalUsers);
             isInitialized = true; // Set the flag to true to prevent future runs
         }
 
+        // Load the timer state from the file
         setupImages();
         initializeLoadingOverlay();
         payment_icon_and_method();
@@ -436,20 +436,6 @@ public class CartController {
             e.printStackTrace();
         }
     }
-
-/*    private void loadLoggedInUserCart(String loggedInUserId) {
-        List<UserCart> loadedCarts = loadCartsFromFile();
-
-        // Find the logged-in user's cart or create a new one
-        UserCart loggedInUserCart = loadedCarts.stream()
-                .filter(cart -> cart.getEmail().equals(loggedInUserId))
-                .findFirst()
-                .orElseGet(() -> new UserCart(loggedInUserId, new ArrayList<>()));
-
-        // Update the main userCarts list
-        userCarts.removeIf(cart -> cart.getEmail().equals(loggedInUserId));
-        userCarts.add(0, loggedInUserCart);
-    }*/
 
     private void startRandomUserUpdate() {
         Random random = new Random();
@@ -1499,48 +1485,60 @@ public class CartController {
     }
 
     private User getCurrentUser() {
-        String currentUserFilePath = "src/main/resources/current_user.txt"; // Path to the current_user.txt file
+        // Define the file path where user data is stored
+        String usersFilePath = "src/main/resources/users.txt";
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(currentUserFilePath))) {
-            String line = reader.readLine(); // Read the single line containing the current user's info
-            if (line != null) {
-                // Parse the CSV line properly
+        // Try to read the file and locate the user by ID (email)
+        try (BufferedReader reader = new BufferedReader(new FileReader(usersFilePath))) {
+            String line;
+
+            // Iterate through each line in the file
+            while ((line = reader.readLine()) != null) {
+                // Parse the line to extract user information
                 List<String> parts = parseCSVLine(line);
-                if (parts.size() >= 8) { // Ensure all fields are available
-                    String name = parts.get(0).trim();
-                    String email = parts.get(1).trim();
-                    String password = parts.get(2).trim();
 
-                    // Parse addresses field
-                    String[] addresses = Arrays.stream(parts.get(3).replace("\"", "").split(";"))
-                            .map(String::trim)
-                            .toArray(String[]::new);
+                // Ensure the parsed data contains the expected fields
+                if (parts.size() >= 8) { // Adjust the field count based on your CSV structure
+                    String email = parts.get(1).trim(); // Email is the unique identifier (2nd field)
 
-                    // Parse currentAddress field
-                    String currentAddress = parts.get(4).replace("\"", "").trim();
+                    // If the email matches the given ID, create and return a User object
+                    if (email.equals(id)) {
+                        String name = parts.get(0).trim();
+                        String password = parts.get(2).trim();
 
-                    // Parse orderIDs field
-                    int[] orderIDs = Arrays.stream(parts.get(5).split(";"))
-                            .map(String::trim) // Trim each part
-                            .mapToInt(Integer::parseInt) // Convert to integer
-                            .toArray();
+                        // Parse addresses field (semicolon-separated)
+                        String[] addresses = Arrays.stream(parts.get(3).replace("\"", "").split(";"))
+                                .map(String::trim)
+                                .toArray(String[]::new);
 
-                    // Parse other integer fields
-                    int currentOrderID = Integer.parseInt(parts.get(6).trim());
-                    int errorCase = Integer.parseInt(parts.get(7).trim());
+                        // Parse current address
+                        String currentAddress = parts.get(4).replace("\"", "").trim();
 
-                    return new User(name, email, password, addresses, currentAddress, orderIDs, currentOrderID, errorCase);
+                        // Parse order IDs (semicolon-separated)
+                        int[] orderIDs = Arrays.stream(parts.get(5).split(";"))
+                                .map(String::trim)
+                                .mapToInt(Integer::parseInt)
+                                .toArray();
+
+                        // Parse the last two integer fields
+                        int currentOrderID = Integer.parseInt(parts.get(6).trim());
+                        int errorCase = Integer.parseInt(parts.get(7).trim());
+
+                        // Return the constructed User object
+                        return new User(name, email, password, addresses, currentAddress, orderIDs, currentOrderID, errorCase);
+                    }
                 } else {
-                    System.err.println("Error: Insufficient data in the current_user.txt file.");
+                    System.err.println("Invalid user data format: " + line);
                 }
-            } else {
-                System.err.println("Error: current_user.txt file is empty.");
             }
         } catch (IOException | NumberFormatException e) {
+            System.err.println("Error reading user data: " + e.getMessage());
             e.printStackTrace();
         }
 
-        return null; // Return null if no user information is found or an error occurs
+        // Return null if no user matches the given ID
+        System.err.println("User with ID " + id + " not found.");
+        return null;
     }
 
     /**
