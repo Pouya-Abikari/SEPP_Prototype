@@ -27,6 +27,7 @@ public class LoginController {
     private ImageView showPasswordButton;
     @FXML
     private Label errorLabel;
+    private String id;
 
     private boolean isPasswordVisible = false;
 
@@ -151,6 +152,7 @@ public class LoginController {
         User user = authenticateUser(email, password);
         if (user != null) {
             saveCurrentUser(user); // Save the logged-in user to current_user.txt
+            id = user.getEmail();
             System.out.println("Welcome, " + user.getName());
             navigateToHomeScreen(); // Navigate to the home screen
         } else {
@@ -188,6 +190,8 @@ public class LoginController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/se_prototype/se_prototype/home_screen.fxml"));
             Scene homeScene = new Scene(loader.load(), 400, 711);
             homeScene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+            HomeScreenController controller = loader.getController();
+            controller.getID(id);
             Stage stage = (Stage) usernameField.getScene().getWindow();
             stage.setScene(homeScene);
             stage.show();

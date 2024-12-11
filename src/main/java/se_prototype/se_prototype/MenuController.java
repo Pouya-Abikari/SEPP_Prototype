@@ -25,19 +25,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.stage.Stage;
 
-
 public class MenuController {
 
     @FXML
     private TextField searchField;
-
     @FXML
     private Label locationText;
-
     @FXML
     private GridPane menuGrid;
-
-
     @FXML
     private Button homeButton;
     @FXML
@@ -46,6 +41,7 @@ public class MenuController {
     private Button cartButton;
     @FXML
     private Button settingsButton;
+    private String id;
 
 
     @FXML
@@ -83,6 +79,7 @@ public class MenuController {
         searchField.textProperty().addListener((observable, oldValue, newValue) -> filterProducts(newValue));
 
     }
+
     private List<Product> fetchAllProducts() {
         List<Product> products = new ArrayList<>();
 
@@ -347,13 +344,30 @@ public class MenuController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Scene scene = new Scene(loader.load(), 400, 711);
-            if ("location.fxml".equals(fxmlFile)) {
-                LocationController controller = loader.getController();
-                if (controller != null) {
-                    controller.setPreviousPage(previousPage);
-                }
-            }
             scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+            switch (fxmlFile) {
+                case "menu.fxml":
+                    MenuController menuController = loader.getController();
+                    menuController.getID(id);
+                    break;
+                case "cart.fxml":
+                    CartController cartController = loader.getController();
+                    cartController.getID(id);
+                    break;
+                case "settings.fxml":
+                    //SettingsController settingsController = loader.getController();
+                    //settingsController.getID(id);
+                    break;
+                case "category.fxml":
+                    CategoryController categoryController = loader.getController();
+                    categoryController.getID(id);
+                    break;
+                case "location.fxml":
+                    LocationController locationController = loader.getController();
+                    locationController.setPreviousPage(previousPage);
+                    locationController.getID(id);
+                    break;
+            }
             Stage stage = (Stage) homeButton.getScene().getWindow(); // Get the current stage
             stage.setScene(scene);
             stage.setTitle(title);
@@ -375,6 +389,11 @@ public class MenuController {
         return svgContainer;
     }
 
+    public void getID(String id) {
+        this.id = id;
+        System.out.println("ID: " + id);
+    }
+
     @FXML
     private void onLocationBoxClick(MouseEvent event) {
         switchToPage("location.fxml", "Location", "Menu");    }
@@ -383,14 +402,12 @@ public class MenuController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("category.fxml"));
             Parent categoryPage = loader.load();
-
             CategoryController controller = loader.getController();
+            controller.getID(id);
             List<Product> products = fetchProductsForCategory(categoryName); // Fetch products for this category
             controller.initializeCategory(categoryName, products, this);
-
             Scene scene = new Scene(categoryPage, 400, 711);
-           scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
-
+            scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
             Stage stage = (Stage) menuGrid.getScene().getWindow();
             stage.setScene(scene);
             stage.show();
@@ -464,6 +481,4 @@ public class MenuController {
 
         return products;
     }
-
-
 }

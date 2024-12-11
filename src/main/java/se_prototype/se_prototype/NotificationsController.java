@@ -38,6 +38,7 @@ public class NotificationsController {
     private Button cartButton;
     @FXML
     private Button settingsButton;
+    private String id;
 
     @FXML
     public void initialize() {
@@ -229,6 +230,11 @@ public class NotificationsController {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/MM");
             return notificationDate.format(formatter); // Format as "2/11"
         }
+    }
+
+    public void getID(String id) {
+        this.id = id;
+        System.out.println("ID: " + id);
     }
 
     private static class Notification {

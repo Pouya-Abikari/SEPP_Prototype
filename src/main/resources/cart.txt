@@ -1,1 +1,2 @@
-Celery,Crunchy celery from Fresh Farms,0.95,Fruits&Vegetables/celery.png,0.0,3
+john.doe@example.com;Orange Juice,Fresh orange juice from Citrus Farms,2.5,orange_juice.png,40.0,3;Apple Juice,Natural apple juice from Orchard's Best,2.0,apple_juice.png,0.0,1;Tomatoes,Fresh tomatoes from Fresh Farms,1.2,Fruits&Vegetables/tomatoes.png,20.0,3;Coffee,Rich coffee from Gourmet Roasters,3.0,coffee_beans.png,50.0,2;Soda,Fizzy soda from Beverage Co.,1.5,soda.png,0.0,2;
+jane.smith@example.com;Scrambled Eggs,Fresh scrambled eggs with a hint of butter,3.0,scrambled_eggs.png,0.0,4;Carrots,Sweet carrots from Fresh Farms,0.8,Fruits&Vegetables/carrots.png,0.0,2;
