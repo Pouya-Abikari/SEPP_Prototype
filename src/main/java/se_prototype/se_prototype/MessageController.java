@@ -20,7 +20,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
-import java.io.IOException;
+
+import java.io.*;
 import java.util.*;
 
 public class MessageController {
@@ -53,6 +54,8 @@ public class MessageController {
     private List<String> participants;
     private Map<String, String> participantColors;
     private Map<String, List<String>> predefinedRepliesWithVariations;
+    private final String MESSAGE_FILE = "src/main/resources/messages.txt";
+    private String currentUser;
 
     private void initializeParticipants() {
         participants = Arrays.asList("Katia", "Pouya", "Nazanin", "Amir");
@@ -68,10 +71,15 @@ public class MessageController {
 
     @FXML
     public void initialize() {
-        initializePredefinedReplies();
+        currentUser = getCurrentUser();
         initializeParticipants();
         initializeParticipantColors();
+        initializePredefinedReplies();
         setUpImages();
+
+        if (currentUser != null) {
+            loadMessages();
+        }
 
         HBox.setHgrow(messageField, Priority.ALWAYS);
 
@@ -101,13 +109,99 @@ public class MessageController {
 
         // Send button action
         sendButton.setOnAction(event -> sendMessage());
-
-        // Set the back button action
         backButton.setOnAction(event -> goBack());
+
         menuButton.setOnAction(event -> switchToPage("menu.fxml", "Menu"));
         cartButton.setOnAction(event -> switchToPage("cart.fxml", "Cart"));
         settingsButton.setOnAction(event -> switchToPage("settings.fxml", "Settings"));
     }
+
+    private void loadMessages() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(MESSAGE_FILE))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith("User: " + currentUser)) {
+                    String[] parts = line.split("Messages: ");
+                    if (parts.length > 1) {
+                        String messages = parts[1];
+                        List<String> messageList = parseMessages(messages);
+                        for (String message : messageList) {
+                            String[] messageParts = message.split("from: ");
+                            if (messageParts.length == 2) {
+                                addMessage(messageParts[0].trim(), messageParts[1].trim());
+                            } else {
+                                addMessage(message.trim(), "You");
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void saveMessage(String sender, String message) {
+        File file = new File(MESSAGE_FILE);
+        List<String> lines = new ArrayList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            boolean userFound = false;
+
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith("User: " + currentUser)) {
+                    userFound = true;
+                    // Append the new message to this user's line
+                    String updatedLine = line + ", " + message + " from: " + sender;
+                    lines.add(updatedLine);
+                } else {
+                    lines.add(line);
+                }
+            }
+
+            if (!userFound) {
+                // Add a new entry if the user does not exist
+                lines.add("User: " + currentUser + ", Messages: [" + message + " from: " + sender + "]");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Write all lines back to the file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            for (String updatedLine : lines) {
+                writer.write(updatedLine);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private List<String> parseMessages(String messages) {
+        messages = messages.replace("[", "").replace("]", "");
+        return Arrays.asList(messages.split(","));
+    }
+
+    private String getCurrentUser() {
+        String currentUserFile = "src/main/resources/current_user.txt";
+        File file = new File(currentUserFile);
+
+        if (!file.exists()) {
+            System.err.println("Current user file not found.");
+            return null;
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            return reader.readLine(); // Assume the first line contains the username or email
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 
     private void initializePredefinedReplies() {
         predefinedRepliesWithVariations = new HashMap<>();
@@ -124,6 +218,7 @@ public class MessageController {
 
         if (!userMessage.isEmpty()) {
             addMessage(userMessage, "You");
+            saveMessage("You", userMessage);
 
             Random random = new Random();
             int numberOfResponders = random.nextInt(participants.size()) + 1; // Randomly decide how many respond
@@ -139,7 +234,10 @@ public class MessageController {
                 new Thread(() -> {
                     try {
                         Thread.sleep(500 * (delayIndex + 1)); // 0.5-second delay between responses
-                        Platform.runLater(() -> addMessage(botReply, participant));
+                        Platform.runLater(() -> {
+                            addMessage(botReply, participant);
+                            saveMessage(participant, botReply); // Save the bot's reply
+                        });
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -268,7 +366,7 @@ public class MessageController {
             // Randomly pick one of the possible replies
             return possibleReplies.get(new Random().nextInt(possibleReplies.size()));
         }
-        return "Sorry, didn't get that";
+        return "Sorry I didn't get that";
     }
 
     private void setUpImages(){

@@ -41,12 +41,17 @@ public class LocationController {
     @FXML
     private Button saveAddressButton;
     private String previousPage;
+    private String[] currentEditAddress = null;
+
+
 
     @FXML
     public void initialize() {
         addressFormContainer.setVisible(false);
         addressFormContainer.setManaged(false);
+
         getAddresses().forEach(address -> addAddressNode(address[0], address[1]));
+
         backButton.setOnAction(event -> {
             if ("Cart".equals(previousPage)) {
                 switchToPage("cart.fxml", "Cart");
@@ -55,19 +60,95 @@ public class LocationController {
             } else {
                 System.err.println("Previous page not set!");
             }
-        });        addAddressButton.setOnAction(event -> toggleAddressForm());
-        saveAddressButton.setOnAction(event -> saveNewAddress());
+        });
+        //addAddressButton.setOnAction(event -> toggleAddressForm());
+        addAddressButton.setOnAction(event -> showAddAddressForm());
+        saveAddressButton.setOnAction(event -> saveAddress());
     }
     public void setPreviousPage(String previousPage) {
         this.previousPage = previousPage;
     }
 
-    private void toggleAddressForm() {
-        // Toggle the visibility of the form
-        addressFormContainer.setVisible(!addressFormContainer.isVisible());
-        addressFormContainer.setManaged(addressFormContainer.isVisible());
+    //added
+    private void showAddAddressForm() {
+        currentEditAddress = null; // Reset edit state
+        titleField.clear();
+        detailsField.clear();
+        toggleAddressForm(true);
     }
 
+    //added
+    private void showEditAddressForm(String title, String details) {
+        currentEditAddress = new String[]{title, details}; // Set the address being edited
+        titleField.setText(title);
+        detailsField.setText(details);
+        toggleAddressForm(true);
+    }
+
+
+    private void toggleAddressForm(boolean show) {
+        // Toggle the visibility of the form
+        //addressFormContainer.setVisible(!addressFormContainer.isVisible());
+        //addressFormContainer.setManaged(addressFormContainer.isVisible());
+        addressFormContainer.setVisible(show);
+        addressFormContainer.setManaged(show);
+    }
+
+    //added
+    private void saveAddress() {
+        String title = titleField.getText().trim();
+        String details = detailsField.getText().trim();
+
+        if (!title.isEmpty() && !details.isEmpty()) {
+            if (currentEditAddress == null) {
+                // Add new address
+                addAddressNode(title, details);
+                List<String[]> addresses = getAddresses();
+                addresses.add(new String[]{title, details});
+                addAddress(addresses);
+            } else {
+                // Edit existing address
+                editAddressInFile(currentEditAddress[0], currentEditAddress[1], title, details);
+                addressList.getChildren().clear();
+                getAddresses().forEach(address -> addAddressNode(address[0], address[1]));
+            }
+
+            // Clear and hide the form
+            titleField.clear();
+            detailsField.clear();
+            toggleAddressForm(false);
+        } else {
+            System.out.println("Title or details cannot be empty.");
+        }
+    }
+
+    private void editAddressInFile(String oldTitle, String oldDetails, String newTitle, String newDetails) {
+        List<String[]> addresses = getAddresses();
+
+        // Update the address details in the list
+        for (String[] address : addresses) {
+            if (address[0].equals(oldTitle) && address[1].equals(oldDetails)) {
+                address[0] = newTitle;
+                address[1] = newDetails;
+                //address[1] = newDetails.replace(",", "\\,");
+                break;
+            }
+        }
+
+        // Write the updated list back to the file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("src/main/resources/addresses.txt"))) {
+            for (String[] address : addresses) {
+                writer.write(String.join(",", address));
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        addAddress(addresses);
+    }
+
+    /*
     private void saveNewAddress() {
         String title = titleField.getText().trim();
         String details = detailsField.getText().trim();
@@ -91,7 +172,7 @@ public class LocationController {
         } else {
             System.out.println("Title or details cannot be empty.");
         }
-    }
+    }*/
 
     private List<String[]> getAddresses() {
         List<String[]> addresses = new ArrayList<>();
@@ -99,12 +180,13 @@ public class LocationController {
             String line;
             while ((line = reader.readLine()) != null) {
                 // Split the line by commas
-                String[] parts = line.split(",");
+                String[] parts = line.split(",", 2);
                 if (parts.length > 1) {
                     // The first part is the title
                     String title = parts[0].trim();
                     // The rest is joined into a single string for details
-                    String details = String.join(", ", Arrays.copyOfRange(parts, 1, parts.length)).trim();
+                    String details = parts[1].trim().replace("\\,", ",");
+                    //String details = String.join(", ", Arrays.copyOfRange(parts, 1, parts.length)).trim();
                     addresses.add(new String[]{title, details});
                 }
             }
@@ -117,7 +199,9 @@ public class LocationController {
     private void addAddress(List<String[]> addresses) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("src/main/resources/addresses.txt"))) {
             for (String[] address : addresses) {
-                writer.write(String.join(",", address));
+                String escapedDetails = address[1].replace(",", "\\,");
+                writer.write(address[0] + "," + escapedDetails);
+                //writer.write(String.join(",", address)); add back?
                 writer.newLine();
             }
         } catch (IOException e) {
@@ -158,6 +242,8 @@ public class LocationController {
         editButtonContainer.getChildren().addAll(editCircle, editIcon);
         editButton.setGraphic(editButtonContainer);
 
+        editButton.setOnAction(event -> showEditAddressForm(title, details));
+
         // Create Delete Button inside a Circle
         Button deleteButton = new Button();
         deleteButton.setStyle("-fx-background-color: transparent; -fx-padding: 0;");
@@ -175,7 +261,6 @@ public class LocationController {
 
         deleteButton.setOnAction(e -> {
             addressList.getChildren().remove(addressBox);
-
             deleteAddressFromFile(title, details);
         });
 
