@@ -1,2 +1,0 @@
-Celery,Crunchy celery from Fresh Farms,0.95,Fruits&Vegetables/celery.png,0.0,1
-Tomatoes,Fresh tomatoes from Fresh Farms,1.2,Fruits&Vegetables/tomatoes.png,20.0,1

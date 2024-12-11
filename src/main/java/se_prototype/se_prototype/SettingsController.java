@@ -25,7 +25,6 @@ public class SettingsController {
 
     @FXML
     private VBox myWishlistSection;
-    private String userFile;
 
     @FXML
     public void initialize() {
@@ -62,11 +61,6 @@ public class SettingsController {
         myOrdersSection.setManaged(false);
         myWishlistSection.setVisible(false);
         myWishlistSection.setManaged(false);
-    }
-
-    public void setUserFile(String userFile) {
-        this.userFile = userFile;
-        System.out.println("User file set to: " + userFile);
     }
 
     private void setupImages() {

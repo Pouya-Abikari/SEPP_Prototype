@@ -32,7 +32,6 @@ public class StartGroupOrderController {
 
     @FXML
     private ImageView itemsIcon;
-    private String userFile;
 
     @FXML
     public void initialize() {
@@ -45,11 +44,6 @@ public class StartGroupOrderController {
 
         startGroupOrderButton.setOnAction(e -> switchToPage("groupOrder.fxml", "Group Order"));
         backButton.setOnAction(e -> switchToPage("cart.fxml", "Cart"));
-    }
-
-    public void setUserFile(String userFile) {
-        this.userFile = userFile;
-        System.out.println("User file set to: " + userFile);
     }
 
     private void switchToPage(String fxmlFile, String title) {
