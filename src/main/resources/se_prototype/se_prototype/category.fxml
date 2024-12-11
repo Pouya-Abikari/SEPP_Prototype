@@ -24,11 +24,11 @@
             <Button text="←" onAction="#onBackButtonClick" style="-fx-font-size: 20px; -fx-background-color: transparent; -fx-text-fill: #37474F;" />
             <Label fx:id="categoryTitle" text="Category" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #37474F;" />
             <Region HBox.hgrow="ALWAYS"/>
-            <StackPane fx:id="pressed" onMouseClicked="#goToCart" alignment="TOP_RIGHT" style="-fx-padding: 3">
-                <Button fx:id="cartButton"
+            <StackPane fx:id="pressed" alignment="TOP_RIGHT" style="-fx-padding: 3">
+                <Button fx:id="cartButton" onMouseClicked="#goToCart"
                         style="-fx-pref-width: 40; -fx-pref-height: 40; -fx-background-color: transparent; -fx-border-color: transparent"
                         alignment="CENTER_RIGHT"/>
-                <Label fx:id="cartItemCountLabel"
+                <Label fx:id="cartItemCountLabel" onMouseClicked="#goToCart"
                        text="0"
                        style="-fx-background-color: #FF6B6B; -fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 2; -fx-border-radius: 50; -fx-background-radius: 50;"
                        mouseTransparent="true">

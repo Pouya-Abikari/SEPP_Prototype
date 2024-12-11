@@ -346,9 +346,9 @@ public class MenuController {
             Scene scene = new Scene(loader.load(), 400, 711);
             scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
             switch (fxmlFile) {
-                case "menu.fxml":
-                    MenuController menuController = loader.getController();
-                    menuController.getID(id);
+                case "home_screen.fxml":
+                    HomeScreenController homeScreenController = loader.getController();
+                    homeScreenController.getID(id);
                     break;
                 case "cart.fxml":
                     CartController cartController = loader.getController();
