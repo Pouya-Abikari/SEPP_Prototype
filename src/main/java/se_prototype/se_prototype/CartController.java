@@ -160,7 +160,7 @@ public class CartController {
     public void initialize() {
         if (!isInitialized) {
             //clearAppFilesOnInitialization(); // Clear files only once at the start of the app
-            int additionalUsers = new Random().nextInt(9) + 1; // 1-9 range
+            int additionalUsers = new Random().nextInt(6) + 1; // 1-9 range
             totalUsers = 1 + additionalUsers; // 1 logged-in user + additional random users
             System.out.println("Total users (including logged-in user): " + totalUsers);
             isInitialized = true; // Set the flag to true to prevent future runs
@@ -962,7 +962,7 @@ public class CartController {
     }
 
     private void loadGroupCart() {
-        userCarts.clear(); // Clear existing group cart
+        //userCarts.clear(); // Clear existing group cart
         loadUserData(); // Load users from the group_cart_users.txt file
         overrideYouCart(); // Override "You" section with latest data from cart.txt
         updateGroupCartUI(); // Update the UI
