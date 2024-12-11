@@ -55,10 +55,8 @@ public class HomeScreenController {
         notificationButton.setOnAction(event -> switchToPage("notifications.fxml", "Notifications"));
     }
 
-
     private void setupImages() {
         try {
-
             // Load and set the message button image
             Image messageImg = new Image(getClass().getResourceAsStream("/messageButton.png"));
             ImageView messageImgView = new ImageView(messageImg);
@@ -142,7 +140,7 @@ public class HomeScreenController {
         }
     }
 
-    void getID(String id) {
+    public void getID(String id) {
         this.id = id;
         System.out.println("ID: " + id);
     }

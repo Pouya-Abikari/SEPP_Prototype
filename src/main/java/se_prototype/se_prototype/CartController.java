@@ -169,13 +169,11 @@ public class CartController {
         setupImages();
         initializeLoadingOverlay();
         payment_icon_and_method();
-        //loadAllProducts();
+        loadAllProducts();
         //loadLoggedInUserCart(id);
-        //loadUserData();
-        //startRandomUserUpdate();
-        //updateGroupCartUI();
-        //updateDeliverySummary();
-        //loadCartFromFile();
+        loadUserData();
+        startRandomUserUpdate();
+        loadCartFromFile();
 
         // Initialize UI setup
         group_cart.setVisible(false);
@@ -254,9 +252,6 @@ public class CartController {
 
         // Initialize "You" as the first user in the group cart
         overrideYouCart();
-
-        // Save the current group cart data
-        saveUserData();
 
         System.out.println("New group cart created successfully.");
     }
@@ -469,7 +464,6 @@ public class CartController {
                             String userName = "User " + (userCarts.size() + 1);
                             if (!addedUsers.contains(userName)) {
                                 addRandomUser();
-                                saveUserData();
                                 updateGroupCartUI();
                                 addedUsers.add(userName);
                             }
@@ -651,35 +645,18 @@ public class CartController {
         updateDeliverySummary();
     }
 
-    private void saveUserData() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(CART_FILE))) {
-            for (UserCart userCart : userCarts) {
-                writer.write(userCart.toString());
-                writer.newLine();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void loadUserData() {
-        File file = new File(saveFile);
+        userCarts.clear(); // Reset the list to avoid duplicates
+        File file = new File(CART_FILE);
         if (!file.exists()) return;
 
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 try {
-                    UserCart userCart = UserCart.fromString(line);
-
-                    // Skip adding the logged-in user
-                    if (userCart.getEmail().equals(id)) {
-                        continue;
-                    }
-
-                    userCarts.add(userCart);
-                } catch (IllegalArgumentException e) {
-                    System.err.println("Skipping invalid cart data: " + line + " - " + e.getMessage());
+                    userCarts.add(UserCart.fromString(line));
+                } catch (Exception e) {
+                    System.err.println("Failed to parse user cart: " + line);
                 }
             }
         } catch (IOException e) {
@@ -842,7 +819,6 @@ public class CartController {
         userCarts.removeIf(cart -> cart.getEmail().equals(id));
         userCarts.add(0, youCart);
 
-        saveUserData(); // Save the updated data
         updateGroupCartUI(); // Refresh UI
     }
 
@@ -949,7 +925,6 @@ public class CartController {
         userCarts.removeIf(cart -> cart.getEmail().equals(id));
         userCarts.add(0, youCart);
 
-        saveUserData(); // Save updated cart
         updateGroupCartUI(); // Refresh UI
     }
 
@@ -962,7 +937,7 @@ public class CartController {
     }
 
     private void loadGroupCart() {
-        //userCarts.clear(); // Clear existing group cart
+        userCarts.clear(); // Clear existing group cart
         loadUserData(); // Load users from the group_cart_users.txt file
         overrideYouCart(); // Override "You" section with latest data from cart.txt
         updateGroupCartUI(); // Update the UI
@@ -1604,19 +1579,19 @@ public class CartController {
             Scene scene = new Scene(loader.load(), 400, 711);
             scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
             switch (fxmlFile) {
-                case "/home.fxml":
+                case "home.fxml":
                     HomeScreenController homeController = loader.getController();
                     homeController.getID(id);
                     break;
-                case "/menu.fxml":
+                case "menu.fxml":
                     MenuController menuController = loader.getController();
                     menuController.getID(id);
                     break;
-                case "/cart.fxml":
+                case "cart.fxml":
                     CartController cartController = loader.getController();
                     cartController.getID(id);
                     break;
-                case "/settings.fxml":
+                case "settings.fxml":
                     //SettingsController settingsController = loader.getController();
                     //settingsController.getID(id);
                     break;

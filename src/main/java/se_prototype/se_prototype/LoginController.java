@@ -152,6 +152,7 @@ public class LoginController {
         User user = authenticateUser(email, password);
         if (user != null) {
             saveCurrentUser(user); // Save the logged-in user to current_user.txt
+            id = user.getEmail();
             System.out.println("Welcome, " + user.getName());
             navigateToHomeScreen(); // Navigate to the home screen
         } else {
