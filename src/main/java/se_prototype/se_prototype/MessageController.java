@@ -53,6 +53,7 @@ public class MessageController {
     private List<String> participants;
     private Map<String, String> participantColors;
     private Map<String, List<String>> predefinedRepliesWithVariations;
+    private String id;
 
     private void initializeParticipants() {
         participants = Arrays.asList("Katia", "Pouya", "Nazanin", "Amir");
@@ -337,5 +338,10 @@ public class MessageController {
             System.err.println("Failed to load home.fxml: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    public void getID(String id) {
+        this.id = id;
+        System.out.println("ID: " + id);
     }
 }

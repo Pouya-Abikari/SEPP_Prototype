@@ -15,7 +15,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.SVGPath;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import java.io.*;
@@ -143,6 +142,7 @@ public class CartController {
     @FXML
     private ImageView itemsIcon;
 
+
     private boolean isSoloCart = true;
     private long timeRemaining = 3600; // 1 hour in seconds
     private final String CART_FILE = "src/main/resources/cart.txt";
@@ -155,6 +155,7 @@ public class CartController {
     private static boolean isInitialized = false;
     private static int totalUsers;
     private static final String filePath = "src/main/resources/users.txt";
+    private String id = "john.doe@example.com";
 
     @FXML
     public void initialize() {
@@ -170,9 +171,12 @@ public class CartController {
         initializeLoadingOverlay();
         payment_icon_and_method();
         loadAllProducts();
-        loadLoggedInUserCart();
+        loadLoggedInUserCart(id);
         loadUserData();
         startRandomUserUpdate();
+        updateGroupCartUI();
+        updateDeliverySummary();
+        loadCartFromFile();
 
         // Initialize UI setup
         group_cart.setVisible(false);
@@ -344,7 +348,7 @@ public class CartController {
                 }
 
                 // If this is the logged-in user, calculate their subtotal
-                if (userCart.getUserName().equals("You")) {
+                if (userCart.getEmail().equals("You")) {
                     yourSubtotal = userCart.getCartItems().stream()
                             .mapToDouble(item -> (item.getPrice() - (item.getPrice() * item.getDiscount() / 100)) * item.getQuantity())
                             .sum();
@@ -440,36 +444,39 @@ public class CartController {
         }
     }
 
-    private void loadLoggedInUserCart() {
+    private void loadLoggedInUserCart(String loggedInUserId) {
         File file = new File(CART_FILE);
         if (!file.exists()) {
             System.err.println("Cart file not found: " + CART_FILE);
             return;
         }
 
-        List<Product> cartItems = new ArrayList<>();
+        List<UserCart> loadedCarts = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",");
-                if (parts.length >= 6) {
-                    cartItems.add(new Product(
-                            parts[0],
-                            parts[1],
-                            Double.parseDouble(parts[2]),
-                            parts[3],
-                            Double.parseDouble(parts[4]),
-                            Integer.parseInt(parts[5])
-                    ));
+                try {
+                    // Parse each line into a UserCart object
+                    UserCart cart = UserCart.fromString(line);
+                    loadedCarts.add(cart);
+                } catch (Exception e) {
+                    System.err.println("Error parsing cart line: " + line);
+                    e.printStackTrace();
                 }
             }
         } catch (IOException e) {
+            System.err.println("Error reading cart file: " + e.getMessage());
             e.printStackTrace();
         }
 
-        // Replace or add the "You" cart
-        userCarts.removeIf(cart -> cart.getUserName().equals("You"));
-        UserCart loggedInUserCart = new UserCart("You", cartItems);
+        // Find or create the logged-in user's cart
+        UserCart loggedInUserCart = loadedCarts.stream()
+                .filter(cart -> cart.getEmail().equals(loggedInUserId))
+                .findFirst()
+                .orElseGet(() -> new UserCart(loggedInUserId, new ArrayList<>()));
+
+        // Replace or add the logged-in user's cart in the main userCarts list
+        userCarts.removeIf(cart -> cart.getEmail().equals(loggedInUserId));
         userCarts.add(0, loggedInUserCart);
     }
 
@@ -554,7 +561,7 @@ public class CartController {
             userImage.setStyle("-fx-border-radius: 20;"); // Circular profile image
 
             // User name label
-            Label userNameLabel = new Label(userCart.getUserName());
+            Label userNameLabel = new Label(userCart.getEmail());
             userNameLabel.setStyle("-fx-font-size: 14px; " +
                     "-fx-font-weight: bold; " +
                     "-fx-text-fill: #5EC401;");
@@ -689,7 +696,7 @@ public class CartController {
                 UserCart userCart = UserCart.fromString(line);
 
                 // Skip adding "You" since it's already added
-                if (userCart.getUserName().equals("You")) {
+                if (userCart.getEmail().equals("You")) {
                     continue;
                 }
 
@@ -868,7 +875,7 @@ public class CartController {
 
             // Replace or add the "You" cart in `userCarts`
             UserCart youCart = new UserCart("You", updatedCartItems);
-            userCarts.removeIf(cart -> cart.getUserName().equals("You"));
+            userCarts.removeIf(cart -> cart.getEmail().equals("You"));
             userCarts.add(0, youCart);
 
             // Refresh the group cart UI
@@ -908,7 +915,7 @@ public class CartController {
         boolean youExists = false;
 
         for (int i = 0; i < userCarts.size(); i++) {
-            if (userCarts.get(i).getUserName().equals("You")) {
+            if (userCarts.get(i).getEmail().equals("You")) {
                 userCarts.set(i, youCart); // Replace the existing "You" cart
                 youExists = true;
                 break;
@@ -945,20 +952,60 @@ public class CartController {
 
         // Clear and reload products
         productContainer.getChildren().clear();
-        List<String[]> products = readCartFile();
-        for (String[] productData : products) {
-            String name = productData[0];
-            String description = productData[1];
-            double price = Double.parseDouble(productData[2]);
-            String imageUrl = productData[3];
-            double discount = Double.parseDouble(productData[4]);
-            int quantity = Integer.parseInt(productData[5]);
-            productContainer.getChildren().add(createProductNode(name, description, price, imageUrl, discount, quantity));
+
+        // Load user carts from the cart file
+        List<UserCart> userCarts = loadCartsFromFile();
+
+        // Find the cart for the specified user
+        UserCart userCart = userCarts.stream()
+                .filter(cart -> cart.getEmail().equals(id))
+                .findFirst()
+                .orElse(null);
+
+        if (userCart != null) {
+            // Iterate through the user's cart items and create product nodes
+            for (Product product : userCart.getCartItems()) {
+                productContainer.getChildren().add(createProductNode(
+                        product.getName(),
+                        product.getDescription(),
+                        product.getPrice(),
+                        product.getImageUrl(),
+                        product.getDiscount(),
+                        product.getQuantity()
+                ));
+            }
+        } else {
+            System.out.println("No cart found for user: " + id);
         }
 
         // Restore scroll position after layout updates
         productScrollPane.layout();
         productScrollPane.setVvalue(scrollOffset);
+    }
+
+    /**
+     * Loads all carts from the cart file.
+     *
+     * @return A list of UserCart objects.
+     */
+    private List<UserCart> loadCartsFromFile() {
+        List<UserCart> userCarts = new ArrayList<>();
+        File file = new File(CART_FILE);
+
+        if (!file.exists()) {
+            return userCarts; // Return empty list if file doesn't exist
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                userCarts.add(UserCart.fromString(line));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return userCarts;
     }
 
     private void payment_icon_and_method() {
@@ -1525,6 +1572,24 @@ public class CartController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Scene scene = new Scene(loader.load(), 400, 711);
             scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+            switch (fxmlFile) {
+                case "/home.fxml":
+                    HomeScreenController homeController = loader.getController();
+                    homeController.getID(id);
+                    break;
+                case "/menu.fxml":
+                    MenuController menuController = loader.getController();
+                    menuController.getID(id);
+                    break;
+                case "/cart.fxml":
+                    CartController cartController = loader.getController();
+                    cartController.getID(id);
+                    break;
+                case "/settings.fxml":
+                    //SettingsController settingsController = loader.getController();
+                    //settingsController.getID(id);
+                    break;
+            }
             Stage stage = (Stage) homeButton.getScene().getWindow(); // Get the current stage
             stage.setScene(scene);
             stage.setTitle(title);
@@ -1535,4 +1600,8 @@ public class CartController {
         }
     }
 
+    public void getID(String id) {
+        this.id = id;
+        System.out.println("ID: " + id);
+    }
 }

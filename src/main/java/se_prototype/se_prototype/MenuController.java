@@ -25,19 +25,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.stage.Stage;
 
-
 public class MenuController {
 
     @FXML
     private TextField searchField;
-
     @FXML
     private Label locationText;
-
     @FXML
     private GridPane menuGrid;
-
-
     @FXML
     private Button homeButton;
     @FXML
@@ -52,6 +47,7 @@ public class MenuController {
     private HBox locationContainer;
     private List<Product> originalProducts;
     private List<Product> allProducts;
+    private String id;
 
     public void initialize() {
         StackPane svgIcon = createSvgIcon();
@@ -83,6 +79,7 @@ public class MenuController {
         searchField.textProperty().addListener((observable, oldValue, newValue) -> filterProducts(newValue));
 
     }
+
     private List<Product> fetchAllProducts() {
         List<Product> products = new ArrayList<>();
 
@@ -466,4 +463,8 @@ public class MenuController {
     }
 
 
+    public void getID(String id) {
+        this.id = id;
+        System.out.println("ID: " + id);
+    }
 }

@@ -41,8 +41,7 @@ public class HomeScreenController {
     private Button cartButton;
     @FXML
     private Button settingsButton;
-
-
+    private String id;
 
     @FXML
     public void initialize() {
@@ -143,11 +142,38 @@ public class HomeScreenController {
         }
     }
 
+    void getID(String id) {
+        this.id = id;
+        System.out.println("ID: " + id);
+    }
+
     private void switchToPage(String fxmlFile, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Scene scene = new Scene(loader.load(), 400, 711);
             scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+            switch (fxmlFile) {
+                case "menu.fxml":
+                    MenuController menuController = loader.getController();
+                    menuController.getID(id);
+                    break;
+                case "cart.fxml":
+                    CartController cartController = loader.getController();
+                    cartController.getID(id);
+                    break;
+                case "settings.fxml":
+                    //SettingsController settingsController = loader.getController();
+                    //settingsController.getID(id);
+                    break;
+                case "notifications.fxml":
+                    NotificationsController notificationsController = loader.getController();
+                    notificationsController.getID(id);
+                    break;
+                case "message.fxml":
+                    MessageController messageController = loader.getController();
+                    messageController.getID(id);
+                    break;
+            }
             Stage stage = (Stage) homeButton.getScene().getWindow(); // Get the current stage
             stage.setScene(scene);
             stage.setTitle(title);

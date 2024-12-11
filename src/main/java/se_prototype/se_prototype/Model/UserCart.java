@@ -1,20 +1,19 @@
 package se_prototype.se_prototype.Model;
 
-import se_prototype.se_prototype.Model.Product;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserCart {
-    private final String userName;
+    private final String email;
     private final List<Product> cartItems;
 
     public UserCart(String userName, List<Product> cartItems) {
-        this.userName = userName;
+        this.email = userName;
         this.cartItems = cartItems;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getEmail() {
+        return email;
     }
 
     public List<Product> getCartItems() {
@@ -23,7 +22,7 @@ public class UserCart {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder(userName + ";");
+        StringBuilder sb = new StringBuilder(email + ";");
         for (Product item : cartItems) {
             sb.append(item.getName()).append(",").append(item.getDescription()).append(",")
                     .append(item.getPrice()).append(",").append(item.getImageUrl()).append(",")
