@@ -14,18 +14,25 @@ public class HomeScreenController {
 
     @FXML
     private Button messageButton;
+
     @FXML
     private Button notificationButton;
+
     @FXML
     private ImageView mainPageImage;
+
     @FXML
     private ImageView tutorialImage;
+
     @FXML
     private ImageView  christmasImage;
+
     @FXML
     private ImageView moviePizzaImage;
+
     @FXML
     private ImageView  errorImage;
+
     @FXML
     private Button homeButton;
     @FXML
@@ -34,7 +41,8 @@ public class HomeScreenController {
     private Button cartButton;
     @FXML
     private Button settingsButton;
-    private String userFile;
+
+
 
     @FXML
     public void initialize() {
@@ -48,8 +56,10 @@ public class HomeScreenController {
         notificationButton.setOnAction(event -> switchToPage("notifications.fxml", "Notifications"));
     }
 
+
     private void setupImages() {
         try {
+
             // Load and set the message button image
             Image messageImg = new Image(getClass().getResourceAsStream("/messageButton.png"));
             ImageView messageImgView = new ImageView(messageImg);
@@ -71,6 +81,7 @@ public class HomeScreenController {
             mainPageImage.setImage(mainImg);
             mainPageImage.setFitWidth(300.0);
             mainPageImage.setPreserveRatio(true);
+
 
             // Load the tutorial image
             Image tutorialImg = new Image(this.getClass().getResourceAsStream("/tutorialNew.png"));
@@ -124,15 +135,12 @@ public class HomeScreenController {
             settingsImgView.setFitHeight(35);
             settingsButton.setGraphic(settingsImgView);
 
+
+
         } catch (Exception e) {
             System.err.println("Error loading images: " + e.getMessage());
             e.printStackTrace();
         }
-    }
-
-    public void setUserFile(String userFile) {
-        this.userFile = userFile;
-        System.out.println("User file set to: " + userFile);
     }
 
     private void switchToPage(String fxmlFile, String title) {
@@ -141,28 +149,6 @@ public class HomeScreenController {
             Scene scene = new Scene(loader.load(), 400, 711);
             scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
             Stage stage = (Stage) homeButton.getScene().getWindow(); // Get the current stage
-            switch (fxmlFile) {
-                case "menu.fxml":
-                    MenuController menuController = loader.getController();
-                    menuController.setUserFile(userFile);
-                    break;
-                case "cart.fxml":
-                    CartController cartController = loader.getController();
-                    cartController.setUserFile(userFile);
-                    break;
-                case "settings.fxml":
-                    SettingsController settingsController = loader.getController();
-                    settingsController.setUserFile(userFile);
-                    break;
-                case "notifications.fxml":
-                    NotificationsController notificationsController = loader.getController();
-                    notificationsController.setUserFile(userFile);
-                    break;
-                case "message.fxml":
-                    MessageController messageController = loader.getController();
-                    messageController.setUserFile(userFile);
-                    break;
-            }
             stage.setScene(scene);
             stage.setTitle(title);
             stage.show();

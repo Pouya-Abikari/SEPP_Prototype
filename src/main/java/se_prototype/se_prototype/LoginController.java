@@ -1,6 +1,5 @@
 package se_prototype.se_prototype;
 
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -30,38 +29,16 @@ public class LoginController {
     private Label errorLabel;
 
     private boolean isPasswordVisible = false;
-    private String userFile;
+
+    private final String USER_FILE = "src/main/resources/users.txt";
 
     @FXML
     public void initialize() {
         setupPasswordToggle();
+        emptyCurrentUser();
         setupLogo();
-
-        // Clear the user file when the application starts
-        emptyCurrentUserFile();
-
-        // Determine the user file for this session
-        userFile = determineUserFile();
-        if (userFile == null) {
-            showErrorAndExit("Both user files are already in use. Please try again later.");
-        }
-
-        // Register a shutdown hook to clear the file
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                clearFile(userFile);
-                System.out.println("File cleared on shutdown: " + userFile);
-            } catch (IOException e) {
-                System.err.println("Failed to clear file on shutdown: " + userFile);
-                e.printStackTrace();
-            }
-        }));
-
-        // Hide the error label initially
         errorLabel.setManaged(false);
-        errorLabel.setVisible(false);
-
-        // Set login button action
+        errorLabel.setVisible(false); // Hide the error label initially
         loginButton.setOnAction(event -> handleLogin());
     }
 
@@ -78,94 +55,16 @@ public class LoginController {
         }
     }
 
-    private void emptyCurrentUserFile() {
-        if (userFile == null || userFile.isEmpty()) {
-            return; // Safely exit without throwing an exception
-        }
-
-        File file = new File(userFile);
-        if (!file.exists()) {
-            System.out.println("User file does not exist. Nothing to clear.");
-            return;
-        }
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, false))) {
-            writer.write(""); // Clear the content of the user file
-            System.out.println("Successfully cleared user file: " + userFile);
+    private void emptyCurrentUser() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("src/main/resources/current_user.txt", false))) {
+            writer.write("");
         } catch (IOException e) {
             e.printStackTrace();
-            showErrorAlert("Failed to clear the user file: " + userFile);
+            showErrorAlert("Failed to empty the current user.");
         }
-    }
-
-    private String determineUserFile() {
-        String[] userFiles = {"src/main/resources/current_user_1.txt", "src/main/resources/current_user_2.txt"};
-
-        try {
-            for (String userFilePath : userFiles) {
-                File userFile = new File(userFilePath);
-
-                if (isFileEmpty(userFile)) {
-                    createFileIfNotExists(userFile);
-                    writeFile(userFile, "1"); // Write "1" to mark it as in use
-                    System.out.println("User file set to: " + userFilePath); // Log relative path
-                    return userFilePath; // Return relative path instead of absolute path
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.err.println("Error determining user file: " + e.getMessage());
-        }
-
-        // Both files are in use
-        System.err.println("Both user files are already in use.");
-        showErrorAndExit("Both user files are in use. Please try again later.");
-        return null;
-    }
-
-    private void createFileIfNotExists(File file) throws IOException {
-        if (!file.exists()) {
-            file.createNewFile();
-        }
-    }
-
-    private boolean isFileEmpty(File file) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            return reader.readLine() == null;
-        } catch (IOException e) {
-            return true; // Treat as empty if unreadable
-        }
-    }
-
-    private void writeFile(File file, String content) throws IOException {
-        if (!file.exists()) {
-            System.out.println("File does not exist. Creating file: " + file.getAbsolutePath());
-            file.createNewFile();
-        }
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, false))) {
-            writer.write(content);
-            writer.flush(); // Ensure the content is written immediately
-            System.out.println("Successfully wrote to file: " + file.getAbsolutePath());
-        } catch (IOException e) {
-            System.err.println("Failed to write to file: " + file.getAbsolutePath());
-            throw e;
-        }
-    }
-
-    private void showErrorAndExit(String message) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            alert.showAndWait();
-            Platform.exit();
-        });
     }
 
     private User authenticateUser(String email, String password) {
-        String USER_FILE = "src/main/resources/users.txt";
         try (BufferedReader reader = new BufferedReader(new FileReader(USER_FILE))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -260,15 +159,14 @@ public class LoginController {
     }
 
     private void saveCurrentUser(User user) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(userFile, false))) { // Overwrite file
-            String addresses = String.join(";", user.getAddresses());
-            String orderIDs = String.join(";", intArrayToStringArray(user.getOrderID()));
+        String currentUserFile = "src/main/resources/current_user.txt";
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(currentUserFile, false))) { // Overwrite file
             writer.write(user.getName() + "," +
                     user.getEmail() + "," +
                     user.getPassword() + "," +
-                    "\"" + addresses + "\"," + // Addresses enclosed in quotes
-                    "\"" + user.getCurrentAddress() + "\"," + // Current address enclosed in quotes
-                    "\"" + orderIDs + "\"," + // Order IDs as a semicolon-separated string
+                    "[\"" + String.join("\",\"", user.getAddresses()) + "\"]," + // Serialize addresses
+                    "\"" + user.getCurrentAddress() + "\"," + // Serialize current address
+                    "[" + String.join(",", intArrayToStringArray(user.getOrderID())) + "]," +
                     user.getCurrentOrderID() + "," +
                     user.getErrorCase());
             writer.newLine();
@@ -291,8 +189,6 @@ public class LoginController {
             Scene homeScene = new Scene(loader.load(), 400, 711);
             homeScene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
             Stage stage = (Stage) usernameField.getScene().getWindow();
-            HomeScreenController homeScreenController = loader.getController();
-            homeScreenController.setUserFile(userFile);
             stage.setScene(homeScene);
             stage.show();
         } catch (IOException e) {
@@ -354,12 +250,6 @@ public class LoginController {
         } catch (IOException e) {
             e.printStackTrace();
             showErrorAlert("Failed to load the forgot password screen.");
-        }
-    }
-
-    private void clearFile(String filePath) throws IOException {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, false))) {
-            writer.write(""); // Write nothing to empty the file
         }
     }
 

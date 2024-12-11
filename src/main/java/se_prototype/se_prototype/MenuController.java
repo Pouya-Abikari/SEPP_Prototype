@@ -52,7 +52,6 @@ public class MenuController {
     private HBox locationContainer;
     private List<Product> originalProducts;
     private List<Product> allProducts;
-    private String userFile;
 
     public void initialize() {
         StackPane svgIcon = createSvgIcon();
@@ -187,6 +186,8 @@ public class MenuController {
 
         return categoryCard;
     }
+
+
 
     private VBox createProductCard(Product product) {
         VBox productCard = new VBox();
@@ -346,27 +347,14 @@ public class MenuController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Scene scene = new Scene(loader.load(), 400, 711);
+            if ("location.fxml".equals(fxmlFile)) {
+                LocationController controller = loader.getController();
+                if (controller != null) {
+                    controller.setPreviousPage(previousPage);
+                }
+            }
             scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
             Stage stage = (Stage) homeButton.getScene().getWindow(); // Get the current stage
-            switch (fxmlFile) {
-                case "home_screen.fxml":
-                    HomeScreenController homeScreenController = loader.getController();
-                    homeScreenController.setUserFile(userFile);
-                    break;
-                case "cart.fxml":
-                    CartController cartController = loader.getController();
-                    cartController.setUserFile(userFile);
-                    break;
-                case "settings.fxml":
-                    SettingsController settingsController = loader.getController();
-                    settingsController.setUserFile(userFile);
-                    break;
-                case "location.fxml":
-                    LocationController locationController = loader.getController();
-                    locationController.setPreviousPage(previousPage);
-                    locationController.setUserFile(userFile);
-                    break;
-            }
             stage.setScene(scene);
             stage.setTitle(title);
             stage.show();
@@ -389,15 +377,14 @@ public class MenuController {
 
     @FXML
     private void onLocationBoxClick(MouseEvent event) {
-        switchToPage("location.fxml", "Location", "Menu");
-    }
+        switchToPage("location.fxml", "Location", "Menu");    }
 
     private void navigateToCategory(String categoryName) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("category.fxml"));
             Parent categoryPage = loader.load();
+
             CategoryController controller = loader.getController();
-            controller.setUserFile(userFile);
             List<Product> products = fetchProductsForCategory(categoryName); // Fetch products for this category
             controller.initializeCategory(categoryName, products, this);
 
@@ -414,10 +401,6 @@ public class MenuController {
         }
     }
 
-    public void setUserFile(String userFile) {
-        this.userFile = userFile;
-        System.out.println("User file set to: " + userFile);
-    }
 
     private List<Product> fetchProductsForCategory(String categoryName) {
         List<Product> products = new ArrayList<>();

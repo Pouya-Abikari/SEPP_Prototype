@@ -38,7 +38,6 @@ public class NotificationsController {
     private Button cartButton;
     @FXML
     private Button settingsButton;
-    private String userFile;
 
     @FXML
     public void initialize() {
@@ -218,7 +217,6 @@ public class NotificationsController {
         // Add to notification container at the top
         notificationContainer.getChildren().add(0, notificationBox); // Add to the top
     }
-
     private String getFormattedDate(LocalDate notificationDate) {
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.minusDays(1);
@@ -231,11 +229,6 @@ public class NotificationsController {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/MM");
             return notificationDate.format(formatter); // Format as "2/11"
         }
-    }
-
-    public void setUserFile(String userFile) {
-        this.userFile = userFile;
-        System.out.println("User file set to: " + userFile);
     }
 
     private static class Notification {

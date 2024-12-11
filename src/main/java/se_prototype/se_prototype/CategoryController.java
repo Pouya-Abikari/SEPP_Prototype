@@ -23,17 +23,19 @@ public class  CategoryController {
 
     @FXML
     private Label categoryTitle;
+
     @FXML
     private GridPane productGrid;
-    @FXML
+
     private MenuController menuController;
     @FXML
     private Button cartButton;
+
     @FXML
     private Label cartItemCountLabel;
 
     private int cartItemCount = 0;
-    private String userFile;
+
 
     public void initializeCategory(String categoryName, List<Product> products, MenuController menuController) {
         this.menuController = menuController;
@@ -214,19 +216,12 @@ public class  CategoryController {
         cartButton.setGraphic(homeImgView);
     }
 
-    public void setUserFile(String userFile) {
-        this.userFile = userFile;
-        System.out.println("User file set to: " + userFile);
-    }
-
     @FXML
     private void onBackButtonClick() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("menu.fxml"));
             Scene scene = new Scene(loader.load() , 400, 711);
             scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
-            MenuController menuController = loader.getController();
-            menuController.setUserFile(userFile);
             Stage stage = (Stage) productGrid.getScene().getWindow();
             stage.setScene(scene);
             stage.show();
