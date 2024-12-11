@@ -42,8 +42,7 @@ public class LocationController {
     private Button saveAddressButton;
     private String previousPage;
     private String[] currentEditAddress = null;
-
-
+    private String id;
 
     @FXML
     public void initialize() {
@@ -303,6 +302,20 @@ public class LocationController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Scene scene = new Scene(loader.load(), 400, 711);
             scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+            switch (fxmlFile) {
+                case "cart.fxml":
+                    CartController cartController = loader.getController();
+                    cartController.getID(id);
+                    break;
+                case "menu.fxml":
+                    MenuController menuController = loader.getController();
+                    menuController.getID(id);
+                    break;
+                case "settings.fxml":
+                    //SettingsController settingsController = loader.getController();
+                    //settingsController.getID(id);
+                    break;
+            }
             Stage stage = (Stage) backButton.getScene().getWindow();
             stage.setScene(scene);
             stage.setTitle(title);
@@ -311,5 +324,10 @@ public class LocationController {
             System.err.println("Failed to load " + fxmlFile + ": " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    public void getID(String id) {
+        this.id = id;
+        System.out.println("ID: " + id);
     }
 }

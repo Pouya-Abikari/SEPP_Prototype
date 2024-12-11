@@ -41,7 +41,7 @@ public class  CategoryController {
     private final String CART_FILE = "src/main/resources/cart.txt";
 
     private int cartItemCount = 0;
-    private String id = "jane.smith@example.com";
+    private String id;
 
 
     public void initializeCategory(String categoryName, List<Product> products, MenuController menuController) {
@@ -283,10 +283,6 @@ public class  CategoryController {
         }
         return cartItems;
     }
-
-
-
-
 
     // Helper method to write the cart file lines
     private void writeCartFile(List<String[]> cartItems) {

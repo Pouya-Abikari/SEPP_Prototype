@@ -34,21 +34,17 @@ public class MessageController {
     private Button cartButton;
     @FXML
     private Button settingsButton;
-
     @FXML
     private Button backButton;
-
     @FXML
     private Button sendButton;
-
     @FXML
     private TextField messageField;
-
     @FXML
     private VBox chatContainer;
-
     @FXML
     private ScrollPane scrollPane;
+    private String id;
 
     private final Map<String, String> predefinedReplies = new HashMap<>();
     private List<String> participants;
@@ -413,6 +409,20 @@ public class MessageController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Scene scene = new Scene(loader.load());
             Stage stage = (Stage) homeButton.getScene().getWindow(); // Get the current stage
+            switch (fxmlFile) {
+                case "menu.fxml":
+                    MenuController menuController = loader.getController();
+                    menuController.getID(id);
+                    break;
+                case "cart.fxml":
+                    CartController cartController = loader.getController();
+                    cartController.getID(id);
+                    break;
+                case "settings.fxml":
+                    //SettingsController settingsController = loader.getController();
+                    //settingsController.getID(id);
+                    break;
+            }
             stage.setScene(scene);
             stage.setTitle(title);
             stage.show();
@@ -435,5 +445,10 @@ public class MessageController {
             System.err.println("Failed to load home.fxml: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    public void getID(String id) {
+        this.id = id;
+        System.out.println("ID: " + id);
     }
 }
