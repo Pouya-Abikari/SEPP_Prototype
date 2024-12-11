@@ -1,6 +1,7 @@
 package se_prototype.se_prototype.Model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class UserCart {
@@ -32,20 +33,42 @@ public class UserCart {
     }
 
     public static UserCart fromString(String data) {
+        if (data == null || data.trim().isEmpty()) {
+            throw new IllegalArgumentException("Invalid input: data is null or empty");
+        }
+
         String[] parts = data.split(";");
-        String userName = parts[0];
+        if (parts.length < 1) {
+            throw new IllegalArgumentException("Invalid format: " + data);
+        }
+
+        String email = parts[0].trim();
+        if (email.isEmpty()) {
+            throw new IllegalArgumentException("Invalid email in data: " + data);
+        }
+
         List<Product> cartItems = new ArrayList<>();
         for (int i = 1; i < parts.length; i++) {
-            String[] itemData = parts[i].split(",");
-            cartItems.add(new Product(
-                    itemData[0],
-                    itemData[1],
-                    Double.parseDouble(itemData[2]),
-                    itemData[3],
-                    Double.parseDouble(itemData[4]),
-                    Integer.parseInt(itemData[5])
-            ));
+            String[] itemParts = parts[i].split(",");
+            if (itemParts.length != 6) {
+                System.err.println("Skipping invalid product data: " + Arrays.toString(itemParts));
+                continue;
+            }
+
+            try {
+                String name = itemParts[0].trim();
+                String description = itemParts[1].trim();
+                double price = Double.parseDouble(itemParts[2].trim());
+                String imageUrl = itemParts[3].trim();
+                double discount = Double.parseDouble(itemParts[4].trim());
+                int quantity = Integer.parseInt(itemParts[5].trim());
+
+                cartItems.add(new Product(name, description, price, imageUrl, discount, quantity));
+            } catch (NumberFormatException e) {
+                System.err.println("Error parsing product data: " + Arrays.toString(itemParts) + " - " + e.getMessage());
+            }
         }
-        return new UserCart(userName, cartItems);
+
+        return new UserCart(email, cartItems);
     }
 }

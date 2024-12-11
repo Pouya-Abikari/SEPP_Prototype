@@ -41,6 +41,7 @@ public class LocationController {
     @FXML
     private Button saveAddressButton;
     private String previousPage;
+    private String id;
 
     @FXML
     public void initialize() {
@@ -226,5 +227,10 @@ public class LocationController {
             System.err.println("Failed to load " + fxmlFile + ": " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    public void getID(String id) {
+        this.id = id;
+        System.out.println("ID: " + id);
     }
 }

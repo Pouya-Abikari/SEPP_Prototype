@@ -344,13 +344,30 @@ public class MenuController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Scene scene = new Scene(loader.load(), 400, 711);
-            if ("location.fxml".equals(fxmlFile)) {
-                LocationController controller = loader.getController();
-                if (controller != null) {
-                    controller.setPreviousPage(previousPage);
-                }
-            }
             scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+            switch (fxmlFile) {
+                case "menu.fxml":
+                    MenuController menuController = loader.getController();
+                    menuController.getID(id);
+                    break;
+                case "cart.fxml":
+                    CartController cartController = loader.getController();
+                    cartController.getID(id);
+                    break;
+                case "settings.fxml":
+                    //SettingsController settingsController = loader.getController();
+                    //settingsController.getID(id);
+                    break;
+                case "category.fxml":
+                    CategoryController categoryController = loader.getController();
+                    categoryController.getID(id);
+                    break;
+                case "location.fxml":
+                    LocationController locationController = loader.getController();
+                    locationController.setPreviousPage(previousPage);
+                    locationController.getID(id);
+                    break;
+            }
             Stage stage = (Stage) homeButton.getScene().getWindow(); // Get the current stage
             stage.setScene(scene);
             stage.setTitle(title);
