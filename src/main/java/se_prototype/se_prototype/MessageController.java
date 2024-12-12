@@ -16,7 +16,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
@@ -198,7 +197,6 @@ public class MessageController {
         }
     }
 
-
     private void initializePredefinedReplies() {
         predefinedRepliesWithVariations = new HashMap<>();
         predefinedRepliesWithVariations.put("hi".toLowerCase(), Arrays.asList("Hi!", "Hello!", "Hey there!"));
@@ -206,7 +204,7 @@ public class MessageController {
         predefinedRepliesWithVariations.put("how are you".toLowerCase(), Arrays.asList("I'm good, thank you!", "Doing great!", "I'm fine, you?"));
         predefinedRepliesWithVariations.put("what is your name?".toLowerCase(), Arrays.asList("I'm Cassie", "Your house mate here!", "Josh!"));
         predefinedRepliesWithVariations.put("bye".toLowerCase(), Arrays.asList("Goodbye! Have a nice day!", "See you later!", "Take care!"));
-        predefinedRepliesWithVariations.put("should we start a shared group order?".toLowerCase(), Arrays.asList("Yes!", "For sure, lets do it!", "I will join", "Yes! Send the link."));
+        predefinedRepliesWithVariations.put("should we start a shared group order?".toLowerCase(), Arrays.asList("Yes!", "For sure, lets do it!", "I will join", "Yes! go to Group Order page and start it!"));
     }
 
     private void sendMessage() {
@@ -244,7 +242,7 @@ public class MessageController {
                 new Thread(() -> {
                     try {
                         Thread.sleep(1000 + (numberOfResponders * 500)); // Wait for all replies
-                        Platform.runLater(() -> addClickableMessage("Click here to start group", "StartGroupOrderController", "start_group_order.fxml"));
+                        Platform.runLater(() -> addClickableMessage());
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -256,7 +254,7 @@ public class MessageController {
         }
     }
 
-    private void addClickableMessage(String message, String controller, String fxmlFile) {
+    private void addClickableMessage() {
         // Create a container for the message and name
         VBox messageContainer = new VBox();
         messageContainer.setSpacing(0); // Space between message bubble and name
@@ -269,7 +267,7 @@ public class MessageController {
         // Text with a clickable hyperlink
         Text clickText = new Text("Click here");
         clickText.setStyle("-fx-font-size: 14; -fx-underline: true; -fx-text-fill: white;"); // Underlined green text
-        clickText.setOnMouseClicked(event -> switchToPage(fxmlFile, "Start Group Order"));
+        clickText.setOnMouseClicked(event -> switchToPage("cart.fxml", "Cart"));
 
         Text plainText = new Text(" to start group");
         plainText.setStyle("-fx-font-size: 14;");
@@ -409,6 +407,7 @@ public class MessageController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Scene scene = new Scene(loader.load());
             Stage stage = (Stage) homeButton.getScene().getWindow(); // Get the current stage
+            scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
             switch (fxmlFile) {
                 case "menu.fxml":
                     MenuController menuController = loader.getController();
@@ -417,10 +416,11 @@ public class MessageController {
                 case "cart.fxml":
                     CartController cartController = loader.getController();
                     cartController.getID(id);
+                    cartController.initialize();
                     break;
                 case "settings.fxml":
-                    //SettingsController settingsController = loader.getController();
-                    //settingsController.getID(id);
+                    SettingsController settingsController = loader.getController();
+                    settingsController.getID(id);
                     break;
             }
             stage.setScene(scene);

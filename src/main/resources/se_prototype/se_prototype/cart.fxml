@@ -377,6 +377,9 @@
                                    style="-fx-font-size: 12px; -fx-text-fill: #B0B0B0; -fx-padding: 5 0 0 0;" wrapText="true"/>
                         </VBox>
 
+                        <CheckBox fx:id="buyAfterTimeout" text="By proceeding, you agree to the Terms and Conditions"
+                                  style="-fx-font-size: 12px; -fx-text-fill: #757575; -fx-padding: 5 0 0 0;" wrapText="true" />
+
                         <Label text="By proceeding, you agree to the Terms and Conditions:
 1. Prices are subject to change based on item availability.
 2. The final amount will be deducted only after the order is confirmed.

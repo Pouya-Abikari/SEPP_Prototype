@@ -34,6 +34,8 @@ import se_prototype.se_prototype.Model.UserCart;
 public class CartController {
 
     @FXML
+    private CheckBox buyAfterTimeout;
+    @FXML
     private ScrollPane group_cart_choose;
     @FXML
     private Label subtotalLabel;
@@ -139,7 +141,7 @@ public class CartController {
     private ImageView itemsIcon;
 
     private boolean isSoloCart = true;
-    private long timeRemaining = 3600; // 1 hour in seconds
+    private long timeRemaining = 3600; // 1 hour in seconds (3600)
     private final String CART_FILE = "src/main/resources/cart.txt";
     private final List<UserCart> userCarts = new ArrayList<>();
     private final String saveFile = "src/main/resources/group_cart_users.txt";
@@ -151,14 +153,11 @@ public class CartController {
     private static int totalUsers;
     private String id;
     private static final String TIMER_FILE = "src/main/resources/timer_state.txt";
-    private static final String HEARTBEAT_DIR = "src/main/resources/heartbeats/";
-    private static final int HEARTBEAT_TIMEOUT = 10; // seconds
-    private static final String INSTANCE_ID = UUID.randomUUID().toString();
 
     @FXML
     public void initialize() {
         if (!isInitialized) {
-            //clearAppFilesOnInitialization(); // Clear files only once at the start of the app
+            //clearAppFileOnInitialization(); // Clear files only once at the start of the app
             int additionalUsers = new Random().nextInt(5) + 1; // 1-9 range
             totalUsers = 1 + additionalUsers; // 1 logged-in user + additional random users
             System.out.println("Total users (including logged-in user): " + totalUsers);
@@ -205,10 +204,6 @@ public class CartController {
         loadGroupCart();
         updateDeliverySummary();
 
-        // Set up the timer for the group cart
-        createHeartbeatFile();
-        startTimerSync();
-
         paymentMethodComboBox.getSelectionModel().selectedItemProperty().addListener((options, oldValue, newValue) -> {
             if (newValue != null && (newValue.equals("Cash") || newValue.equals("Card"))) {
                 solo_order_button.setDisable(false);
@@ -237,92 +232,6 @@ public class CartController {
         itemsIcon.setImage(new Image(getClass().getResourceAsStream("/icons/items.png")));
         startGroupOrderButton.setOnAction(event -> handleCreateGroupCart());
         joinGroupOrderButton.setOnAction(event -> handleJoinGroupCart());
-    }
-
-    private void createHeartbeatFile() {
-        File dir = new File(HEARTBEAT_DIR);
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-
-        ScheduledExecutorService heartbeatService = Executors.newSingleThreadScheduledExecutor();
-        heartbeatService.scheduleAtFixedRate(() -> {
-            File heartbeatFile = new File(HEARTBEAT_DIR + INSTANCE_ID + ".txt");
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(heartbeatFile))) {
-                writer.write(String.valueOf(System.currentTimeMillis() / 1000)); // Write current time in seconds
-            } catch (IOException e) {
-                System.err.println("Error writing heartbeat: " + e.getMessage());
-            }
-        }, 0, 5, TimeUnit.SECONDS); // Update every 5 seconds
-    }
-
-    private void startTimerSync() {
-        ScheduledExecutorService timerSyncService = Executors.newSingleThreadScheduledExecutor();
-        timerSyncService.scheduleAtFixedRate(() -> {
-            File timerFile = new File(TIMER_FILE);
-            try {
-                if (!timerFile.exists()) {
-                    // Initialize timer file with default values
-                    synchronized (CartController.class) {
-                        try (BufferedWriter writer = new BufferedWriter(new FileWriter(timerFile))) {
-                            writer.write("3600," + INSTANCE_ID); // Default timer: 3600 seconds, owner: current instance
-                        }
-                    }
-                }
-
-                synchronized (CartController.class) {
-                    // Read the current timer state
-                    try (BufferedReader reader = new BufferedReader(new FileReader(timerFile))) {
-                        String[] data = reader.readLine().split(",");
-                        long timeRemaining = Long.parseLong(data[0]);
-                        String ownerInstanceId = data[1];
-
-                        // Check if the owner is still active
-                        if (!isInstanceActive(ownerInstanceId)) {
-                            // Take over as the new owner
-                            ownerInstanceId = INSTANCE_ID;
-                            System.out.println("Taking over timer ownership");
-                        }
-
-                        // Update timer and write back if this instance is the owner
-                        if (ownerInstanceId.equals(INSTANCE_ID)) {
-                            if (timeRemaining > 0) {
-                                timeRemaining--;
-                            } else {
-                                System.out.println("Timer expired");
-                            }
-
-                            // Write updated timer state back to the file
-                            try (BufferedWriter writer = new BufferedWriter(new FileWriter(timerFile))) {
-                                writer.write(timeRemaining + "," + ownerInstanceId);
-                            }
-                        }
-
-                        // Update the UI with the latest time remaining
-                        long finalTimeRemaining = timeRemaining;
-                        Platform.runLater(() -> updateTimerLabel(finalTimeRemaining));
-                    }
-                }
-            } catch (IOException e) {
-                System.err.println("Error syncing timer: " + e.getMessage());
-            }
-        }, 0, 1, TimeUnit.SECONDS); // Sync every second
-    }
-
-    private boolean isInstanceActive(String instanceId) {
-        File heartbeatFile = new File(HEARTBEAT_DIR + instanceId + ".txt");
-        if (!heartbeatFile.exists()) {
-            return false; // Heartbeat file doesn't exist
-        }
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(heartbeatFile))) {
-            long lastHeartbeat = Long.parseLong(reader.readLine());
-            long currentTime = System.currentTimeMillis() / 1000;
-            return (currentTime - lastHeartbeat) <= HEARTBEAT_TIMEOUT; // Check if heartbeat is within timeout
-        } catch (IOException | NumberFormatException e) {
-            System.err.println("Error reading heartbeat file: " + e.getMessage());
-            return false;
-        }
     }
 
     private void updateTimerLabel(long timeRemaining) {
@@ -358,6 +267,11 @@ public class CartController {
                         System.out.println("Detected changes in users.txt. Reloading user data...");
                         loadUserData();
                         updateGroupCartUI();
+
+                        // Check if all users are removed from the group cart
+                        if (areAllUsersRemovedFromGroupCart()) {
+                            handleHostLeftNotification(); // Redirect to solo cart
+                        }
                     });
                 }
 
@@ -374,6 +288,32 @@ public class CartController {
         watcherThread.start();
     }
 
+    private boolean areAllUsersRemovedFromGroupCart() {
+        String usersFilePath = "src/main/resources/users.txt";
+        try (BufferedReader reader = new BufferedReader(new FileReader(usersFilePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                List<String> parts = parseCSVLine(line);
+                if (parts.size() >= 8) {
+                    int inGroupCart = Integer.parseInt(parts.get(6).trim());
+                    if (inGroupCart == 1) {
+                        return false; // At least one user is still in the group cart
+                    }
+                }
+            }
+        } catch (IOException | NumberFormatException e) {
+            System.err.println("Error reading users.txt: " + e.getMessage());
+        }
+        return true; // All users are removed
+    }
+
+    private void handleHostLeftNotification() {
+        showErrorDialog("Host Left", "The host has closed the group cart. Returning to solo cart.");
+
+        // Redirect to solo cart page
+        switchToPage("cart.fxml", "Cart");
+    }
+
     private void showGroupCart() {
         // Show the group_cart screen
         Platform.runLater(() -> {
@@ -384,9 +324,39 @@ public class CartController {
         });
     }
 
+    private void saveTimerState(long timeRemaining) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(TIMER_STATE_FILE))) {
+            writer.write(String.valueOf(timeRemaining));
+        } catch (IOException e) {
+            System.err.println("Error saving timer state: " + e.getMessage());
+        }
+    }
+
+    private long loadTimerStateFromFile() {
+        File file = new File(TIMER_STATE_FILE);
+        if (!file.exists()) return 3600; // Default to 1 hour if the file doesn't exist
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line = reader.readLine();
+            return line != null ? Long.parseLong(line) : 3600;
+        } catch (IOException | NumberFormatException e) {
+            System.err.println("Error loading timer state, defaulting to 1 hour: " + e.getMessage());
+            return 3600;
+        }
+    }
+
     private void createNewGroupCart() {
         clearFile(saveFile); // Clear any existing group cart data
         overrideYouCart();   // Add "You" as the first user in the group cart
+        if (Objects.equals(id, "test_timer@example.com")) {
+            //timer for 2 minutes
+            timeRemaining = 120; // 2 minutes in seconds
+        } else {
+            timeRemaining = 3600; // 1 hour in seconds
+        }
+        saveTimerState(timeRemaining); // Save the timer state
+        startGroupCartTimer(); // Start the timer
+        System.out.println("New group cart created. Timer reset to 1 hour.");
 
         String usersFilePath = "src/main/resources/users.txt";
         List<String> updatedLines = new ArrayList<>();
@@ -475,8 +445,6 @@ public class CartController {
             productScrollPane.setVisible(false);
             productScrollPane.setManaged(false);
 
-            // Ensure the timer starts for the new group cart
-            startGroupCartTimer();
             group_cart.setVvalue(0); // Reset scroll position for group cart view
         });
     }
@@ -538,6 +506,9 @@ public class CartController {
             // Load the group cart UI
             loadGroupCart();
             showGroupCart();
+            // timer
+            timeRemaining = loadTimerStateFromFile();
+            startGroupCartTimer();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -622,8 +593,13 @@ public class CartController {
         double yourTotalCost = 0;
         int noOfUsersInCart = 0;
 
+        // Filter users in group cart (currentOrderID == 1)
+        List<UserCart> groupCartUsers = userCarts.stream()
+                .filter(userCart -> hasActiveOrder(userCart.getEmail())) // Only users in active group cart
+                .toList();
+
         // Calculate totals from all user carts
-        for (UserCart userCart : userCarts) {
+        for (UserCart userCart : groupCartUsers) {
             if (userCart.getCartItems() != null && !userCart.getCartItems().isEmpty()) {
                 for (Product item : userCart.getCartItems()) {
                     int quantity = item.getQuantity();
@@ -1011,6 +987,7 @@ public class CartController {
                                 group_cart_choose.setManaged(false);
                                 productScrollPane.setVisible(true);
                                 productScrollPane.setManaged(true);
+                                stopGroupCartTimer();
                             } else {
                                 // Group Cart View
                                 updateLoggedInUserCartInGroup();
@@ -1027,9 +1004,13 @@ public class CartController {
                                     group_cart_choose.setManaged(false);
                                     productScrollPane.setVisible(false);
                                     productScrollPane.setManaged(false);
-                                    startGroupCartTimer(); // Start the timer for group mode
                                     group_cart.setVvalue(0);
                                     screen.requestFocus();
+                                    // Resume the existing timer
+                                    timeRemaining = loadTimerStateFromFile();
+                                    if (!isGroupCartTimerRunning) {
+                                        startGroupCartTimer(); // Start or resume the timer
+                                    }
                                 } else {
                                     // Show the choice to join or create a group order
                                     group_cart_choose.setVisible(true);
@@ -1069,8 +1050,9 @@ public class CartController {
     }
 
     private void startGroupCartTimer() {
-        if (isGroupCartTimerRunning) {
-            return; // Timer is already running
+        stopGroupCartTimer(); // Stop any existing timer
+        if (!isGroupCartTimerRunning) {
+            timeRemaining = loadTimerStateFromFile(); // Load saved time
         }
 
         isGroupCartTimerRunning = true;
@@ -1078,18 +1060,65 @@ public class CartController {
 
         timerService.scheduleAtFixedRate(() -> {
             timeRemaining--;
+            saveTimerState(timeRemaining); // Save updated timer value
+
+            Platform.runLater(() -> updateTimerLabel(timeRemaining));
 
             if (timeRemaining <= 0) {
                 Platform.runLater(() -> {
-                    // Handle timer completion (e.g., show a dialog or disable features)
-                    System.out.println("Timer completed. Group cart session expired.");
-                    stopGroupCartTimer(); // Stop the timer once expired
+                    stopGroupCartTimer();
+                    notifyGroupCartExpiration();
                 });
-            } else {
-                updateTimerLabel();
             }
-
         }, 0, 1, TimeUnit.SECONDS);
+    }
+
+    private void stopGroupCartTimer() {
+        if (timerService != null && !timerService.isShutdown()) {
+            timerService.shutdown();
+            saveTimerState(timeRemaining); // Save the current timer value when stopping
+            isGroupCartTimerRunning = false;
+        }
+    }
+
+    private void notifyGroupCartExpiration() {
+        showErrorDialog("Session Expired", "The group cart session has expired.");
+        handleHostLeaving(); // End the session for all users
+    }
+
+    private void handleHostLeaving() {
+        // Update `users.txt` to set all users' `in_group_cart` to 0
+        String usersFilePath = "src/main/resources/users.txt";
+        List<String> updatedLines = new ArrayList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(usersFilePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                List<String> parts = parseCSVLine(line);
+                if (parts.size() >= 8) {
+                    parts.set(6, "0"); // Set `in_group_cart` to 0
+                    updatedLines.add(formatCSVLine(parts));
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading users.txt: " + e.getMessage());
+            return;
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(usersFilePath))) {
+            for (String updatedLine : updatedLines) {
+                writer.write(updatedLine);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            System.err.println("Error updating users.txt: " + e.getMessage());
+        }
+
+        // Notify users and redirect them to the solo cart page
+        Platform.runLater(() -> {
+            showErrorDialog("Host Left", "The host has closed the group cart. Returning to solo cart.");
+            switchToPage("cart.fxml", "Solo Cart");
+        });
     }
 
     private void updateTimerLabel() {
@@ -1098,13 +1127,6 @@ public class CartController {
         String timeText = String.format("Time Remaining: %02d:%02d", minutes, seconds);
 
         Platform.runLater(() -> timerLabel.setText(timeText)); // Ensure UI updates on the JavaFX thread
-    }
-
-    private void stopGroupCartTimer() {
-        if (timerService != null) {
-            timerService.shutdown();
-            isGroupCartTimerRunning = false;
-        }
     }
 
     private void loadTimerState() {
@@ -1849,11 +1871,10 @@ public class CartController {
         }
     }
 
-    private void clearAppFilesOnInitialization() {
+    private void clearAppFileOnInitialization() {
         // List of files to clear on app initialization
         String[] filesToClear = {
-                "src/main/resources/cart.txt",
-                "src/main/resources/group_cart_users.txt"
+                "src/main/resources/cart.txt"
         };
 
         for (String file : filesToClear) {
