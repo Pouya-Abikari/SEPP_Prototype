@@ -52,19 +52,21 @@ public class LocationController {
         getAddresses().forEach(address -> addAddressNode(address[0], address[1]));
 
         backButton.setOnAction(event -> {
-            if ("Cart".equals(previousPage)) {
-                switchToPage("cart.fxml", "Cart");
-            } else if ("Menu".equals(previousPage)) {
-                switchToPage("menu.fxml", "Menu");
+            if ("cart.fxml".equals(previousPage)) {
+                switchToPage(previousPage, "Cart");
+            } else if ("menu.fxml".equals(previousPage)) {
+                switchToPage(previousPage, "Menu");
+            } else if ("settings.fxml".equals(previousPage)) {
+                switchToPage(previousPage, "Settings");
             } else {
                 System.err.println("Previous page not set!");
             }
         });
-        //addAddressButton.setOnAction(event -> toggleAddressForm());
         addAddressButton.setOnAction(event -> showAddAddressForm());
         saveAddressButton.setOnAction(event -> saveAddress());
     }
     public void setPreviousPage(String previousPage) {
+
         this.previousPage = previousPage;
     }
 

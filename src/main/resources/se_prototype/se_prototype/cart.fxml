@@ -390,26 +390,6 @@
                 </ScrollPane>
 
                 <ScrollPane styleClass="custom-scroll-pane" fx:id="group_cart_choose" visible="false" managed="false" prefHeight="711" prefWidth="375">
-<!--                    <VBox spacing="15" alignment="CENTER" style="-fx-padding: 10;" visible="false" managed="false" fx:id="group_cart_choice">
-                        <ImageView fx:id="group_order_start_pic" fitWidth="250" fitHeight="250" preserveRatio="true"/>
-                        &lt;!&ndash; Place Solo Order Button &ndash;&gt;
-                        <Button text="Start Group Order" prefWidth="350" fx:id="start_group_order_button" alignment="CENTER"
-                                style="-fx-background-color: #FFC107;
-                   -fx-font-size: 16px;
-                   -fx-text-fill: white;
-                   -fx-font-weight: bold;
-                   -fx-background-radius: 12;
-                   -fx-padding: 15;"/>
-
-                        &lt;!&ndash; Join Group Order Button with Gradient &ndash;&gt;
-                        <Button text="Join Group Order" prefWidth="350" fx:id="join_group_order_button" alignment="CENTER"
-                                style="-fx-font-size: 16px;
-                   -fx-font-weight: bold;
-                   -fx-text-fill: white;
-                   -fx-padding: 15;
-                   -fx-background-radius: 12;
-                   -fx-background-color: linear-gradient(to right, #5EC401, #FFC107);"/>
-                    </VBox>-->
                     <VBox spacing="15" alignment="CENTER" style="-fx-padding: 10;" prefWidth="395" prefHeight="500">
                         <!-- Content -->
                         <VBox spacing="20" style="-fx-padding: 25; -fx-font-family: Arial">

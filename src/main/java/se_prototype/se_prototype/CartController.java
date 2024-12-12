@@ -22,6 +22,8 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -172,6 +174,8 @@ public class CartController {
             productScrollPane.setManaged(false);
             toggleSwitch.setVisible(false);
             toggleSwitch.setManaged(false);
+            group_cart.setVisible(false);
+            group_cart.setManaged(false);
 
             return; // Exit early to avoid errors
         }
@@ -182,7 +186,7 @@ public class CartController {
         payment_icon_and_method();
         loadAllProducts();
         //loadLoggedInUserCart(id);
-        watchCartFile();
+        watchFiles();
         loadUserData();
         //startRandomUserUpdate();
         loadCartFromFile();
@@ -328,20 +332,39 @@ public class CartController {
         timerLabel.setText(timeText); // Update the timer label
     }
 
-    private void watchCartFile() {
-        Thread watcherThread = new Thread(() -> {
-            File cartFile = new File(CART_FILE);
-            long lastModified = cartFile.lastModified();
+    private void watchFiles() {
+        File cartFile = new File(CART_FILE);
+        File usersFile = new File("src/main/resources/users.txt");
+        AtomicLong cartFileLastModified = new AtomicLong(cartFile.lastModified());
+        AtomicLong usersFileLastModified = new AtomicLong(usersFile.lastModified());
 
+        Thread watcherThread = new Thread(() -> {
             while (true) {
-                if (cartFile.lastModified() > lastModified) {
-                    lastModified = cartFile.lastModified();
-                    Platform.runLater(this::loadGroupCart); // Update the group cart on the UI thread
+                boolean cartFileChanged = cartFile.lastModified() > cartFileLastModified.get();
+                boolean usersFileChanged = usersFile.lastModified() > usersFileLastModified.get();
+
+                if (cartFileChanged) {
+                    cartFileLastModified.set(cartFile.lastModified());
+                    Platform.runLater(() -> {
+                        System.out.println("Detected changes in cart.txt. Reloading group cart...");
+                        loadGroupCart();
+                        updateGroupCartUI();
+                    });
                 }
+
+                if (usersFileChanged) {
+                    usersFileLastModified.set(usersFile.lastModified());
+                    Platform.runLater(() -> {
+                        System.out.println("Detected changes in users.txt. Reloading user data...");
+                        loadUserData();
+                        updateGroupCartUI();
+                    });
+                }
+
                 try {
-                    Thread.sleep(1000); // Check every second
+                    Thread.sleep(1000); // Poll every second
                 } catch (InterruptedException e) {
-                    System.err.println("Cart file watcher interrupted: " + e.getMessage());
+                    System.err.println("File watcher interrupted: " + e.getMessage());
                     break;
                 }
             }
@@ -764,7 +787,7 @@ public class CartController {
         groupUsersContainer.getChildren().clear();
 
         // Filter users based on criteria: non-empty cart and currentOrderID == 1
-        List<UserCart> validUserCarts = userCarts.stream()
+        List<UserCart> validUserCarts = new ArrayList<>(userCarts.stream()
                 .filter(userCart -> {
                     // Check if user cart is non-empty
                     boolean hasItems = userCart.getCartItems() != null && !userCart.getCartItems().isEmpty();
@@ -774,7 +797,14 @@ public class CartController {
 
                     return hasItems && hasActiveOrder;
                 })
-                .toList();
+                .toList());
+
+        // Reorder the list so the logged-in user appears first
+        validUserCarts.sort((cart1, cart2) -> {
+            if (cart1.getEmail().equals(id)) return -1; // Logged-in user comes first
+            if (cart2.getEmail().equals(id)) return 1;
+            return 0;
+        });
 
         for (UserCart userCart : validUserCarts) {
             if (userCart == null || userCart.getEmail() == null || userCart.getCartItems().isEmpty()) {
@@ -1945,6 +1975,7 @@ public class CartController {
                 case "location.fxml":
                     LocationController locationController = loader.getController();
                     locationController.getID(id);
+                    locationController.setPreviousPage("cart.fxml");
                     break;
             }
             Stage stage = (Stage) homeButton.getScene().getWindow(); // Get the current stage

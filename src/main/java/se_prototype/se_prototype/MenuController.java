@@ -73,9 +73,9 @@ public class MenuController {
         setupImages();
 
         homeButton.setOnAction(event -> switchToPage("home_screen.fxml", "Home" , null));
-        menuButton.setOnAction(event -> switchToPage("menu.fxml", "Menu", null));
-        settingsButton.setOnAction(event -> switchToPage("settings.fxml", "Settings", null));
-        cartButton.setOnAction(event -> switchToPage("cart.fxml", "Cart", null));
+        menuButton.setOnAction(event -> switchToPage("menu.fxml", "Menu", "menu.fxml"));
+        settingsButton.setOnAction(event -> switchToPage("settings.fxml", "Settings", "settings.fxml"));
+        cartButton.setOnAction(event -> switchToPage("cart.fxml", "Cart", "cart.fxml"));
         searchField.textProperty().addListener((observable, oldValue, newValue) -> filterProducts(newValue));
 
     }
@@ -348,7 +348,6 @@ public class MenuController {
         }
     }
 
-
     private void setupImages() {
         try {
             // home page button
@@ -445,7 +444,7 @@ public class MenuController {
 
     @FXML
     private void onLocationBoxClick(MouseEvent event) {
-        switchToPage("location.fxml", "Location", "Menu");    }
+        switchToPage("location.fxml", "Location", "menu.fxml");    }
 
     private void navigateToCategory(String categoryName) {
         try {

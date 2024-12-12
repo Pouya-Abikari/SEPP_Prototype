@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class SettingsController implements Initializable {
+public class SettingsController {
 
     @FXML
     private ImageView profileImage;
@@ -93,8 +93,7 @@ public class SettingsController implements Initializable {
     private ImageView logOutIcon;
     private String id;
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
+    public void initialize() {
         loadProfileImage();
         setUserName("MrBlueWorking");
         setPhoneNumber("0503503349");
@@ -195,29 +194,7 @@ public class SettingsController implements Initializable {
 
     @FXML
     private void handleMyAddress() {
-        System.out.println("My Address clicked");
-        // Switch to location page and set previousPage = "Settings"
-        switchToLocationPage("location.fxml", "My Addresses", "Settings");
-    }
-
-    private void switchToLocationPage(String fxmlFile, String title, String previousPage) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
-            Scene scene = new Scene(loader.load(), 400, 711);
-            scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
-
-            // After loading, get the LocationController and set the previous page
-            LocationController locationController = loader.getController();
-            locationController.setPreviousPage(previousPage);
-
-            Stage stage = (Stage) homeButton.getScene().getWindow();
-            stage.setScene(scene);
-            stage.setTitle(title);
-            stage.show();
-        } catch (IOException e) {
-            System.err.println("Failed to load " + fxmlFile + ": " + e.getMessage());
-            e.printStackTrace();
-        }
+        switchToPage("location.fxml", "My Address");
     }
 
     @FXML
@@ -388,6 +365,11 @@ public class SettingsController implements Initializable {
                     CartController cartController = loader.getController();
                     cartController.getID(id);
                     cartController.initialize();
+                    break;
+                case "location.fxml":
+                    LocationController locationController = loader.getController();
+                    locationController.getID(id);
+                    locationController.setPreviousPage("settings.fxml");
                     break;
             }
             Stage stage = (Stage) homeButton.getScene().getWindow();
