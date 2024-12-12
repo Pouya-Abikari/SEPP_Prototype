@@ -28,15 +28,6 @@
                 <Button fx:id="cartButton" onMouseClicked="#goToCart"
                         style="-fx-pref-width: 40; -fx-pref-height: 40; -fx-background-color: transparent; -fx-border-color: transparent"
                         alignment="CENTER_RIGHT"/>
-
-                <Label fx:id="cartItemCountLabel" onMouseClicked="#goToCart"
-                       text="0"
-                       style="-fx-background-color: #FF6B6B; -fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 2; -fx-border-radius: 50; -fx-background-radius: 50;"
-                       mouseTransparent="true">
-                    <StackPane.margin>
-                        <Insets top="5" right="5" bottom="5" left="5" />
-                    </StackPane.margin>
-                </Label>
             </StackPane>
         </HBox>
     </VBox>

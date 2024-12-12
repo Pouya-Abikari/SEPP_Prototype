@@ -141,7 +141,7 @@ public class CartController {
     private ImageView itemsIcon;
 
     private boolean isSoloCart = true;
-    private long timeRemaining = 3600; // 1 hour in seconds (3600)
+    private long timeRemaining; // 1 hour in seconds (3600)
     private final String CART_FILE = "src/main/resources/cart.txt";
     private final List<UserCart> userCarts = new ArrayList<>();
     private final String saveFile = "src/main/resources/group_cart_users.txt";
@@ -158,9 +158,13 @@ public class CartController {
     public void initialize() {
         if (!isInitialized) {
             //clearAppFileOnInitialization(); // Clear files only once at the start of the app
-            int additionalUsers = new Random().nextInt(5) + 1; // 1-9 range
-            totalUsers = 1 + additionalUsers; // 1 logged-in user + additional random users
-            System.out.println("Total users (including logged-in user): " + totalUsers);
+            if (Objects.equals(id, "test@example.com")) {
+                //timer for 2 minutes
+                timeRemaining = 60; // 1 minutes in seconds
+            } else {
+                timeRemaining = 3600; // 1 hour in seconds
+            }
+            saveTimerState(timeRemaining); // Save the timer state
             isInitialized = true; // Set the flag to true to prevent future runs
         }
 
@@ -267,11 +271,6 @@ public class CartController {
                         System.out.println("Detected changes in users.txt. Reloading user data...");
                         loadUserData();
                         updateGroupCartUI();
-
-                        // Check if all users are removed from the group cart
-                        if (areAllUsersRemovedFromGroupCart()) {
-                            handleHostLeftNotification(); // Redirect to solo cart
-                        }
                     });
                 }
 
@@ -286,32 +285,6 @@ public class CartController {
 
         watcherThread.setDaemon(true);
         watcherThread.start();
-    }
-
-    private boolean areAllUsersRemovedFromGroupCart() {
-        String usersFilePath = "src/main/resources/users.txt";
-        try (BufferedReader reader = new BufferedReader(new FileReader(usersFilePath))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                List<String> parts = parseCSVLine(line);
-                if (parts.size() >= 8) {
-                    int inGroupCart = Integer.parseInt(parts.get(6).trim());
-                    if (inGroupCart == 1) {
-                        return false; // At least one user is still in the group cart
-                    }
-                }
-            }
-        } catch (IOException | NumberFormatException e) {
-            System.err.println("Error reading users.txt: " + e.getMessage());
-        }
-        return true; // All users are removed
-    }
-
-    private void handleHostLeftNotification() {
-        showErrorDialog("Host Left", "The host has closed the group cart. Returning to solo cart.");
-
-        // Redirect to solo cart page
-        switchToPage("cart.fxml", "Cart");
     }
 
     private void showGroupCart() {
@@ -336,6 +309,7 @@ public class CartController {
         File file = new File(TIMER_STATE_FILE);
         if (!file.exists()) return 3600; // Default to 1 hour if the file doesn't exist
 
+        // Load the timer state from the file
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line = reader.readLine();
             return line != null ? Long.parseLong(line) : 3600;
@@ -348,9 +322,9 @@ public class CartController {
     private void createNewGroupCart() {
         clearFile(saveFile); // Clear any existing group cart data
         overrideYouCart();   // Add "You" as the first user in the group cart
-        if (Objects.equals(id, "test_timer@example.com")) {
+        if (Objects.equals(id, "test@example.com")) {
             //timer for 2 minutes
-            timeRemaining = 120; // 2 minutes in seconds
+            timeRemaining = 60; // 2 minutes in seconds
         } else {
             timeRemaining = 3600; // 1 hour in seconds
         }
@@ -1067,10 +1041,180 @@ public class CartController {
             if (timeRemaining <= 0) {
                 Platform.runLater(() -> {
                     stopGroupCartTimer();
-                    notifyGroupCartExpiration();
+
+                    if (buyAfterTimeout.isSelected()) {
+                        // Save order to `orders.txt`
+                        saveOrderToHistory();
+                        resetUserToSoloCart();
+                        deleteUserFromCartFile(id);
+
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("Purchase Confirmation");
+                        alert.setHeaderText(null);
+                        alert.setContentText("Time's up! Your order has been saved to history.");
+                        alert.showAndWait();
+
+                        System.out.println("Order saved to history as 'Buy After Timeout' is enabled.");
+                        switchToPage("cart.fxml", "Cart");
+                    } else {
+                        // Reset user to solo cart
+                        resetUserToSoloCart();
+
+                        Alert alert = new Alert(Alert.AlertType.WARNING);
+                        alert.setTitle("Session Expired");
+                        alert.setHeaderText(null);
+                        alert.setContentText("Time's up! You have been moved to the solo cart.");
+                        alert.showAndWait();
+
+                        System.out.println("User moved to solo cart as 'Buy After Timeout' is disabled.");
+                        switchToPage("cart.fxml", "Solo Cart");
+                    }
                 });
             }
         }, 0, 1, TimeUnit.SECONDS);
+    }
+
+    private void deleteUserFromCartFile(String id) {
+        String cartFilePath = "src/main/resources/cart.txt";
+        List<String> updatedLines = new ArrayList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(cartFilePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                List<String> parts = parseCSVLine(line);
+                if (parts.size() >= 2 && parts.get(0).equals(id)) {
+                    // Skip the line for the user to be removed
+                    continue;
+                }
+                updatedLines.add(line);
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading cart data: " + e.getMessage());
+        }
+
+        // Write the updated lines back to the file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(cartFilePath))) {
+            for (String updatedLine : updatedLines) {
+                writer.write(updatedLine);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            System.err.println("Error updating cart data: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Saves the current order to the `orders.txt` file.
+     */
+    private void saveOrderToHistory() {
+        String ordersFilePath = "src/main/resources/orders.txt";
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(ordersFilePath, true))) {
+            // Retrieve user cart items
+            List<String[]> cartItems = readCartFile(id);
+
+            if (cartItems.isEmpty()) {
+                System.out.println("No items in the cart to save.");
+                return;
+            }
+
+            // Format order details in the same structure as cart.txt
+            StringBuilder orderDetails = new StringBuilder();
+
+            // Add user ID
+            orderDetails.append(id).append(";");
+
+            for (String[] productData : cartItems) {
+                // Product format: Name, Description, Price, ImageUrl, Discount, Quantity
+                String formattedItem = String.join(",", productData);
+                orderDetails.append(formattedItem).append(";");
+            }
+
+            // Remove the trailing semicolon
+            if (orderDetails.charAt(orderDetails.length() - 1) == ';') {
+                orderDetails.setLength(orderDetails.length() - 1);
+            }
+
+            // Write the formatted order to the file
+            writer.write(orderDetails.toString());
+            writer.newLine();
+
+            System.out.println("Order saved to history file: " + ordersFilePath);
+        } catch (IOException e) {
+            System.err.println("Failed to save order to history: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Resets the user to the solo cart by updating `users.txt`.
+     */
+    private void resetUserToSoloCart() {
+        String usersFilePath = "src/main/resources/users.txt";
+        List<String> updatedLines = new ArrayList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(usersFilePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                List<String> parts = parseCSVLine(line);
+                if (parts.size() >= 8 && parts.get(1).equals(id)) { // Check if it's the logged-in user
+                    // Create a User object to modify the `log` and `currentOrderID`
+                    User user = new User(
+                            parts.get(0), // Name
+                            parts.get(1), // Email
+                            parts.get(2), // Password
+                            parts.get(3).replace("\"", "").split(";"), // Addresses
+                            parts.get(4).replace("\"", ""), // Current Address
+                            Arrays.stream(parts.get(5).replace("\"", "").split(";"))
+                                    .mapToInt(Integer::parseInt)
+                                    .toArray(), // Order IDs
+                            0, // Set `currentOrderID` to 0
+                            1 // Set `log` field to 0 (logged out)
+                    );
+
+                    updatedLines.add(formatUserLine(user)); // Use helper to format
+                } else {
+                    updatedLines.add(line); // Keep other users unchanged
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading user data: " + e.getMessage());
+        }
+
+        // Write the updated lines back to the file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(usersFilePath))) {
+            for (String updatedLine : updatedLines) {
+                writer.write(updatedLine);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            System.err.println("Error updating user data: " + e.getMessage());
+        }
+    }
+
+    private String formatUserLine(User user) {
+        StringBuilder userLine = new StringBuilder();
+
+        userLine.append(user.getName()).append(","); // Name
+        userLine.append(user.getEmail()).append(","); // Email
+        userLine.append(user.getPassword()).append(","); // Password
+
+        // Format addresses with quotes
+        userLine.append("\"").append(String.join(";", user.getAddresses())).append("\"").append(",");
+
+        // Format current address with quotes
+        userLine.append("\"").append(user.getCurrentAddress()).append("\"").append(",");
+
+        // Format order IDs with quotes
+        userLine.append("\"").append(Arrays.stream(user.getOrderIDs())
+                .mapToObj(String::valueOf)
+                .reduce((a, b) -> a + ";" + b)
+                .orElse("")).append("\"").append(",");
+
+        // Append current order ID and error case
+        userLine.append(user.getCurrentOrderID()).append(",");
+        userLine.append(user.getLog());
+
+        return userLine.toString();
     }
 
     private void stopGroupCartTimer() {
@@ -1530,7 +1674,6 @@ public class CartController {
     private void deleteUnusedProductFiles(Set<String> existingFiles) {
         File productDir = new File("src/main/resources/products"); // Adjust the directory path as needed
         if (!productDir.exists() || !productDir.isDirectory()) {
-            System.err.println("Product directory not found or invalid: " + productDir.getAbsolutePath());
             return;
         }
 
@@ -1780,8 +1923,6 @@ public class CartController {
             emptyCartImgView.setFitHeight(200);
             empty_cart.setImage(emptyCartImg);
 
-            // group_order_start_pic.setImage(new Image(getClass().getResourceAsStream("/group_cart_start.png")));
-
         } catch (Exception e) {
             System.err.println("Error loading images: " + e.getMessage());
             e.printStackTrace();
@@ -1997,6 +2138,11 @@ public class CartController {
                     LocationController locationController = loader.getController();
                     locationController.getID(id);
                     locationController.setPreviousPage("cart.fxml");
+                    break;
+                case "cart.fxml":
+                    CartController cartController = loader.getController();
+                    cartController.getID(id);
+                    cartController.initialize();
                     break;
             }
             Stage stage = (Stage) homeButton.getScene().getWindow(); // Get the current stage

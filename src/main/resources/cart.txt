@@ -1,2 +1,3 @@
-john.doe@example.com;Orange Juice,Fresh orange juice from Citrus Farms,2.5,orange_juice.png,40.0,2;Soda,Fizzy soda from Beverage Co.,1.5,soda.png,0.0,2;Pancakes,Fluffy pancakes served with maple syrup,5.0,pancake.png,30.0,2;
-jane.smith@example.com;Orange Juice,Fresh orange juice from Citrus Farms,2.5,orange_juice.png,40.0,2;Coffee,Rich coffee from Gourmet Roasters,3.0,coffee_beans.png,50.0,3;Milk,Fresh milk from Dairyland Supply,1.25,milk.png,0.0,2;
+john.doe@example.com;Orange Juice,Fresh orange juice from Citrus Farms,2.5,orange_juice.png,40.0,2;Soda,Fizzy soda from Beverage Co.,1.5,soda.png,0.0,2;Pancakes,Fluffy pancakes served with maple syrup,5.0,pancake.png,30.0,2;Milk,Fresh milk from Dairyland Supply,1.25,milk.png,0.0,3;
+jane.smith@example.com;Orange Juice,Fresh orange juice from Citrus Farms,2.5,orange_juice.png,40.0,2;Coffee,Rich coffee from Gourmet Roasters,3.0,coffee_beans.png,50.0,3;Milk,Fresh milk from Dairyland Supply,1.25,milk.png,0.0,1;
+test@example.com;Carrots,Sweet carrots from Fresh Farms,0.8,Fruits&Vegetables/carrots.png,0.0,2;Tomatoes,Fresh tomatoes from Fresh Farms,1.2,Fruits&Vegetables/tomatoes.png,20.0,2;

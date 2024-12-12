@@ -10,6 +10,7 @@ import javafx.stage.Stage;
 import se_prototype.se_prototype.Model.User;
 
 import java.io.*;
+import java.util.Arrays;
 
 public class SignupController {
 
@@ -40,6 +41,7 @@ public class SignupController {
     private boolean isPasswordVisible_2 = false;
 
     private final String USER_FILE = "src/main/resources/users.txt";
+    private final String DEFAULT_ADDRESS = "Myriad Student Accommodation, DIAC, Dubai, UAE";
 
     @FXML
     public void initialize() {
@@ -82,9 +84,17 @@ public class SignupController {
         }
         switchToSuccessPage();
         // Create a new user and save it to the file
-        User newUser = new User(name, email, password, null, null, null, 0, 0);
+        User newUser = new User(
+                name,
+                email,
+                password,
+                new String[]{DEFAULT_ADDRESS}, // Add default address
+                DEFAULT_ADDRESS,              // Set default address as current
+                new int[]{},                  // No orders initially
+                0,                            // Current order ID
+                0                             // Default log
+        );
         saveUserToFile(newUser);
-        saveCurrentUser(newUser);
     }
 
     private void setupPasswordToggle() {
@@ -144,8 +154,33 @@ public class SignupController {
         return false;
     }
 
-
     private void saveUserToFile(User user) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(USER_FILE, true))) {
+            String formattedAddresses = String.join(";", user.getAddresses());
+            String currentAddress = user.getCurrentAddress();
+            String formattedOrderIDs = user.getOrderID().length > 0
+                    ? String.join(";", intArrayToStringArray(user.getOrderID()))
+                    : "201;202;203"; // Use placeholder if no orders exist
+
+            String userString = String.format(
+                    "%s,%s,%s,\"%s\",\"%s\",\"%s\",%d,%d",
+                    user.getName(),
+                    user.getEmail(),
+                    user.getPassword(),
+                    formattedAddresses,
+                    currentAddress,
+                    formattedOrderIDs,
+                    user.getCurrentOrderID(),
+                    user.getLog()
+            );
+
+            writer.write(userString);
+            writer.newLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Failed to save user.");
+        }
+        /*
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(USER_FILE, true))) {
             // Ensure that addresses and order IDs are properly formatted as empty arrays if not present
             String formattedAddresses = (user.getAddresses() != null && user.getAddresses().length > 0)
@@ -179,33 +214,23 @@ public class SignupController {
             e.printStackTrace();
             showError("Failed to save user.");
         }
-    }
 
-    private void saveCurrentUser(User user) {
-        String CURRENT_USER_FILE = "src/main/resources/current_user.txt";
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(CURRENT_USER_FILE, false))) {
-            String userString = user.getName() + "," +
-                    user.getEmail() + "," +
-                    user.getPassword() + "," +
-                    "[\"" + String.join(";", user.getAddresses()) + "\"]," +
-                    "\"" + user.getCurrentAddress() + "\"," +
-                    "[" + String.join(",", intArrayToStringArray(user.getOrderID())) + "]," +
-                    user.getCurrentOrderID() + "," +
-                    user.getLog();
-            writer.write(userString);
-        } catch (IOException e) {
-            e.printStackTrace();
-            showError("Failed to save current user.");
-        }
+         */
     }
 
 
     private String[] intArrayToStringArray(int[] array) {
+        return Arrays.stream(array)
+                .mapToObj(String::valueOf)
+                .toArray(String[]::new);
+        /*
         String[] result = new String[array.length];
         for (int i = 0; i < array.length; i++) {
             result[i] = String.valueOf(array[i]);
         }
         return result;
+
+         */
     }
 
     @FXML

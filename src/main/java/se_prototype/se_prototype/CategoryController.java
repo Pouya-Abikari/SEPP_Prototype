@@ -35,9 +35,6 @@ public class  CategoryController {
     @FXML
     private Button cartButton;
 
-    @FXML
-    private Label cartItemCountLabel;
-
     private final String CART_FILE = "src/main/resources/cart.txt";
 
     private int cartItemCount = 0;
@@ -48,7 +45,6 @@ public class  CategoryController {
         this.menuController = menuController;
         categoryTitle.setText(categoryName);
         cartItemCount = 0; // Reset count
-        initializeCartCount(); // Re-initialize cart count
         productGrid.getChildren().clear(); // Clear previous products
 
         setup_Images();
@@ -65,45 +61,6 @@ public class  CategoryController {
             }
         }
     }
-
-
-    private void initializeCartCount() {
-        List<String[]> cartItems = readCartFile();
-        cartItemCount = cartItems.stream()
-                .filter(cartItem -> cartItem.length > 1 && !cartItem[1].isEmpty()) // Ensure items exist
-                .mapToInt(cartItem -> {
-                    return List.of(cartItem[1].split(";")).stream()
-                            .filter(item -> !item.isEmpty())
-                            .mapToInt(item -> {
-                                String[] details = item.split(",");
-                                if (details.length > 5) {
-                                    return Integer.parseInt(details[5]); // Quantity
-                                }
-                                return 0; // Default to 0 if data is invalid
-                            }).sum();
-                }).sum();
-        cartItemCountLabel.setText(String.valueOf(cartItemCount)); // Set the label to show count
-    }
-
-
-    private void updateCartCount() {
-        List<String[]> cartItems = readCartFile();
-        cartItemCount = cartItems.stream()
-                .mapToInt(cartItem -> {
-                    if (cartItem.length > 1 && !cartItem[1].isEmpty()) {
-                        // Sum up quantities from the items part
-                        return (int) List.of(cartItem[1].split(";")).stream()
-                                .filter(item -> !item.isEmpty())
-                                .mapToInt(item -> {
-                                    String[] details = item.split(",");
-                                    return Integer.parseInt(details[5]); // Quantity
-                                }).sum();
-                    }
-                    return 0; // No items for this user
-                }).sum();
-        cartItemCountLabel.setText(String.valueOf(cartItemCount));
-    }
-
 
     @FXML
     private void goToCart() {
@@ -241,7 +198,6 @@ public class  CategoryController {
         writeCartFile(cartData);
 
         // Update the cart count and log the action
-        updateCartCount();
         System.out.println("Added to cart: " + product.getName());
     }
 

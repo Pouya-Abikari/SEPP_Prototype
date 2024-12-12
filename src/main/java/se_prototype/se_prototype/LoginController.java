@@ -1,6 +1,5 @@
 package se_prototype.se_prototype;
 
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -9,7 +8,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import se_prototype.se_prototype.Model.User;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,15 +43,11 @@ public class LoginController {
         errorLabel.setVisible(false); // Hide the error label initially
         loginButton.setOnAction(event -> handleLogin());
 
-        // Add a listener to handle window close event
-        Platform.runLater(() -> {
-            Stage stage = (Stage) loginButton.getScene().getWindow();
-            stage.setOnCloseRequest(event -> {
-                System.out.println("Window is closing. Cleaning up resources...");
-                resetCurrentOrderID(); // Reset the current order ID for this user
-                terminateCurrentProcess(); // Terminate only the current process
-            });
-        });
+        //on close, change the user's currentOrderID to 0
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            resetCurrentOrderID();
+            System.out.println("Application closed. User's currentOrderID reset to 0.");
+        }));
     }
 
     private void setupLogo() {
@@ -142,24 +136,25 @@ public class LoginController {
         // Parse order IDs
         int[] orderIDs = parseOrderIDs(data[5]);
 
-        // Parse current order ID and error case
-        int currentOrderID = Integer.parseInt(data[6].trim());
-        int errorCase = Integer.parseInt(data[7].trim());
+        int currentOrderID = data[6].equals("#") ? 0 : Integer.parseInt(data[6].trim());
+        int logStatus = data[7].equals("#") ? 0 : Integer.parseInt(data[7].trim());
 
-        return new User(name, email, password, addresses, currentAddress, orderIDs, currentOrderID, errorCase);
+        return new User(name, email, password, addresses, currentAddress, orderIDs, currentOrderID, logStatus);
     }
 
     private int[] parseOrderIDs(String orderIDsField) {
-        // Remove quotes and brackets
+        if (orderIDsField.equals("000;000;000")) {
+            return new int[0]; // Return empty array for placeholder
+        }
+
         if (orderIDsField.startsWith("\"") && orderIDsField.endsWith("\"")) {
             orderIDsField = orderIDsField.substring(1, orderIDsField.length() - 1);
         }
 
         if (orderIDsField.isEmpty()) {
-            return new int[0]; // Handle empty order list
+            return new int[0];
         }
 
-        // Split by semicolon and parse integers
         String[] orderIDsArray = orderIDsField.split(";");
         int[] result = new int[orderIDsArray.length];
         for (int i = 0; i < orderIDsArray.length; i++) {
@@ -309,32 +304,17 @@ public class LoginController {
         // Format current address with quotes
         userLine.append("\"").append(user.getCurrentAddress()).append("\"").append(",");
 
-        // Format order IDs without adding extra quotes
-        userLine.append("\"").append(String.join(";", Arrays.stream(user.getOrderIDs())
+        // Format order IDs with quotes
+        userLine.append("\"").append(Arrays.stream(user.getOrderIDs())
                 .mapToObj(String::valueOf)
-                .toArray(String[]::new))).append("\"").append(",");
+                .reduce((a, b) -> a + ";" + b)
+                .orElse("")).append("\"").append(",");
 
-        // Append current order ID and log field
+        // Append current order ID and error case
         userLine.append(user.getCurrentOrderID()).append(",");
         userLine.append(user.getLog());
 
         return userLine.toString();
-    }
-
-    private void terminateCurrentProcess() {
-        try {
-            String processName = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
-            String currentPID = processName.split("@")[0];
-
-            String command = System.getProperty("os.name").toLowerCase().contains("win")
-                    ? "taskkill /PID " + currentPID + " /F" // For Windows
-                    : "kill -9 " + currentPID;              // For Linux/macOS
-
-            Runtime.getRuntime().exec(command);
-            System.out.println("Terminated process with PID: " + currentPID);
-        } catch (IOException e) {
-            System.err.println("Failed to terminate current process: " + e.getMessage());
-        }
     }
 
     private void resetCurrentOrderID() {
@@ -345,14 +325,22 @@ public class LoginController {
             String line;
             while ((line = reader.readLine()) != null) {
                 List<String> parts = parseCSVLine(line);
-
                 if (parts.size() >= 8 && parts.get(1).equals(id)) { // Check if it's the logged-in user
-                    System.out.println("Updating currentOrderID for user: " + parts.get(1));
+                    // Create a User object to modify the `log` and `currentOrderID`
+                    User user = new User(
+                            parts.get(0), // Name
+                            parts.get(1), // Email
+                            parts.get(2), // Password
+                            parts.get(3).replace("\"", "").split(";"), // Addresses
+                            parts.get(4).replace("\"", ""), // Current Address
+                            Arrays.stream(parts.get(5).replace("\"", "").split(";"))
+                                    .mapToInt(Integer::parseInt)
+                                    .toArray(), // Order IDs
+                            0, // Set `currentOrderID` to 0
+                            0 // Set `log` field to 0 (logged out)
+                    );
 
-                    // Update the user data
-                    parts.set(6, "0"); // Set currentOrderID to 0
-                    parts.set(7, "0"); // Set log field to 0
-                    updatedLines.add(formatCSVLine(parts)); // Format the updated line
+                    updatedLines.add(formatUserLine(user)); // Use helper to format
                 } else {
                     updatedLines.add(line); // Keep other users unchanged
                 }
@@ -368,30 +356,9 @@ public class LoginController {
                 writer.newLine();
             }
         } catch (IOException e) {
-            System.err.println("Error writing user data: " + e.getMessage());
+            System.err.println("Error updating user data: " + e.getMessage());
         }
     }
-
-    private String formatCSVLine(List<String> parts) {
-        StringBuilder formattedLine = new StringBuilder();
-
-        for (int i = 0; i < parts.size(); i++) {
-            String field = parts.get(i);
-
-            // Only quote fields if necessary
-            if (field.contains(",") || field.contains(";") || field.contains("\"")) {
-                field = "\"" + field.replace("\"", "\"\"") + "\""; // Escape inner quotes
-            }
-
-            formattedLine.append(field);
-            if (i < parts.size() - 1) {
-                formattedLine.append(","); // Add comma between fields
-            }
-        }
-
-        return formattedLine.toString();
-    }
-
 
     /**
      * Parses a CSV line into fields, handling quoted fields with commas.
@@ -432,15 +399,6 @@ public class LoginController {
         }
 
         return result;
-    }
-
-    private void addWindowCloseListener() {
-        Stage stage = (Stage) loginButton.getScene().getWindow();
-        stage.setOnCloseRequest(event -> {
-            System.out.println("Window is closing. Performing cleanup...");
-            resetCurrentOrderID(); // Reset the user's currentOrderID and log fields
-            terminateCurrentProcess(); // Terminate only this instance
-        });
     }
 
     @FXML

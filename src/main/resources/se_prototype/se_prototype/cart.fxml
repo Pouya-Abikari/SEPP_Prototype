@@ -377,8 +377,26 @@
                                    style="-fx-font-size: 12px; -fx-text-fill: #B0B0B0; -fx-padding: 5 0 0 0;" wrapText="true"/>
                         </VBox>
 
-                        <CheckBox fx:id="buyAfterTimeout" text="By proceeding, you agree to the Terms and Conditions"
-                                  style="-fx-font-size: 12px; -fx-text-fill: #757575; -fx-padding: 5 0 0 0;" wrapText="true" />
+                        <!-- Action Buttons -->
+                        <VBox spacing="15" alignment="CENTER" style="-fx-padding: 10;">
+                            <!-- Start Group Order Button -->
+                            <CheckBox fx:id="buyAfterTimeout"
+                                      text="If you click this, the order will be placed automatically after the timer ends. otherwise, your order will not be placed."
+                                      style="
+              -fx-font-size: 14px;
+              -fx-background-color: #00d500;
+              -fx-border-color: transparent;
+              -fx-border-width: 2px;
+              -fx-border-radius: 8px;
+              -fx-background-radius: 8px;
+              -fx-text-fill: #ffffff;
+              -fx-padding: 10 15;
+              -fx-alignment: center-left;
+              -fx-cursor: hand;
+              -fx-text-alignment: center;
+          "
+                                      wrapText="true" />
+                        </VBox>
 
                         <Label text="By proceeding, you agree to the Terms and Conditions:
 1. Prices are subject to change based on item availability.

@@ -9,20 +9,20 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import java.util.ArrayList;
+import java.util.List;
 
-import java.io.InputStream;
-import java.io.IOException;
+
+import java.io.*;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class SettingsController {
+public class SettingsController implements Initializable {
 
     @FXML
     private ImageView profileImage;
     @FXML
     private Label userNameLabel;
-    @FXML
-    private Label phoneNumberLabel;
 
     @FXML
     private Button editButton;
@@ -32,9 +32,7 @@ public class SettingsController {
     @FXML
     private VBox editFormContainer;
     @FXML
-    private TextField editNameField;
-    @FXML
-    private TextField editPhoneField;
+    private TextField editNameField; // Only editing the user's name now
 
     @FXML
     private StackPane sectionsStack;
@@ -91,12 +89,14 @@ public class SettingsController {
     private ImageView mailIcon;
     @FXML
     private ImageView logOutIcon;
-    private String id;
 
-    public void initialize() {
+    private String id;  // This will hold the user's email (unique ID)
+    private String[] currentUserData; // Store current user's data from users.txt
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
         loadProfileImage();
-        setUserName("MrBlueWorking");
-        setPhoneNumber("0503503349");
+        setUserName("Loading..."); // Temporary until we get actual data after getID()
 
         loadIcons();
         hideAllSections();
@@ -119,7 +119,6 @@ public class SettingsController {
     }
 
     private void loadIcons() {
-        // Check if edit icon resource is found
         InputStream editIconStream = getClass().getResourceAsStream("/settings/settingsEdit_icon.png");
         if (editIconStream == null) {
             System.err.println("Could not find /settings/settingsEdit_icon.png");
@@ -140,10 +139,6 @@ public class SettingsController {
 
     private void setUserName(String userName) {
         userNameLabel.setText(userName);
-    }
-
-    private void setPhoneNumber(String phoneNumber) {
-        phoneNumberLabel.setText(phoneNumber);
     }
 
     private void hideAllSections() {
@@ -194,7 +189,27 @@ public class SettingsController {
 
     @FXML
     private void handleMyAddress() {
-        switchToPage("location.fxml", "My Address");
+        System.out.println("My Address clicked");
+        switchToLocationPage("location.fxml", "My Addresses", "Settings");
+    }
+
+    private void switchToLocationPage(String fxmlFile, String title, String previousPage) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
+            Scene scene = new Scene(loader.load(), 400, 711);
+            scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+
+            LocationController locationController = loader.getController();
+            locationController.setPreviousPage(previousPage);
+
+            Stage stage = (Stage) homeButton.getScene().getWindow();
+            stage.setScene(scene);
+            stage.setTitle(title);
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("Failed to load " + fxmlFile + ": " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -266,19 +281,15 @@ public class SettingsController {
 
     @FXML
     private void handleEditButton() {
-        // Show edit form with current values
+        // Show edit form with current values (only name now)
         editNameField.setText(userNameLabel.getText());
-        editPhoneField.setText(phoneNumberLabel.getText());
 
-        // Hide sections if any shown
         sectionsStack.setVisible(false);
         sectionsStack.setManaged(false);
 
-        // mainContentVBox stays visible
         mainContentVBox.setVisible(true);
         mainContentVBox.setManaged(true);
 
-        // Show edit form
         editFormContainer.setVisible(true);
         editFormContainer.setManaged(true);
     }
@@ -286,13 +297,12 @@ public class SettingsController {
     @FXML
     private void saveEdits() {
         String newName = editNameField.getText().trim();
-        String newPhone = editPhoneField.getText().trim();
-
         if (!newName.isEmpty()) {
             setUserName(newName);
-        }
-        if (!newPhone.isEmpty()) {
-            setPhoneNumber(newPhone);
+            // Save updated name back to users.txt
+            if (id != null && !id.isEmpty()) {
+                saveUserNameToFile(id, newName);
+            }
         }
 
         editFormContainer.setVisible(false);
@@ -351,27 +361,10 @@ public class SettingsController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Scene scene = new Scene(loader.load(), 400, 711);
             scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
-            switch (fxmlFile) {
-                case "home_screen.fxml":
-                    HomeScreenController homeController = loader.getController();
-                    homeController.getID(id);
-                    homeController.initialize();
-                    break;
-                case "menu.fxml":
-                    MenuController menuController = loader.getController();
-                    menuController.getID(id);
-                    break;
-                case "cart.fxml":
-                    CartController cartController = loader.getController();
-                    cartController.getID(id);
-                    cartController.initialize();
-                    break;
-                case "location.fxml":
-                    LocationController locationController = loader.getController();
-                    locationController.getID(id);
-                    locationController.setPreviousPage("settings.fxml");
-                    break;
-            }
+
+            // If you have controllers that need ID, pass it here as well
+            // e.g., if home_screen or cart requires ID, call getID(id) on them as done before
+
             Stage stage = (Stage) homeButton.getScene().getWindow();
             stage.setScene(scene);
             stage.setTitle(title);
@@ -382,8 +375,122 @@ public class SettingsController {
         }
     }
 
+    /**
+     * Called from other controllers after loading this page to pass the user ID (email).
+     */
     public void getID(String id) {
         this.id = id;
         System.out.println("ID: " + id);
+        loadUserDataByEmail(id);
+    }
+
+    private void loadUserDataByEmail(String email) {
+        // Load from users.txt
+        File file = new File("src/main/resources/users.txt");
+        if (!file.exists()) {
+            System.err.println("users.txt not found.");
+            return;
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Format: Name,Email,Password,"Addresses","CurrentAddress","OrderIDs",CurrentOrderID,ErrorCase
+                // We split by comma but must be careful with quoted fields
+                // Let's do a simple parse assuming no commas inside Name and Email
+                // Name can have spaces but not commas, email no commas, password no commas
+                // The tricky part: addresses are in quotes and may contain commas.
+
+                String[] parts = parseUserLine(line);
+                if (parts.length >= 8) {
+                    String userEmail = parts[1].trim();
+                    if (userEmail.equalsIgnoreCase(email)) {
+                        currentUserData = parts;
+                        // parts[0] = Name
+                        // Set the name
+                        setUserName(parts[0].trim());
+                        return;
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Parse the user line handling quoted fields. We'll assume a format:
+     * Name,Email,Password,"Address;Address2","CurrentAddress","OrderIDs",CurrentOrderID,ErrorCase
+     * We can split by comma only at top-level.
+     */
+    private String[] parseUserLine(String line) {
+        // We'll split by commas not inside quotes. A simple approach:
+        // Using a small parser:
+        ArrayList<String> fields = new ArrayList<>();
+        StringBuilder sb = new StringBuilder();
+        boolean inQuotes = false;
+
+        for (char c : line.toCharArray()) {
+            if (c == '"' && (sb.length() == 0 || sb.charAt(sb.length()-1) != '\\')) {
+                inQuotes = !inQuotes;
+                sb.append(c);
+            } else if (c == ',' && !inQuotes) {
+                fields.add(sb.toString().trim());
+                sb.setLength(0);
+            } else {
+                sb.append(c);
+            }
+        }
+        fields.add(sb.toString().trim());
+
+        // fields might have quotes. We'll leave them as is if needed.
+        return fields.toArray(new String[0]);
+    }
+
+    private void saveUserNameToFile(String email, String newName) {
+        File file = new File("src/main/resources/users.txt");
+        if (!file.exists()) {
+            System.err.println("users.txt not found. Cannot save.");
+            return;
+        }
+
+        List<String[]> users = new ArrayList<>();
+        // Read all users
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = parseUserLine(line);
+                if (parts.length >= 8) {
+                    if (parts[1].trim().equalsIgnoreCase(email)) {
+                        // Update name
+                        parts[0] = newName;
+                    }
+                    users.add(parts);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Write all back
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, false))) {
+            for (String[] user : users) {
+                // Reconstruct line
+                // We must ensure we preserve quotes for addresses fields
+                // user format: Name,Email,Password,"Addresses","CurrentAddress","OrderIDs",CurrentOrderID,ErrorCase
+                // Let's trust original format and re-join them.
+                StringBuilder sb = new StringBuilder();
+                for (int i=0; i<user.length; i++) {
+                    sb.append(user[i]);
+                    if (i < user.length-1) sb.append(",");
+                }
+                writer.write(sb.toString());
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("User name updated in users.txt for " + email);
     }
 }
