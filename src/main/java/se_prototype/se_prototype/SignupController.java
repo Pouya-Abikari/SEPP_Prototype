@@ -169,7 +169,7 @@ public class SignupController {
                     currentAddress,
                     formattedOrderIDs,
                     user.getCurrentOrderID(),
-                    user.getErrorCase()
+                    user.getLog()
             );
 
             // Append the user information to the file
@@ -191,7 +191,7 @@ public class SignupController {
                     "\"" + user.getCurrentAddress() + "\"," +
                     "[" + String.join(",", intArrayToStringArray(user.getOrderID())) + "]," +
                     user.getCurrentOrderID() + "," +
-                    user.getErrorCase();
+                    user.getLog();
             writer.write(userString);
         } catch (IOException e) {
             e.printStackTrace();

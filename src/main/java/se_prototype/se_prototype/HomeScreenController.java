@@ -64,34 +64,32 @@ public class HomeScreenController {
     }
 
     private void loadCurrentUserName() {
-        // Path to the file storing the current user's information
-        String currentUserFile = "src/main/resources/current_user.txt";
+        // Path to the file storing all users
+        String currentUserFile = "src/main/resources/users.txt";
 
         try (BufferedReader reader = new BufferedReader(new FileReader(currentUserFile))) {
-            String userInfo = reader.readLine(); // Read the first line of the file
-            if (userInfo != null && !userInfo.trim().isEmpty()) {
-                // Split the userInfo by commas to extract the first name
-                String[] userDetails = userInfo.split(",");
-                if (userDetails.length > 0) {
-                    String fullName = userDetails[0].trim(); // Extract and trim the full name
-                    String firstName = extractFirstWord(fullName); // Get the first word of the full name
-                    nameLabel.setText(firstName); // Set the first name to the label
-                } else {
-                    nameLabel.setText("User"); // Fallback to default
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] user = line.split(",");
+                if (user.length > 1 && user[1].trim().equals(id)) { // Check for valid structure and matching ID
+                    String fullName = user[0].trim(); // Name is at index 0
+                    nameLabel.setText(extractFirstWord(fullName)); // Use the first word of the name
+                    return; // Exit after finding the correct user
                 }
-            } else {
-                nameLabel.setText("User"); // Fallback in case of empty or null file
             }
         } catch (IOException e) {
-            System.err.println("Error reading current user file: " + e.getMessage());
-            nameLabel.setText("User"); // Fallback in case of error
+            System.err.println("Error reading users file: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    private String extractFirstWord(String text) {
-        // Split the text by spaces and return the first word
-        String[] words = text.split("\\s+"); // Split by whitespace
-        return words.length > 0 ? words[0] : text; // Return the first word or the original text if no spaces
+    // Helper method to extract the first word of a name
+    private String extractFirstWord(String fullName) {
+        if (fullName == null || fullName.isEmpty()) {
+            return "User"; // Default fallback if the name is empty or null
+        }
+        String[] words = fullName.split("\\s+"); // Split by whitespace
+        return words[0]; // Return the first word
     }
 
     private void setupImages() {

@@ -498,7 +498,7 @@ public class CartController {
                     if (parts.size() >= 8 && parts.get(1).equals(id)) {
                         // Update currentOrder for the logged-in user
                         parts.set(6, String.valueOf(activeOrderId));
-                        line = String.join(",", parts);
+                        line = formatCSVLine(parts); // Format line to preserve quotes
                     }
                     lines.add(line);
                 }
@@ -520,6 +520,30 @@ public class CartController {
             e.printStackTrace();
             showErrorDialog("Error Joining Group Cart", "An error occurred while trying to join the group cart.");
         }
+    }
+
+    /**
+     * Formats the parts of a CSV line while preserving quoted fields.
+     *
+     * @param parts The parsed fields of the CSV line.
+     * @return A properly formatted CSV line with preserved quotes.
+     */
+    private String formatCSVLine(List<String> parts) {
+        StringBuilder formattedLine = new StringBuilder();
+
+        for (int i = 0; i < parts.size(); i++) {
+            String field = parts.get(i);
+            // Add quotes around fields containing commas, quotes, or newlines
+            if (field.contains(",") || field.contains("\"") || field.contains("\n")) {
+                field = "\"" + field.replace("\"", "\"\"") + "\""; // Escape inner quotes
+            }
+            formattedLine.append(field);
+            if (i < parts.size() - 1) {
+                formattedLine.append(","); // Add comma separator
+            }
+        }
+
+        return formattedLine.toString();
     }
 
     private void showConfirmationDialog(String overrideGroupCart, String s) {
@@ -1905,9 +1929,10 @@ public class CartController {
             Scene scene = new Scene(loader.load(), 400, 711);
             scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
             switch (fxmlFile) {
-                case "home.fxml":
+                case "home_screen.fxml":
                     HomeScreenController homeController = loader.getController();
                     homeController.getID(id);
+                    homeController.initialize();
                     break;
                 case "menu.fxml":
                     MenuController menuController = loader.getController();

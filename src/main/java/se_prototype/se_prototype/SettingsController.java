@@ -378,6 +378,7 @@ public class SettingsController implements Initializable {
                 case "home_screen.fxml":
                     HomeScreenController homeController = loader.getController();
                     homeController.getID(id);
+                    homeController.initialize();
                     break;
                 case "menu.fxml":
                     MenuController menuController = loader.getController();

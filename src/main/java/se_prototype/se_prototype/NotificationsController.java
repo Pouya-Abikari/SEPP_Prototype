@@ -95,6 +95,9 @@ public class NotificationsController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("home_screen.fxml"));
             Scene scene = new Scene(loader.load(), 400, 711);
             scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+            HomeScreenController homeScreenController = loader.getController();
+            homeScreenController.getID(id);
+            homeScreenController.initialize();
             Stage stage = (Stage) backButton.getScene().getWindow(); // Get the current stage
             stage.setScene(scene);
             stage.setTitle("Home");
@@ -109,6 +112,22 @@ public class NotificationsController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Scene scene = new Scene(loader.load());
+            scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+            switch (fxmlFile) {
+                case "menu.fxml":
+                    MenuController menuController = loader.getController();
+                    menuController.getID(id);
+                    break;
+                case "cart.fxml":
+                    CartController cartController = loader.getController();
+                    cartController.getID(id);
+                    cartController.initialize();
+                    break;
+                case "settings.fxml":
+                    SettingsController settingsController = loader.getController();
+                    settingsController.getID(id);
+                    break;
+            }
             Stage stage = (Stage) homeButton.getScene().getWindow(); // Get the current stage
             stage.setScene(scene);
             stage.setTitle(title);

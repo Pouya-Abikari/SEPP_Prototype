@@ -396,6 +396,7 @@ public class MenuController {
                 case "home_screen.fxml":
                     HomeScreenController homeScreenController = loader.getController();
                     homeScreenController.getID(id);
+                    homeScreenController.initialize();
                     break;
                 case "cart.fxml":
                     CartController cartController = loader.getController();

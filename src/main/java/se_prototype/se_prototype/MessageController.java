@@ -439,6 +439,7 @@ public class MessageController {
             scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
             HomeScreenController homeScreenController = loader.getController();
             homeScreenController.getID(id);
+            homeScreenController.initialize();
             Stage stage = (Stage) backButton.getScene().getWindow(); // Get the current stage
             stage.setScene(scene);
             stage.setTitle("Home");

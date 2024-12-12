@@ -10,7 +10,7 @@ public class User {
     String currentAddress;    // Current address
     int[] orderID;
     int currentOrderID;
-    int errorCase;
+    int log;
 
     public User(String name, String email, String password, String[] addresses, String currentAddress, int[] orderID, int currentOrderID, int errorCase) {
 
@@ -21,7 +21,7 @@ public class User {
         this.currentAddress = currentAddress;
         this.orderID = orderID;
         this.currentOrderID = currentOrderID;
-        this.errorCase = errorCase;
+        this.log = errorCase;
     }
 
     public String getName() {
@@ -52,8 +52,8 @@ public class User {
         return currentOrderID;
     }
 
-    public int getErrorCase() {
-        return errorCase;
+    public int getLog() {
+        return log;
     }
 
     public int[] getOrderIDs() {
@@ -88,8 +88,8 @@ public class User {
         this.currentOrderID = currentOrderID;
     }
 
-    public void setErrorCase(int errorCase) {
-        this.errorCase = errorCase;
+    public void setLog(int log) {
+        this.log = log;
     }
 
     @Override
@@ -98,7 +98,7 @@ public class User {
                 String.join(";", addresses) + "," +
                 currentAddress + "," +
                 Arrays.toString(orderID).replaceAll("[\\[\\] ]", "") + "," +
-                currentOrderID + "," + errorCase;
+                currentOrderID + "," + log;
     }
 
     public static User fromString(String userData) {

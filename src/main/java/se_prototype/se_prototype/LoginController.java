@@ -39,7 +39,6 @@ public class LoginController {
     @FXML
     public void initialize() {
         setupPasswordToggle();
-        emptyCurrentUser();
         setupLogo();
         errorLabel.setManaged(false);
         errorLabel.setVisible(false); // Hide the error label initially
@@ -65,28 +64,43 @@ public class LoginController {
         }
     }
 
-    private void emptyCurrentUser() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("src/main/resources/current_user.txt", false))) {
-            writer.write("");
-        } catch (IOException e) {
-            e.printStackTrace();
-            showErrorAlert("Failed to empty the current user.");
-        }
-    }
-
     private User authenticateUser(String email, String password) {
+        boolean emailExists = false; // Track if the email exists in the file
+
         try (BufferedReader reader = new BufferedReader(new FileReader(USER_FILE))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                // Use regex or manual parsing to handle the format
+                // Parse the line to extract user data
                 String[] userData = parseLine(line);
-                if (userData[1].equals(email) && userData[2].equals(password)) {
-                    return createUserFromData(userData);
+
+                if (userData[1].equals(email)) {
+                    emailExists = true; // Email was found
+
+                    // Check if the password matches
+                    if (userData[2].equals(password)) {
+                        // Check if the user is already logged in
+                        int logStatus = Integer.parseInt(userData[7]); // Assuming the log field is at index 7
+                        if (logStatus == 1) {
+                            showErrorAlert("This account is already logged in on another device.");
+                            return null;
+                        }
+
+                        // Return the user object if all checks pass
+                        return createUserFromData(userData);
+                    } else {
+                        showErrorAlert("Invalid password. Please try again.");
+                        return null; // Exit early if the password is incorrect
+                    }
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | NumberFormatException e) {
             e.printStackTrace();
         }
+
+        if (!emailExists) {
+            showErrorAlert("Email not found. Please check your email or sign up.");
+        }
+
         return null;
     }
 
@@ -160,29 +174,53 @@ public class LoginController {
 
         User user = authenticateUser(email, password);
         if (user != null) {
-            saveCurrentUser(user); // Save the logged-in user to current_user.txt
             id = user.getEmail();
             System.out.println("Welcome, " + user.getName());
+            updateLogStatus(id); // Set the log status to 1 (logged in)
             navigateToHomeScreen(); // Navigate to the home screen
-        } else {
-            showErrorAlert("Invalid email or password. Please try again.");
         }
     }
 
-    private void saveCurrentUser(User user) {
-        String currentUserFile = "src/main/resources/current_user.txt";
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(currentUserFile, false))) { // Overwrite file
-            writer.write(user.getName() + "," +
-                    user.getEmail() + "," +
-                    user.getPassword() + "," +
-                    "[\"" + String.join("\",\"", user.getAddresses()) + "\"]," + // Serialize addresses
-                    "\"" + user.getCurrentAddress() + "\"," + // Serialize current address
-                    "[" + String.join(",", intArrayToStringArray(user.getOrderID())) + "]," +
-                    user.getCurrentOrderID() + "," +
-                    user.getErrorCase());
-            writer.newLine();
+    private void updateLogStatus(String userId) {
+        String usersFilePath = "src/main/resources/users.txt";
+        List<String> updatedLines = new ArrayList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(usersFilePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                List<String> parts = parseCSVLine(line);
+                if (parts.size() >= 8 && parts.get(1).equals(userId)) {
+                    // Create a User object to modify the `log` field
+                    User user = new User(
+                            parts.get(0), // Name
+                            parts.get(1), // Email
+                            parts.get(2), // Password
+                            parts.get(3).replace("\"", "").split(";"), // Addresses
+                            parts.get(4).replace("\"", ""), // Current Address
+                            Arrays.stream(parts.get(5).replace("\"", "").split(";"))
+                                    .mapToInt(Integer::parseInt)
+                                    .toArray(), // Order IDs
+                            Integer.parseInt(parts.get(6)), // Current Order ID
+                            1 // Set the `log` field to the specified value
+                    );
+
+                    updatedLines.add(formatUserLine(user)); // Use helper to format
+                } else {
+                    updatedLines.add(line); // Keep other users unchanged
+                }
+            }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error reading user data: " + e.getMessage());
+        }
+
+        // Write the updated lines back to the file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(usersFilePath))) {
+            for (String updatedLine : updatedLines) {
+                writer.write(updatedLine);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            System.err.println("Error updating user data: " + e.getMessage());
         }
     }
 
@@ -201,6 +239,7 @@ public class LoginController {
             homeScene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
             HomeScreenController controller = loader.getController();
             controller.getID(id);
+            controller.initialize();
             Stage stage = (Stage) usernameField.getScene().getWindow();
             stage.setScene(homeScene);
             stage.show();
@@ -273,7 +312,7 @@ public class LoginController {
 
         // Append current order ID and error case
         userLine.append(user.getCurrentOrderID()).append(",");
-        userLine.append(user.getErrorCase());
+        userLine.append(user.getLog());
 
         return userLine.toString();
     }
@@ -287,7 +326,7 @@ public class LoginController {
             while ((line = reader.readLine()) != null) {
                 List<String> parts = parseCSVLine(line);
                 if (parts.size() >= 8 && parts.get(1).equals(id)) { // Check if it's the logged-in user
-                    // Create a User object to modify the `currentOrderID`
+                    // Create a User object to modify the `log` and `currentOrderID`
                     User user = new User(
                             parts.get(0), // Name
                             parts.get(1), // Email
@@ -298,7 +337,7 @@ public class LoginController {
                                     .mapToInt(Integer::parseInt)
                                     .toArray(), // Order IDs
                             0, // Set `currentOrderID` to 0
-                            Integer.parseInt(parts.get(7)) // Error Case
+                            0 // Set `log` field to 0 (logged out)
                     );
 
                     updatedLines.add(formatUserLine(user)); // Use helper to format
