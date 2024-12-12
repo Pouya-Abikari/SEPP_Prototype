@@ -251,39 +251,79 @@ public class MenuController {
     }
 
     private void addToCart(Product product) {
+        // Read the cart file
         List<String[]> cartItems = readCartFile();
-        boolean productExists = false;
+        boolean userExists = false;
 
-        for (String[] cartItem : cartItems) {
-            if (cartItem[0].equals(product.getName())) {
-                int currentQuantity = Integer.parseInt(cartItem[5]);
-                cartItem[5] = String.valueOf(currentQuantity + 1);
-                productExists = true;
+        // Iterate through existing cart data
+        for (int i = 0; i < cartItems.size(); i++) {
+            String[] cartEntry = cartItems.get(i);
+            String email = cartEntry[0]; // User's email is the first element
+            String items = cartEntry.length > 1 ? cartEntry[1] : ""; // Products are the second element
+
+            if (email.equals(id)) {
+                userExists = true; // User exists
+                List<String> updatedProducts = new ArrayList<>();
+                boolean productExists = false;
+
+                // Process the user's existing products
+                for (String item : items.split(";")) {
+                    if (item.isEmpty()) continue; // Skip empty items
+                    String[] itemDetails = item.split(",");
+                    if (itemDetails[0].equals(product.getName())) {
+                        // Update quantity if product exists
+                        int currentQuantity = Integer.parseInt(itemDetails[5]);
+                        itemDetails[5] = String.valueOf(currentQuantity + 1);
+                        productExists = true;
+                    }
+                    updatedProducts.add(String.join(",", itemDetails));
+                }
+
+                // If the product doesn't exist, add it
+                if (!productExists) {
+                    updatedProducts.add(formatProduct(product));
+                }
+
+                // Update the user's cart entry
+                cartItems.set(i, new String[]{email, String.join(";", updatedProducts)});
                 break;
             }
         }
 
-        if (!productExists) {
-            cartItems.add(new String[]{
-                    product.getName(),
-                    product.getDescription(),
-                    String.valueOf(product.getPrice()),
-                    product.getImageUrl(),
-                    String.valueOf(product.getDiscount()),
-                    String.valueOf(1)
-            });
+        // If the user doesn't already exist in the cart file, add them
+        if (!userExists) {
+            cartItems.add(new String[]{id, formatProduct(product)});
         }
 
+        // Write updated cart data back to the file
         writeCartFile(cartItems);
-        //updateCartCount();
+
         System.out.println("Added to cart: " + product.getName());
     }
+    private String formatProduct(Product product) {
+        return String.join(",",
+                product.getName(),
+                product.getDescription(),
+                String.valueOf(product.getPrice()),
+                product.getImageUrl(),
+                String.valueOf(product.getDiscount()),
+                "1" // Default quantity is 1 when adding a new product
+        );
+    }
+
+
     private List<String[]> readCartFile() {
         List<String[]> cartItems = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/cart.txt"))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                cartItems.add(line.split(","));
+                String[] parts = line.split(";", 2);
+                if (parts.length < 2 || parts[1].trim().isEmpty()) {
+                    cartItems.add(new String[]{parts[0], ""}); // Add email with no products
+                } else {
+                    String items = parts[1].endsWith(";") ? parts[1].substring(0, parts[1].length() - 1) : parts[1];
+                    cartItems.add(new String[]{parts[0], items});
+                }
             }
         } catch (IOException e) {
             System.err.println("Error reading cart file: " + e.getMessage());
@@ -294,13 +334,20 @@ public class MenuController {
     private void writeCartFile(List<String[]> cartItems) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("src/main/resources/cart.txt"))) {
             for (String[] cartItem : cartItems) {
-                writer.write(String.join(",", cartItem));
+                String email = cartItem[0];
+                String items = cartItem.length > 1 ? cartItem[1] : "";
+                String line = email + ";" + items.trim();
+                if (!line.endsWith(";")) {
+                    line += ";"; // Ensure a semicolon at the end
+                }
+                writer.write(line);
                 writer.newLine();
             }
         } catch (IOException e) {
             System.err.println("Error writing to cart file: " + e.getMessage());
         }
     }
+
 
     private void setupImages() {
         try {
@@ -353,10 +400,11 @@ public class MenuController {
                 case "cart.fxml":
                     CartController cartController = loader.getController();
                     cartController.getID(id);
+                    cartController.initialize();
                     break;
                 case "settings.fxml":
-                    //SettingsController settingsController = loader.getController();
-                    //settingsController.getID(id);
+                    SettingsController settingsController = loader.getController();
+                    settingsController.getID(id);
                     break;
                 case "category.fxml":
                     CategoryController categoryController = loader.getController();

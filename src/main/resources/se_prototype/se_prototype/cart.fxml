@@ -390,9 +390,9 @@
                 </ScrollPane>
 
                 <ScrollPane styleClass="custom-scroll-pane" fx:id="group_cart_choose" visible="false" managed="false" prefHeight="711" prefWidth="375">
-                    <VBox spacing="15" alignment="CENTER" style="-fx-padding: 10;" visible="false" managed="false" fx:id="group_cart_choice">
+<!--                    <VBox spacing="15" alignment="CENTER" style="-fx-padding: 10;" visible="false" managed="false" fx:id="group_cart_choice">
                         <ImageView fx:id="group_order_start_pic" fitWidth="250" fitHeight="250" preserveRatio="true"/>
-                        <!-- Place Solo Order Button -->
+                        &lt;!&ndash; Place Solo Order Button &ndash;&gt;
                         <Button text="Start Group Order" prefWidth="350" fx:id="start_group_order_button" alignment="CENTER"
                                 style="-fx-background-color: #FFC107;
                    -fx-font-size: 16px;
@@ -401,7 +401,7 @@
                    -fx-background-radius: 12;
                    -fx-padding: 15;"/>
 
-                        <!-- Join Group Order Button with Gradient -->
+                        &lt;!&ndash; Join Group Order Button with Gradient &ndash;&gt;
                         <Button text="Join Group Order" prefWidth="350" fx:id="join_group_order_button" alignment="CENTER"
                                 style="-fx-font-size: 16px;
                    -fx-font-weight: bold;
@@ -409,10 +409,10 @@
                    -fx-padding: 15;
                    -fx-background-radius: 12;
                    -fx-background-color: linear-gradient(to right, #5EC401, #FFC107);"/>
-                    </VBox>
+                    </VBox>-->
                     <VBox spacing="15" alignment="CENTER" style="-fx-padding: 10;" prefWidth="395" prefHeight="500">
                         <!-- Content -->
-                        <VBox spacing="20" style="-fx-padding: 25; -fx-font-family: Arial" alignment="TOP_LEFT">
+                        <VBox spacing="20" style="-fx-padding: 25; -fx-font-family: Arial">
                             <!-- Timer -->
                             <HBox spacing="20" alignment="CENTER_LEFT">
                                 <ImageView fx:id="timerIcon" fitWidth="25" fitHeight="25" />
@@ -426,7 +426,7 @@
                             </HBox>
 
                             <!-- Notifications -->
-                            <HBox spacing="20" alignment="CENTER_LEFT">
+                            <HBox spacing="20" alignment="CENTER_LEFT" prefWidth="395">
                                 <ImageView fx:id="notificationIcon" fitWidth="25" fitHeight="25" />
                                 <Label text="Notification will notify housemates" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #37474F;" wrapText="true" prefWidth="300" />
                             </HBox>
@@ -448,6 +448,15 @@
                         <VBox alignment="CENTER" spacing="20" style="-fx-padding: 20;">
                             <Button fx:id="startGroupOrderButton" text="Start the Group Order"
                                     style="-fx-background-color: #5EC401; -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 10;"
+                                    prefWidth="380" />
+                            <Label text="The delivery cost will be split between the attendees. By clicking, you agree to Terms and Conditions."
+                                   style="-fx-font-size: 14px; -fx-text-fill: #B0B0B0;" textAlignment="CENTER" wrapText="true"/>
+                        </VBox>
+
+                        <!-- Join Button -->
+                        <VBox alignment="CENTER" spacing="20" style="-fx-padding: 20;">
+                            <Button fx:id="joinGroupOrderButton" text="Join the Group Order"
+                                    style="-fx-background-color: #FFC107; -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 10;"
                                     prefWidth="380" />
                             <Label text="The delivery cost will be split between the attendees. By clicking, you agree to Terms and Conditions."
                                    style="-fx-font-size: 14px; -fx-text-fill: #B0B0B0;" textAlignment="CENTER" wrapText="true"/>

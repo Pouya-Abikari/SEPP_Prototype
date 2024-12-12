@@ -437,6 +437,8 @@ public class MessageController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("home_screen.fxml"));
             Scene scene = new Scene(loader.load(), 400, 711);
             scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+            HomeScreenController homeScreenController = loader.getController();
+            homeScreenController.getID(id);
             Stage stage = (Stage) backButton.getScene().getWindow(); // Get the current stage
             stage.setScene(scene);
             stage.setTitle("Home");

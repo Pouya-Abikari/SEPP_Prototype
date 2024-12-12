@@ -113,6 +113,7 @@ public class  CategoryController {
             scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
             CartController controller = loader.getController();
             controller.getID(id);
+            controller.initialize();
             Stage stage = (Stage) cartButton.getScene().getWindow();
             stage.setScene(scene);
             stage.show();

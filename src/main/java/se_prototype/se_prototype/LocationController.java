@@ -306,14 +306,15 @@ public class LocationController {
                 case "cart.fxml":
                     CartController cartController = loader.getController();
                     cartController.getID(id);
+                    cartController.initialize();
                     break;
                 case "menu.fxml":
                     MenuController menuController = loader.getController();
                     menuController.getID(id);
                     break;
                 case "settings.fxml":
-                    //SettingsController settingsController = loader.getController();
-                    //settingsController.getID(id);
+                    SettingsController settingsController = loader.getController();
+                    settingsController.getID(id);
                     break;
             }
             Stage stage = (Stage) backButton.getScene().getWindow();

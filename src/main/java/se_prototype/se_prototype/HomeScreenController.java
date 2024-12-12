@@ -3,11 +3,14 @@ package se_prototype.se_prototype;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 
 public class HomeScreenController {
@@ -41,18 +44,54 @@ public class HomeScreenController {
     private Button cartButton;
     @FXML
     private Button settingsButton;
+
+    @FXML
+    private Label nameLabel;
+
     private String id;
 
     @FXML
     public void initialize() {
 
         setupImages();
+        loadCurrentUserName();
 
         // Set up button actions
         menuButton.setOnAction(event -> switchToPage("menu.fxml", "Menu"));
         cartButton.setOnAction(event -> switchToPage("cart.fxml", "Cart"));
         settingsButton.setOnAction(event -> switchToPage("settings.fxml", "Settings"));
         notificationButton.setOnAction(event -> switchToPage("notifications.fxml", "Notifications"));
+    }
+
+    private void loadCurrentUserName() {
+        // Path to the file storing the current user's information
+        String currentUserFile = "src/main/resources/current_user.txt";
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(currentUserFile))) {
+            String userInfo = reader.readLine(); // Read the first line of the file
+            if (userInfo != null && !userInfo.trim().isEmpty()) {
+                // Split the userInfo by commas to extract the first name
+                String[] userDetails = userInfo.split(",");
+                if (userDetails.length > 0) {
+                    String fullName = userDetails[0].trim(); // Extract and trim the full name
+                    String firstName = extractFirstWord(fullName); // Get the first word of the full name
+                    nameLabel.setText(firstName); // Set the first name to the label
+                } else {
+                    nameLabel.setText("User"); // Fallback to default
+                }
+            } else {
+                nameLabel.setText("User"); // Fallback in case of empty or null file
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading current user file: " + e.getMessage());
+            nameLabel.setText("User"); // Fallback in case of error
+        }
+    }
+
+    private String extractFirstWord(String text) {
+        // Split the text by spaces and return the first word
+        String[] words = text.split("\\s+"); // Split by whitespace
+        return words.length > 0 ? words[0] : text; // Return the first word or the original text if no spaces
     }
 
     private void setupImages() {
@@ -149,7 +188,6 @@ public class HomeScreenController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Scene scene = new Scene(loader.load(), 400, 711);
-            scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
             switch (fxmlFile) {
                 case "menu.fxml":
                     MenuController menuController = loader.getController();
@@ -158,10 +196,11 @@ public class HomeScreenController {
                 case "cart.fxml":
                     CartController cartController = loader.getController();
                     cartController.getID(id);
+                    cartController.initialize();
                     break;
                 case "settings.fxml":
-                    //SettingsController settingsController = loader.getController();
-                    //settingsController.getID(id);
+                    SettingsController settingsController = loader.getController();
+                    settingsController.getID(id);
                     break;
                 case "notifications.fxml":
                     NotificationsController notificationsController = loader.getController();
@@ -172,6 +211,7 @@ public class HomeScreenController {
                     messageController.getID(id);
                     break;
             }
+            scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
             Stage stage = (Stage) homeButton.getScene().getWindow(); // Get the current stage
             stage.setScene(scene);
             stage.setTitle(title);
